@@ -68,7 +68,7 @@ interface SessionStore extends AuthState {
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
 
-export const useSession = create<SessionStore>()(
+export const useAuthSessionStore = create<SessionStore>()(
   persist(
     (set, get) => ({
       user: null,
@@ -86,7 +86,7 @@ export const useSession = create<SessionStore>()(
             rol: decoded.roles || (userData as any).rol,
           } as User;
         } catch (err) {
-          console.warn("Failed to decode token during login:", err);
+          console.warn('Failed to decode token during login:', err);
         }
 
         set({
@@ -143,7 +143,7 @@ export const useSession = create<SessionStore>()(
         intervalId = setInterval(() => {
           const isValid = get().checkSession();
           if (!isValid) {
-            console.log("Sesión inválida, redirigiendo al login...");
+            console.log('Sesión inválida, redirigiendo al login...');
           }
         }, CHECK_INTERVAL);
       },
@@ -156,13 +156,13 @@ export const useSession = create<SessionStore>()(
       },
     }),
     {
-      name: "auth-storage", // nombre único para el storage
+      name: 'auth-storage', // nombre único para el storage
       // Opcionalmente puedes agregar una migración para limpiar tokens expirados
       onRehydrateStorage: () => (state) => {
         if (state?.token) {
           const validated = validateToken(state.token);
           if (!validated.isLoggedIn) {
-            console.warn("Token expirado detectado al recargar, limpiando...");
+            console.warn('Token expirado detectado al recargar, limpiando...');
             state.user = null;
             state.isLoggedIn = false;
             state.token = null;
@@ -172,6 +172,6 @@ export const useSession = create<SessionStore>()(
           }
         }
       },
-    },
-  ),
+    }
+  )
 );

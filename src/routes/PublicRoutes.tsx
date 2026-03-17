@@ -1,9 +1,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useSession } from '../store/useAuthSession';
 import Header from '../components/common/Header';
+import { useAuthSessionStore } from '../store/useAuthSession';
 
 const PublicRoutes = () => {
-  const { isLoggedIn } = useSession();
+  const { isLoggedIn } = useAuthSessionStore();
 
   // Si el usuario ya está logueado, redirigir al dashboard
   if (isLoggedIn) {

@@ -1,10 +1,11 @@
 // src/routes/RoutesPrivate.tsx
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useSession } from '../store/useAuthSession';
+import { useAuthSessionStore } from '../store/useAuthSession';
+
 
 const RoutesPrivate = () => {
-  const { isLoggedIn, checkSession, startSessionCheck } = useSession();
+  const { isLoggedIn, checkSession, startSessionCheck } = useAuthSessionStore();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
 
