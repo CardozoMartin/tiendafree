@@ -5,6 +5,8 @@ import PublicRoutes from './routes/PublicRoutes'
 import Dashboard from './pages/Dashboard'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
+import { RecoveryPassPage } from './pages/RecoveryPassPage'
+import { ChangePassPage } from './pages/ChangePassPage'
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage></RegisterPage>} />
+          <Route path="/recover-password" element={<RecoveryPassPage />} />
+          <Route path="/change-password" element={<ChangePassPage />} />
         </Route>
 
         {/* Rutas Privadas - Sin Header */}
@@ -26,7 +30,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 export default App

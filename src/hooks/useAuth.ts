@@ -1,9 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { postLoginUserFn, postRegisterUserFn } from '../api/Auth/authApi';
+import {
+  postLoginUserFn,
+  postRegisterUserFn,
+  postRequestPasswordResetFn,
+  postResetPasswordFn,
+} from '../api/Auth/authApi';
 import { useAuthSessionStore } from '../store/useAuthSession';
-
 
 //hook para registrar un nuevo usuario
 export const useAuthRegister = () => {
@@ -59,6 +63,46 @@ export const useAuthLogin = () => {
     onError: (error: any) => {
       console.error('❌ Error en hook login:', error);
       const errorMessage = error?.response?.data?.message || 'Error al iniciar sesión';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+//hook para pedir reseteo de contraseña
+export const useRequestPasswordReset = () => {
+  return useMutation({
+    mutationFn: postRequestPasswordResetFn,
+    onSuccess: (data) => {
+      toast.success('Instrucciones enviadas a tu email');
+      console.log('Instrucciones de reseteo enviadas:', data);
+    },
+    onError: (error: any) => {
+      console.error('Error al solicitar reseteo de contraseña:', error);
+      const errorMessage = error?.response?.data?.message || 'Error al solicitar reseteo';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+//hook para resetear la contraseña
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: ({
+      token,
+      passwordNueva,
+      confirmarPassword,
+    }: {
+      token: string;
+      passwordNueva: string;
+      confirmarPassword: string;
+    }) => postResetPasswordFn(token, passwordNueva, confirmarPassword),
+    onSuccess: (data) => {
+      toast.success('Contraseña restablecida con éxito');
+      console.log('Contraseña restablecida:', data);
+    },
+    onError: (error: any) => {
+      console.error('Error al restablecer contraseña:', error);
+      const errorMessage = error?.response?.data?.message || 'Error al restablecer contraseña';
       toast.error(errorMessage);
     },
   });

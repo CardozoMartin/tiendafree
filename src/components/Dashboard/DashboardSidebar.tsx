@@ -1,5 +1,8 @@
+import { LogOut } from 'lucide-react';
+import { useAuthSessionStore } from '../../store/useAuthSession';
 import { MI } from './MaterialIcon';
 import { NAV_ITEMS } from './constants';
+import { useConfirm } from '../../hooks/useConfirm';
 
 interface DashboardSidebarProps {
   active: string;
@@ -18,12 +21,30 @@ export const DashboardSidebar = ({
   setSidebarCollapsed,
   isActiveShop,
 }: DashboardSidebarProps) => {
+
+  const {confirm,ConfirmModal} = useConfirm()
+  const handleLogout = async () => {
+
+
+    const confirmedLogout = await confirm({
+      titulo: '¿Cerrar sesión?',
+      descripcion: '¿Estás seguro de que deseas cerrar sesión?',
+      textoCancelar: 'Cancelar',
+      textoConfirmar: 'Cerrar sesión',
+      variant: 'warning',
+    });
+
+    if (confirmedLogout) {
+      useAuthSessionStore.getState().logout();
+    }
+  };
   return (
     <aside
       className={`hidden md:flex flex-col shrink-0 bg-white border-r border-slate-100 transition-all duration-300 ease-in-out ${
         sidebarCollapsed ? 'w-[72px]' : 'w-[220px]'
       }`}
     >
+        {ConfirmModal}
       {/* Logo */}
       <div
         className={`flex items-center gap-2.5 px-4 py-5 border-b border-slate-100 ${sidebarCollapsed ? 'justify-center' : ''}`}
@@ -72,6 +93,13 @@ export const DashboardSidebar = ({
 
       {/* Collapse toggle */}
       <div className="p-3 border-t border-slate-100">
+        <button
+          className="w-full flex items-center gap-3 rounded-xl px-3 py-3 bg-red-500 text-white hover:bg-red-600 transition-all"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="text-sm font-bold">Cerrar sesión</span>
+        </button>
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           className={`w-full flex items-center gap-3 rounded-xl px-3 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-all ${

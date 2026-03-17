@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface Feature {
@@ -114,91 +114,6 @@ const MI = ({ name, className = '' }: { name: string; className?: string }) => (
 );
 
 // ── Header ─────────────────────────────────────────────────────────────────
-const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 12);
-    window.addEventListener('scroll', fn);
-    return () => window.removeEventListener('scroll', fn);
-  }, []);
-
-  return (
-    <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-transparent'}`}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        <div className="flex items-center gap-2.5">
-          <div className="size-9 rounded-xl bg-[#6344ee] flex items-center justify-center text-white shadow-lg shadow-[#6344ee]/30">
-            <MI name="storefront" className="!text-[18px]" />
-          </div>
-          <span className="text-xl font-black tracking-tight text-slate-900">Vitrina</span>
-        </div>
-
-        <nav className="hidden md:flex items-center gap-1">
-          {[
-            ['Explorar', '#explorar'],
-            ['Cómo funciona', '#como-funciona'],
-            ['Precios', '#precios'],
-          ].map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 rounded-lg transition-all hover:text-[#6344ee] hover:bg-[#6344ee]/5"
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <a
-            href="#"
-            className="hidden sm:block text-sm font-semibold text-slate-700 hover:text-[#6344ee] transition-colors px-3 py-2"
-          >
-            Iniciar sesión
-          </a>
-          <button className="flex h-10 items-center gap-1.5 rounded-xl bg-[#6344ee] px-5 text-sm font-bold text-white shadow-lg shadow-[#6344ee]/25 transition-all hover:-translate-y-px hover:shadow-[#6344ee]/40 active:scale-95">
-            Crear tienda
-            <MI name="arrow_forward" className="!text-base" />
-          </button>
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
-          >
-            <MI name={mobileOpen ? 'close' : 'menu'} />
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-6 py-4 flex flex-col gap-1">
-          {[
-            ['Explorar', '#explorar'],
-            ['Cómo funciona', '#como-funciona'],
-            ['Precios', '#precios'],
-          ].map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
-              onClick={() => setMobileOpen(false)}
-              className="py-3 px-4 text-sm font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-[#6344ee] transition-colors"
-            >
-              {label}
-            </a>
-          ))}
-          <a
-            href="#"
-            className="py-3 px-4 text-sm font-semibold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-[#6344ee] transition-colors"
-          >
-            Iniciar sesión
-          </a>
-        </div>
-      )}
-    </header>
-  );
-};
 
 // ── Hero ───────────────────────────────────────────────────────────────────
 const Hero = () => (
@@ -734,7 +649,6 @@ export default function HomePage() {
         className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#f6f6f8] text-slate-900"
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
-        
         <main className="flex-1">
           <Hero />
           <Brands />

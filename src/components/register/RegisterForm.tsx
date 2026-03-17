@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-;
-import type { RegisterFormValues } from '../../types/IUser.type';
 import { useAuthRegister } from '../../hooks/useAuth';
-
-
+import type { RegisterFormValues } from '../../types/IUser.type';
 
 const MaterialIcon = ({ name, className = '' }: { name: string; className?: string }) => (
   <span className={`material-symbols-outlined ${className}`}>{name}</span>
@@ -38,7 +35,6 @@ const RegisterForm = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     defaultValues: { nombre: '', apellido: '', email: '', password: '', telefono: '' },

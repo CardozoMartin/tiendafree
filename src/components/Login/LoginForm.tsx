@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useAuthLogin } from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
 
 interface LoginRequest {
   email: string;
@@ -85,9 +86,9 @@ const LoginForm = () => {
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
               <label className="text-sm font-semibold text-slate-700">Contraseña</label>
-              <a href="#" className="text-xs font-medium text-[#6344ee] hover:underline">
+              <Link to="/recover-password" className="text-xs font-medium text-[#6344ee] hover:underline">
                 Olvidé mi contraseña
-              </a>
+              </Link>
             </div>
             <div className="relative">
               <input
