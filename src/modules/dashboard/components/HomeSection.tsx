@@ -1,5 +1,5 @@
-import { MI } from './MaterialIcon';
-import { STATUS_META } from './constants';
+import { MI } from '../components/MaterialIcon';
+import { STATUS_META } from '../constant/constants';
 
 // ── Mock Data ──────────────────────────────────────────────────────────────
 const MOCK_ORDERS = [

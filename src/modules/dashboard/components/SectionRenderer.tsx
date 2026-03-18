@@ -1,8 +1,8 @@
 
 import CreateShop from './CreateShop';
-import HomeSection from './HomeSection';
-import OrdersSection from './OrdersSection';
-import ProductsSection from './ProductsSection';
+import HomeSection from '../components/HomeSection';
+import OrdersSection from '../components/OrdersSection';
+import ProductsSection from '../components/ProductsSection';
 import SettingsSection from './SettingsSection';
 import StoreSection from './StoreSection';
 

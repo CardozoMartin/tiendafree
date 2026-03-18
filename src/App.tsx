@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ChangePassPage } from './modules/auth/pages/ChangePassPage';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './modules/dashboard/pages/Dashboard';
 import HomePage from './pages/HomePage';
 
 import PrivateRoutes from './routes/PrivateRoutes';

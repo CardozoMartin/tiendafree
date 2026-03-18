@@ -1,8 +1,9 @@
 import { LogOut } from 'lucide-react';
-import { useAuthSessionStore } from '../../modules/auth/store/useAuthSession';
-import { MI } from './MaterialIcon';
-import { NAV_ITEMS } from './constants';
-import { useConfirm } from '../../hooks/useConfirm';
+import { useConfirm } from '../../../hooks/useConfirm';
+import { useAuthSessionStore } from '../../auth/store/useAuthSession';
+import { NAV_ITEMS } from '../constant/constants';
+import MI from './MaterialIcon';
+
 
 interface DashboardSidebarProps {
   active: string;

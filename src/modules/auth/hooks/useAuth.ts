@@ -40,16 +40,16 @@ export const useAuthLogin = () => {
   return useMutation({
     mutationFn: postLoginUserFn,
     onSuccess: (data: ISuccessResponse<LoginResponse>) => {
-      const { token, user } = data.datos;
+      const { accessToken, usuario } = data.datos;
 
       login(
         {
-          userId: user.userId,
-          email: user.email,
-          nombre: user.email,
-          rol: [],
+          userId: String(usuario.id),
+          email: usuario.email,
+          nombre: usuario.nombre,
+          rol: usuario.rol ? [{ nombre: usuario.rol }] : [],
         },
-        token
+        accessToken
       );
 
       toast.success(data.mensaje);

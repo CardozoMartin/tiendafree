@@ -27,10 +27,16 @@ export interface ILoginDatos {
 }
 
 export interface LoginResponse {
-  token: string;
-  user: {
-    userId: string;
+  accessToken: string;
+  refreshToken: string;
+  usuario: {
+    id: number;
+    nombre: string;
+    apellido: string;
     email: string;
+    rol: string;
+    avatarUrl: string | null;
+    emailVerificado: boolean;
   };
 }
 

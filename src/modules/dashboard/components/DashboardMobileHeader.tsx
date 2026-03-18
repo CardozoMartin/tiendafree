@@ -1,6 +1,7 @@
+import { useAuthSessionStore } from "../../auth/store/useAuthSession";
+import MI from "./MaterialIcon";
 
-import { useAuthSessionStore } from '../../modules/auth/store/useAuthSession';
-import { MI } from './MaterialIcon';
+
 
 interface DashboardMobileHeaderProps {
   accent: string;

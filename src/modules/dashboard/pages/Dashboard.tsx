@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
-import DashboardHeader from '../components/Dashboard/DashboardHeader';
-import DashboardMobileHeader from '../components/Dashboard/DashboardMobileHeader';
-import SectionRenderer from '../components/Dashboard/SectionRenderer';
-import DashboardBottomNav from '../components/Dashboard/DashboardBottomNav';
+import DashboardSidebar from '../components/DashboardSidebar';
+import DashboardHeader from '../components/DashboardHeader';
+import DashboardMobileHeader from '../components/DashboardMobileHeader';
+import SectionRenderer from '../components/SectionRenderer';
+import DashboardBottomNav from '../components/DashboardBottomNav';
+
 
 
 export default function Dashboard() {

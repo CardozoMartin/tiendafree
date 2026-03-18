@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { STATUS_META } from './constants';
+import { STATUS_META } from '../constant/constants';
 import MI from './MaterialIcon';
 const MOCK_ORDERS = [
   {

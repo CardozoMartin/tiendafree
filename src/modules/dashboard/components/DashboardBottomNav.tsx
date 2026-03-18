@@ -1,5 +1,6 @@
-import { MI } from './MaterialIcon';
-import { NAV_ITEMS } from './constants';
+import { NAV_ITEMS } from "../constant/constants";
+import MI from "./MaterialIcon";
+
 
 interface DashboardBottomNavProps {
   active: string;

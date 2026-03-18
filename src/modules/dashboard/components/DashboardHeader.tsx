@@ -1,8 +1,6 @@
-
-
-import { useAuthSessionStore } from '../../modules/auth/store/useAuthSession';
-import { MI } from './MaterialIcon';
-import { NAV_ITEMS } from './constants';
+import { useAuthSessionStore } from "../../auth/store/useAuthSession";
+import { NAV_ITEMS } from "../constant/constants";
+import MI from "./MaterialIcon";
 
 interface DashboardHeaderProps {
   active: string;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ACCENT_COLORS, FONTS } from './constants';
+import { ACCENT_COLORS, FONTS } from '../constant/constants';
 import MI from './MaterialIcon';
 
 const StoreSection = ({
