@@ -1,5 +1,6 @@
+import RegisterForm from "../components/RegisterForm";
 
-import LoginForm from '../components/Login/LoginForm';
+
 // ── Right Panel (solo desktop) ─────────────────────────────────────────────
 const RightPanel = () => (
   <div className="hidden lg:flex w-1/2 relative bg-[#6344ee]/10 overflow-hidden items-center justify-center">
@@ -14,9 +15,7 @@ const RightPanel = () => (
         />
       </div>
       <div className="mt-16 text-center">
-        <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
-          Muestra tu local al mundo
-        </h2>
+        <h2 className="text-3xl font-extrabold text-slate-900 mb-4">Muestra tu local al mundo</h2>
         <p className="text-lg text-slate-600">
           La plataforma digital diseñada para que el comercio local brille más que nunca.
         </p>
@@ -28,7 +27,7 @@ const RightPanel = () => (
   </div>
 );
 // ── Main component ─────────────────────────────────────────────────────────
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <>
       <link
@@ -45,7 +44,7 @@ export default function LoginPage() {
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
         {/* Form ocupa toda la pantalla en mobile, mitad en desktop */}
-        <LoginForm />
+        <RegisterForm />
 
         {/* Panel derecho solo desktop */}
         <RightPanel />

@@ -1,28 +1,26 @@
 import { ArrowRight, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useRequestPasswordReset } from '../../hooks/useAuth';
+import { useRequestPasswordReset } from '../hooks/useAuth';
+
 type RecoveryFormData = {
   email: string;
 };
 const ForgotPasswordForm = () => {
-
   //manejo del formulario con RHF
- const {
-   register,
-   handleSubmit: onSubmitRHF,
-   formState: { errors },
- } = useForm<RecoveryFormData>({
-   defaultValues: { email: '' },
- });
+  const {
+    register,
+    handleSubmit: onSubmitRHF,
+    formState: { errors },
+  } = useForm<RecoveryFormData>({
+    defaultValues: { email: '' },
+  });
 
   //Tquery para el manejo de la peticion
   const { mutate: requestResetMutate, isPending: loading } = useRequestPasswordReset();
 
-
-
   const handleSubmit = (data: RecoveryFormData) => {
     requestResetMutate(data.email);
-  }
+  };
 
   return (
     <form onSubmit={onSubmitRHF(handleSubmit)} className="space-y-6">
@@ -54,7 +52,9 @@ const ForgotPasswordForm = () => {
         </div>
 
         {/* Error message */}
-        {errors.email && <p className="text-xs text-red-500 font-medium ml-1 mt-1">{errors.email.message}</p>}
+        {errors.email && (
+          <p className="text-xs text-red-500 font-medium ml-1 mt-1">{errors.email.message}</p>
+        )}
       </div>
 
       {/* Submit button */}
@@ -89,6 +89,6 @@ const ForgotPasswordForm = () => {
       </button>
     </form>
   );
-}
+};
 
-export default ForgotPasswordForm
+export default ForgotPasswordForm;

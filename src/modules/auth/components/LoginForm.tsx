@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { useAuthLogin } from "../../hooks/useAuth";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { Link } from 'react-router-dom';
+import { useAuthLogin } from '../hooks/useAuth';
 
 interface LoginRequest {
   email: string;
@@ -14,11 +14,14 @@ const MaterialIcon = ({ name, className = '' }: { name: string; className?: stri
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   //RHF manejo del formulario
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<LoginRequest>({
     defaultValues: { email: '', password: '' },
@@ -28,8 +31,28 @@ const LoginForm = () => {
   const { mutate: loginMutate, isPending } = useAuthLogin();
 
   //Handle para el envio del formulario
-  const onSubmit: SubmitHandler<LoginRequest> = async (data) => {
-    loginMutate(data);
+  const onSubmit: SubmitHandler<LoginRequest> = (data) => {
+    setServerError('');
+    clearErrors();
+
+    loginMutate(data, {
+      onError: (error: any) => {
+
+        const message = error?.response?.data?.message || 'Credenciales incorrectas.';
+        const field = error?.response?.data?.field;
+
+        if (field === 'email' || field === 'password') {
+          setError(field, { type: 'server', message });
+          return;
+        }
+
+
+        setServerError(message);
+      },
+      onSuccess: () => {
+        setServerError('');
+      },
+    });
   };
 
   return (
@@ -53,10 +76,19 @@ const LoginForm = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5" noValidate>
+          {serverError && (
+            <div className="rounded-[10px] border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              {serverError}
+            </div>
+          )}
+
           {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Email</label>
+            <label htmlFor="email" className="text-sm font-semibold text-slate-700">
+              Email
+            </label>
             <input
+              id="email"
               type="email"
               inputMode="email"
               autoComplete="email"
@@ -85,13 +117,19 @@ const LoginForm = () => {
           {/* Password */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-semibold text-slate-700">Contraseña</label>
-              <Link to="/recover-password" className="text-xs font-medium text-[#6344ee] hover:underline">
+              <label htmlFor="password" className="text-sm font-semibold text-slate-700">
+                Contraseña
+              </label>
+              <Link
+                to="/recover-password"
+                className="text-xs font-medium text-[#6344ee] hover:underline"
+              >
                 Olvidé mi contraseña
               </Link>
             </div>
             <div className="relative">
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 placeholder="••••••••"
@@ -164,6 +202,5 @@ const LoginForm = () => {
     </div>
   );
 };
-
 
 export default LoginForm;

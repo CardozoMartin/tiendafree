@@ -1,12 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import PrivateRoutes from './routes/PrivateRoutes'
-import PublicRoutes from './routes/PublicRoutes'
-import Dashboard from './pages/Dashboard'
-import RegisterPage from './pages/RegisterPage'
-import LoginPage from './pages/LoginPage'
-import { RecoveryPassPage } from './pages/RecoveryPassPage'
-import { ChangePassPage } from './pages/ChangePassPage'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ChangePassPage } from './modules/auth/pages/ChangePassPage';
+import Dashboard from './pages/Dashboard';
+import HomePage from './pages/HomePage';
+
+import PrivateRoutes from './routes/PrivateRoutes';
+import PublicRoutes from './routes/PublicRoutes';
+import LoginPage from './modules/auth/pages/LoginPage';
+import RegisterPage from './modules/auth/pages/RegisterPage';
+import { RecoveryPassPage } from './modules/auth/pages/RecoveryPassPage';
 
 function App() {
   return (
@@ -33,4 +34,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

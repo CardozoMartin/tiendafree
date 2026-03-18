@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { useAuthRegister } from '../../hooks/useAuth';
-import type { RegisterFormValues } from '../../types/IUser.type';
+
+import type { RegisterFormValues } from '../../../types/IUser.type';
+import { useAuthRegister } from '../hooks/useAuth';
 
 const MaterialIcon = ({ name, className = '' }: { name: string; className?: string }) => (
   <span className={`material-symbols-outlined ${className}`}>{name}</span>
@@ -30,21 +31,56 @@ const GoogleIcon = () => (
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
   //Manejo del formulario con RHF
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     defaultValues: { nombre: '', apellido: '', email: '', password: '', telefono: '' },
   });
+
   //Hook para enviar el registro
   const { mutate: registarUSer, isPending } = useAuthRegister();
 
   //Handler para enviar el formulario
   const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
-    await registarUSer(data);
+    setServerErrors({});
+    clearErrors();
+
+    await registarUSer(data, {
+      onError: (error: unknown) => {
+        // @ts-expect-error Accessing error response
+        const backendErrors = error?.response?.data?.errores || [];
+
+        // Parsear errores del formato ["field: mensaje", ...]
+        const fieldErrors: Record<string, string> = {};
+        backendErrors.forEach((errorStr: string) => {
+          if (typeof errorStr === 'string' && errorStr.includes(':')) {
+            const [field, ...messageParts] = errorStr.split(':');
+            const message = messageParts.join(':').trim();
+
+            // Mapear campo y mostrar error
+            const fieldName = field.trim() as keyof RegisterFormValues;
+            if (fieldName && message) {
+              setError(fieldName, { type: 'server', message });
+              fieldErrors[fieldName] = message;
+            }
+          }
+        });
+
+        // Si no hay errores específicos, mostrar mensaje general
+        if (Object.keys(fieldErrors).length === 0) {
+          // @ts-expect-error Accessing error response
+          const generalMessage = error?.response?.data?.mensaje || 'Error al registrar usuario.';
+          setServerErrors({ general: generalMessage });
+        }
+      },
+    });
   };
 
   return (
@@ -66,10 +102,18 @@ const RegisterForm = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5" noValidate>
+          {serverErrors.general && (
+            <div className="rounded-[10px] border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              {serverErrors.general}
+            </div>
+          )}
           {/* Nombre */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Nombre</label>
+            <label htmlFor="nombre" className="text-sm font-semibold text-slate-700">
+              Nombre
+            </label>
             <input
+              id="nombre"
               type="text"
               placeholder="Tu nombre"
               className={`w-full px-4 py-3 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
@@ -82,8 +126,8 @@ const RegisterForm = () => {
               })}
             />
             {errors.nombre && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.nombre.message}
               </span>
             )}
@@ -91,8 +135,11 @@ const RegisterForm = () => {
 
           {/* Apellido */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Apellido</label>
+            <label htmlFor="apellido" className="text-sm font-semibold text-slate-700">
+              Apellido
+            </label>
             <input
+              id="apellido"
               type="text"
               placeholder="Tu apellido"
               className={`w-full px-4 py-3 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
@@ -105,8 +152,8 @@ const RegisterForm = () => {
               })}
             />
             {errors.apellido && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.apellido.message}
               </span>
             )}
@@ -114,8 +161,11 @@ const RegisterForm = () => {
 
           {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Email</label>
+            <label htmlFor="email" className="text-sm font-semibold text-slate-700">
+              Email
+            </label>
             <input
+              id="email"
               type="email"
               inputMode="email"
               autoComplete="email"
@@ -134,8 +184,8 @@ const RegisterForm = () => {
               })}
             />
             {errors.email && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.email.message}
               </span>
             )}
@@ -144,10 +194,13 @@ const RegisterForm = () => {
           {/* Password */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-semibold text-slate-700">Contraseña</label>
+              <label htmlFor="password" className="text-sm font-semibold text-slate-700">
+                Contraseña
+              </label>
             </div>
             <div className="relative">
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 placeholder="••••••••"
@@ -175,8 +228,8 @@ const RegisterForm = () => {
               </button>
             </div>
             {errors.password && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.password.message}
               </span>
             )}
@@ -184,8 +237,11 @@ const RegisterForm = () => {
 
           {/* Telefono */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Teléfono</label>
+            <label htmlFor="telefono" className="text-sm font-semibold text-slate-700">
+              Teléfono
+            </label>
             <input
+              id="telefono"
               type="tel"
               inputMode="tel"
               placeholder="123456789"
@@ -199,8 +255,8 @@ const RegisterForm = () => {
               })}
             />
             {errors.telefono && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.telefono.message}
               </span>
             )}

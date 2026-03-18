@@ -6,7 +6,7 @@ import {
   postRegisterUserFn,
   postRequestPasswordResetFn,
   postResetPasswordFn,
-} from '../api/Auth/authApi';
+} from '../api/authApi';
 import { useAuthSessionStore } from '../store/useAuthSession';
 
 //hook para registrar un nuevo usuario
@@ -15,11 +15,20 @@ export const useAuthRegister = () => {
     mutationFn: postRegisterUserFn,
     onSuccess: (data) => {
       toast.success('Usuario registrado con éxito');
-      console.log('Usuario registrado con éxito:', data);
+      console.log('✅ Usuario registrado con éxito:', data);
     },
-    onError: (error) => {
-      console.error('Error al registrar usuario:', error);
-      toast.error('Error al registrar usuario');
+    onError: (error: unknown) => {
+      console.error('❌ Error en hook register:', {
+        // @ts-expect-error Accessing error response
+        status: error?.response?.status,
+        // @ts-expect-error Accessing error response
+        data: error?.response?.data,
+        // @ts-expect-error Accessing error response
+        errores: error?.response?.data?.errores,
+        // @ts-expect-error Accessing error response
+        mensaje: error?.response?.data?.mensaje,
+      });
+      // No hacer toast aquí - el componente RegisterForm maneja los errores
     },
   });
 };
@@ -48,22 +57,23 @@ export const useAuthLogin = () => {
         };
 
         login(mappedUser, token);
-        toast.success('Inicio de sesión exitoso');
-        console.log('✅ Usuario logueado con éxito:', mappedUser);
-        console.log('🔐 Token guardado:', token.substring(0, 20) + '...');
 
         // Redirigir al dashboard
         setTimeout(() => navigate('/dashboard'), 500);
       } else {
-        console.warn('⚠️ Respuesta incompleta - falta token o usuario');
-        console.warn('Respuesta recibida:', responseData);
         toast.error('Respuesta incompleta del servidor');
       }
     },
-    onError: (error: any) => {
-      console.error('❌ Error en hook login:', error);
-      const errorMessage = error?.response?.data?.message || 'Error al iniciar sesión';
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      console.error('❌ Error en hook login:', {
+        // @ts-expect-error Accessing error response
+        status: error?.response?.status,
+        // @ts-expect-error Accessing error response
+        data: error?.response?.data,
+        // @ts-expect-error Accessing error response
+        message: error?.message,
+      });
+      // No hacer toast aquí - el componente LoginForm maneja los errores
     },
   });
 };
@@ -76,8 +86,9 @@ export const useRequestPasswordReset = () => {
       toast.success('Instrucciones enviadas a tu email');
       console.log('Instrucciones de reseteo enviadas:', data);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Error al solicitar reseteo de contraseña:', error);
+      // @ts-expect-error Accessing error response
       const errorMessage = error?.response?.data?.message || 'Error al solicitar reseteo';
       toast.error(errorMessage);
     },
@@ -100,8 +111,9 @@ export const useResetPassword = () => {
       toast.success('Contraseña restablecida con éxito');
       console.log('Contraseña restablecida:', data);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Error al restablecer contraseña:', error);
+      // @ts-expect-error Accessing error response
       const errorMessage = error?.response?.data?.message || 'Error al restablecer contraseña';
       toast.error(errorMessage);
     },

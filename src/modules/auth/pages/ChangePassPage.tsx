@@ -1,10 +1,9 @@
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useConfirm } from '../../../hooks/useConfirm';
 import { useResetPassword } from '../hooks/useAuth';
-import { useConfirm } from '../hooks/useConfirm';
-
 
 type RestablecerPasswordFormData = {
   passwordNueva: string;
@@ -41,11 +40,10 @@ export const ChangePassPage = ({ token, onBack }: ChangePasswordProps) => {
     defaultValues: { passwordNueva: '', confirmarPassword: '' },
   });
   //para mostrar el mensaje antes de enviar la peticion
- const {confirm,ConfirmModal} = useConfirm()
+  const { confirm, ConfirmModal } = useConfirm();
 
   //Tquery para el manejo de la peticion
   const { mutate: resetPasswordMutate, isPending, isSuccess } = useResetPassword();
-
 
   const onFormSubmit = async (data: RestablecerPasswordFormData) => {
     // Validar que el token existe
@@ -115,7 +113,6 @@ export const ChangePassPage = ({ token, onBack }: ChangePasswordProps) => {
               {/* Form */}
               <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6" noValidate>
                 {/* Error general de API */}
-
 
                 {/* Campo: Nueva contraseña */}
                 <div className="space-y-2">

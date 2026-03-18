@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthSessionStore } from '../store/useAuthSession';
+import { useAuthSessionStore } from '../modules/auth/store/useAuthSession';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1',
@@ -23,7 +23,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url ?? '';
+    const isAuthLoginRequest = typeof requestUrl === 'string' && requestUrl.includes('/auth/login');
+
+    if (error.response?.status === 401 && !isAuthLoginRequest) {
       // Token expirado o inválido
       const { logout } = useAuthSessionStore.getState();
       logout();

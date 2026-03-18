@@ -1,5 +1,5 @@
 import { LogOut } from 'lucide-react';
-import { useAuthSessionStore } from '../../store/useAuthSession';
+import { useAuthSessionStore } from '../../modules/auth/store/useAuthSession';
 import { MI } from './MaterialIcon';
 import { NAV_ITEMS } from './constants';
 import { useConfirm } from '../../hooks/useConfirm';

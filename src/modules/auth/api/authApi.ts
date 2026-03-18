@@ -1,6 +1,6 @@
-import type { LoginCredentials } from '../../types/Auth';
-import type { RegisterFormValues } from '../../types/IUser.type';
-import { api } from '../ApiBase';
+import { api } from '../../../api/ApiBase';
+import type { RegisterFormValues } from '../../../types/IUser.type';
+import type { LoginCredentials } from '../types/Auth';
 
 //funcion para registrar un nuevo usuario
 export const postRegisterUserFn = async (data: RegisterFormValues) => {

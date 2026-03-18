@@ -1,5 +1,4 @@
-import RegisterForm from "../components/register/RegisterForm";
-
+import LoginForm from "../components/LoginForm";
 
 // ── Right Panel (solo desktop) ─────────────────────────────────────────────
 const RightPanel = () => (
@@ -27,7 +26,7 @@ const RightPanel = () => (
   </div>
 );
 // ── Main component ─────────────────────────────────────────────────────────
-export default function RegisterPage() {
+export default function LoginPage() {
   return (
     <>
       <link
@@ -44,7 +43,7 @@ export default function RegisterPage() {
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
         {/* Form ocupa toda la pantalla en mobile, mitad en desktop */}
-        <RegisterForm />
+        <LoginForm />
 
         {/* Panel derecho solo desktop */}
         <RightPanel />

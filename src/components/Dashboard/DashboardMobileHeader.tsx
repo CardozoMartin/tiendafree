@@ -1,5 +1,5 @@
 
-import { useAuthSessionStore } from '../../store/useAuthSession';
+import { useAuthSessionStore } from '../../modules/auth/store/useAuthSession';
 import { MI } from './MaterialIcon';
 
 interface DashboardMobileHeaderProps {
