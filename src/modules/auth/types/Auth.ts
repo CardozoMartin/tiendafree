@@ -21,7 +21,7 @@ export interface AuthState {
   token: string | null;
 }
 
-export interface LoginCredentials {
+export interface ILoginDatos {
   email: string;
   password: string;
 }
@@ -37,4 +37,12 @@ export interface LoginResponse {
 export interface ApiError {
   message: string;
   code?: string;
+}
+
+export interface IRegistroDatos {
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  password: string;
 }

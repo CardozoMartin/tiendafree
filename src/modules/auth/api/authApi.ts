@@ -1,73 +1,32 @@
 import { api } from '../../../api/ApiBase';
 import type { RegisterFormValues } from '../../../types/IUser.type';
-import type { LoginCredentials } from '../types/Auth';
+import type { ILoginDatos } from '../types/Auth';
 
-//funcion para registrar un nuevo usuario
+
+//Funcion para registrar un usuario
 export const postRegisterUserFn = async (data: RegisterFormValues) => {
-  try {
-    const response = await api.post('/auth/registro', data);
-    return response.data;
-  } catch (error) {
-    console.error('Error al registrar usuario:', error);
-    throw error;
-  }
+  const response = await api.post('/auth/registro', data);
+  return response.data;
 };
-
-//funcion para iniciar session
-export const postLoginUserFn = async (data: LoginCredentials) => {
-  try {
-    console.log('📤 Enviando login con datos:', data);
-    const response = await api.post('/auth/login', data);
-    console.log('✅ Respuesta de login:', response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error('❌ Error en login:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-    });
-    throw error;
-  }
+//Funcion para iniciar sesion
+export const postLoginUserFn = async (data: ILoginDatos) => {
+  const response = await api.post('/auth/login', data);
+  return response.data;
 };
-
-//funcion para pedir el reseteo de contraseña
+//Funcion para solicitar reset de contraseña
 export const postRequestPasswordResetFn = async (email: string) => {
-  try {
-    const response = await api.post('/auth/solicitar-reset', { email });
-    return response.data;
-  } catch (error) {
-    console.error('Error al solicitar reseteo de contraseña:', error);
-    throw error;
-  }
+  const response = await api.post('/auth/solicitar-reset', { email });
+  return response.data;
 };
-
-//funcion para resetear la contraseña
+//Funcion para confirmar reset de contraseña
 export const postResetPasswordFn = async (
   token: string,
   passwordNueva: string,
   confirmarPassword: string
 ) => {
-  try {
-    console.log('📤 Enviando reset de contraseña con:', {
-      token,
-      passwordNueva,
-      confirmarPassword,
-    });
-    const response = await api.post(`/auth/confirmar-reset/${token}`, {
-      passwordNueva,
-      confirmarPassword,
-    });
-    console.log('✅ Respuesta de reset:', response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error('❌ Error al resetear contraseña:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-      config: error.config,
-    });
-    throw error;
-  }
+  const response = await api.post(`/auth/confirmar-reset/${token}`, {
+    passwordNueva,
+    confirmarPassword,
+  });
+  return response.data;
 };
