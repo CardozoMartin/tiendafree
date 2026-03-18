@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useResetPassword } from '../hooks/useAuth';
 import { useConfirm } from '../hooks/useConfirm';
 
@@ -13,7 +13,7 @@ type RestablecerPasswordFormData = {
 
 interface ChangePasswordProps {
   /** Token de reset extraído de la URL (ej: useParams()) */
-  token: string;
+  token?: string;
   /** Callback al enviar el formulario */
   onSubmit?: (data: RestablecerPasswordFormData, token: string) => Promise<void>;
   /** Callback al clickear "Volver al inicio de sesión" */
@@ -22,9 +22,12 @@ interface ChangePasswordProps {
 
 // ─── Component ────────────────────────────────────────────
 
-export const ChangePassPage = ({ token, onSubmit, onBack }: ChangePasswordProps) => {
+export const ChangePassPage = ({ token, onBack }: ChangePasswordProps) => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tokenUrl = searchParams.get('token') || token;
+  const handleBack = onBack ?? (() => navigate('/login'));
+
   console.log('Token recibido en ChangePassPage:', tokenUrl);
   const [mostrarPassword, setMostrarPassword] = useState(false);
   const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
@@ -33,7 +36,7 @@ export const ChangePassPage = ({ token, onSubmit, onBack }: ChangePasswordProps)
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RestablecerPasswordFormData>({
     defaultValues: { passwordNueva: '', confirmarPassword: '' },
   });
@@ -252,7 +255,7 @@ export const ChangePassPage = ({ token, onSubmit, onBack }: ChangePasswordProps)
                 </p>
                 <button
                   type="button"
-                  onClick={onBack}
+                  onClick={handleBack}
                   className="inline-flex items-center gap-2 bg-[#6344ee] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#4d2ad3] transition-colors"
                 >
                   Ir al inicio de sesión
@@ -276,7 +279,7 @@ export const ChangePassPage = ({ token, onSubmit, onBack }: ChangePasswordProps)
               {/* Volver */}
               <button
                 type="button"
-                onClick={onBack}
+                onClick={handleBack}
                 className="text-xs font-semibold text-slate-400 hover:text-[#6344ee] transition-colors flex items-center gap-1 group"
               >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
