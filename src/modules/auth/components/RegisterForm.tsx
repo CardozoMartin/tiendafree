@@ -1,14 +1,18 @@
-import { useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
-;
-import type { RegisterFormValues } from '../../types/IUser.type';
-import { useAuthRegister } from '../../hooks/useAuth';
+import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
+import type { RegisterFormValues } from "../../../types/IUser.type";
+import { useAuthRegister } from "../hooks/useAuth";
+import type { IErrorResponse } from "../../../types/api.type";
+import type { AxiosError } from "axios";
 
-
-const MaterialIcon = ({ name, className = '' }: { name: string; className?: string }) => (
-  <span className={`material-symbols-outlined ${className}`}>{name}</span>
-);
+const MaterialIcon = ({
+  name,
+  className = "",
+}: {
+  name: string;
+  className?: string;
+}) => <span className={`material-symbols-outlined ${className}`}>{name}</span>;
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -33,22 +37,29 @@ const GoogleIcon = () => (
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
   //Manejo del formulario con RHF
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<RegisterFormValues>({
-    defaultValues: { nombre: '', apellido: '', email: '', password: '', telefono: '' },
+    defaultValues: {
+      nombre: "",
+      apellido: "",
+      email: "",
+      password: "",
+      telefono: "",
+    },
   });
+
   //Hook para enviar el registro
-  const { mutate: registarUSer, isPending } = useAuthRegister();
+  const { mutate: registarUser, isPending, isError, error } = useAuthRegister();
 
   //Handler para enviar el formulario
   const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
-    await registarUSer(data);
+    registarUser(data);
   };
 
   return (
@@ -60,34 +71,59 @@ const RegisterForm = () => {
             <div className="w-10 h-10 bg-[#6344ee] rounded-lg flex items-center justify-center text-white">
               <MaterialIcon name="storefront" />
             </div>
-            <span className="text-2xl font-extrabold tracking-tight text-slate-900">Vitrina</span>
+            <span className="text-2xl font-extrabold tracking-tight text-slate-900">
+              Vitrina
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-900">Crea tu cuenta</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-900">
+            Crea tu cuenta
+          </h1>
           <p className="text-sm sm:text-base text-slate-500">
             Completa el formulario con tus datos personales.
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5" noValidate>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 sm:space-y-5"
+          noValidate
+        >
+          {serverErrors.general && (
+            <div className="rounded-[10px] border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              {serverErrors.general}
+            </div>
+          )}
+          {isError && (
+            <div className="rounded-[10px] border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              {(error as AxiosError<IErrorResponse>)?.response?.data?.mensaje ??
+                "Credenciales incorrectas"}
+            </div>
+          )}
           {/* Nombre */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Nombre</label>
+            <label
+              htmlFor="nombre"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Nombre
+            </label>
             <input
+              id="nombre"
               type="text"
               placeholder="Tu nombre"
               className={`w-full px-4 py-3 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
                 errors.nombre
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                  : 'border-slate-200'
+                  ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
+                  : "border-slate-200"
               }`}
-              {...register('nombre', {
-                required: 'El nombre es obligatorio.',
+              {...register("nombre", {
+                required: "El nombre es obligatorio.",
               })}
             />
             {errors.nombre && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.nombre.message}
               </span>
             )}
@@ -95,22 +131,28 @@ const RegisterForm = () => {
 
           {/* Apellido */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Apellido</label>
+            <label
+              htmlFor="apellido"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Apellido
+            </label>
             <input
+              id="apellido"
               type="text"
               placeholder="Tu apellido"
               className={`w-full px-4 py-3 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
                 errors.apellido
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                  : 'border-slate-200'
+                  ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
+                  : "border-slate-200"
               }`}
-              {...register('apellido', {
-                required: 'El apellido es obligatorio.',
+              {...register("apellido", {
+                required: "El apellido es obligatorio.",
               })}
             />
             {errors.apellido && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.apellido.message}
               </span>
             )}
@@ -118,28 +160,34 @@ const RegisterForm = () => {
 
           {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Email</label>
+            <label
+              htmlFor="email"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Email
+            </label>
             <input
+              id="email"
               type="email"
               inputMode="email"
               autoComplete="email"
               placeholder="ejemplo@correo.com"
               className={`w-full px-4 py-3 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
                 errors.email
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                  : 'border-slate-200'
+                  ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
+                  : "border-slate-200"
               }`}
-              {...register('email', {
-                required: 'El email es obligatorio.',
+              {...register("email", {
+                required: "El email es obligatorio.",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Ingresá un email válido.',
+                  message: "Ingresá un email válido.",
                 },
               })}
             />
             {errors.email && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.email.message}
               </span>
             )}
@@ -148,21 +196,27 @@ const RegisterForm = () => {
           {/* Password */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-semibold text-slate-700">Contraseña</label>
+              <label
+                htmlFor="password"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Contraseña
+              </label>
             </div>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'}
+                id="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="••••••••"
                 className={`w-full px-4 py-3 pr-12 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
                   errors.password
-                    ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                    : 'border-slate-200'
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
+                    : "border-slate-200"
                 }`}
-                {...register('password', {
-                  required: 'La contraseña es obligatoria.',
-                  minLength: { value: 6, message: 'Mínimo 6 caracteres.' },
+                {...register("password", {
+                  required: "La contraseña es obligatoria.",
+                  minLength: { value: 6, message: "Mínimo 6 caracteres." },
                 })}
               />
               {/* Touch-friendly toggle — mínimo 44x44px */}
@@ -170,17 +224,19 @@ const RegisterForm = () => {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-0 top-0 h-full w-12 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
               >
                 <MaterialIcon
-                  name={showPassword ? 'visibility_off' : 'visibility'}
+                  name={showPassword ? "visibility_off" : "visibility"}
                   className="!text-xl"
                 />
               </button>
             </div>
             {errors.password && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.password.message}
               </span>
             )}
@@ -188,23 +244,29 @@ const RegisterForm = () => {
 
           {/* Telefono */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-slate-700">Teléfono</label>
+            <label
+              htmlFor="telefono"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Teléfono
+            </label>
             <input
+              id="telefono"
               type="tel"
               inputMode="tel"
               placeholder="123456789"
               className={`w-full px-4 py-3 rounded-[10px] border bg-slate-50 focus:ring-2 focus:ring-[#6344ee]/20 focus:border-[#6344ee] outline-none transition-all text-slate-900 text-base ${
                 errors.telefono
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                  : 'border-slate-200'
+                  ? "border-red-400 focus:border-red-400 focus:ring-red-400/20"
+                  : "border-slate-200"
               }`}
-              {...register('telefono', {
-                required: 'El teléfono es obligatorio.',
+              {...register("telefono", {
+                required: "El teléfono es obligatorio.",
               })}
             />
             {errors.telefono && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <MaterialIcon name="error" className="!text-sm" />
+              <span className="flex items-center gap-1 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded">
+                <MaterialIcon name="error" className="!text-base" />
                 {errors.telefono.message}
               </span>
             )}
@@ -218,7 +280,11 @@ const RegisterForm = () => {
           >
             {isPending ? (
               <>
-                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -227,12 +293,16 @@ const RegisterForm = () => {
                     stroke="currentColor"
                     strokeWidth="4"
                   />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
                 </svg>
                 Registrando...
               </>
             ) : (
-              'Registrarse'
+              "Registrarse"
             )}
           </button>
         </form>
@@ -258,7 +328,7 @@ const RegisterForm = () => {
 
         {/* Register link */}
         <p className="mt-8 sm:mt-10 text-center text-sm sm:text-base text-slate-600">
-          ¿No tenés cuenta?{' '}
+          ¿No tenés cuenta?{" "}
           <a href="#" className="text-[#6344ee] font-bold hover:underline">
             Registrate
           </a>

@@ -1,10 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import PrivateRoutes from './routes/PrivateRoutes'
-import PublicRoutes from './routes/PublicRoutes'
-import Dashboard from './pages/Dashboard'
-import RegisterPage from './pages/RegisterPage'
-import LoginPage from './pages/LoginPage'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ChangePassPage } from './modules/auth/pages/ChangePassPage';
+import Dashboard from './pages/Dashboard';
+import HomePage from './pages/HomePage';
+
+import PrivateRoutes from './routes/PrivateRoutes';
+import PublicRoutes from './routes/PublicRoutes';
+import LoginPage from './modules/auth/pages/LoginPage';
+import RegisterPage from './modules/auth/pages/RegisterPage';
+import { RecoveryPassPage } from './modules/auth/pages/RecoveryPassPage';
 
 function App() {
   return (
@@ -15,6 +18,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage></RegisterPage>} />
+          <Route path="/recover-password" element={<RecoveryPassPage />} />
+          <Route path="/change-password" element={<ChangePassPage />} />
         </Route>
 
         {/* Rutas Privadas - Sin Header */}
@@ -26,7 +31,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

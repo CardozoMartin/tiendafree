@@ -1,28 +1,21 @@
+import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, LogOut } from 'lucide-react';
-
-interface NavLink {
-  label: string;
-  href: string;
-}
 
 interface HeaderProps {
-  MaterialIcon: React.FC<{ name: string; className?: string }>;
   isAuthenticated?: boolean;
   user?: { email: string; fullName: string } | null;
   onLogout?: () => void;
   variant?: 'public' | 'private';
 }
 
-const NAV_LINKS: NavLink[] = [
+const NAV_LINKS = [
   { label: 'Explorar', href: '#explorar' },
   { label: 'Cómo funciona', href: '#como-funciona' },
   { label: 'Precios', href: '#precios' },
 ];
 
 const Header = ({
-  MaterialIcon,
   isAuthenticated = false,
   user = null,
   onLogout,
