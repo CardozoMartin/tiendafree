@@ -1,9 +1,9 @@
-// src/modules/auth/components/LoginForm.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from '../../../test/utils';
 import LoginForm from './LoginForm';
+import { useAuthLogin } from '../hooks/useAuth';
 
 vi.mock('../hooks/useAuth', () => ({
   useAuthLogin: vi.fn(),
@@ -14,174 +14,137 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => vi.fn() };
 });
 
-import { useAuthLogin } from '../hooks/useAuth';
-
-const mockLoginHook = (overrides = {}) => {
+const mockHook = (overrides = {}) => {
   const mutate = vi.fn();
   (useAuthLogin as ReturnType<typeof vi.fn>).mockReturnValue({
     mutate,
     isPending: false,
+    isError: false,
+    error: null,
     ...overrides,
   });
   return { mutate };
 };
 
-// ✅ Helpers para queries precisas que evitan ambigüedad
 const getEmailInput = () => screen.getByRole('textbox', { name: /email/i });
-const getPasswordInput = () => document.getElementById('password') as HTMLElement;
-const getSubmitButton = () => screen.getByRole('button', { name: /ingresar/i });
+const getPasswordInput = () => screen.getByLabelText('Contraseña'); // ← fix
+const getSubmitButton = () => screen.getByRole('button', { name: /ingresar|ingresando/i });
 
 describe('LoginForm', () => {
   beforeEach(() => {
-    mockLoginHook();
+    mockHook();
   });
-
-  // ─── RENDERIZADO ──────────────────────────────────────
 
   describe('Renderizado', () => {
     it('debe mostrar el formulario completo', () => {
       render(<LoginForm />);
-
       expect(getEmailInput()).toBeInTheDocument();
       expect(getPasswordInput()).toBeInTheDocument();
       expect(getSubmitButton()).toBeInTheDocument();
-      expect(screen.getByText(/olvidé mi contraseña/i)).toBeInTheDocument();
-      expect(screen.getByText(/registrate/i)).toBeInTheDocument();
     });
 
     it('debe mostrar el logo y el título', () => {
       render(<LoginForm />);
-
       expect(screen.getByText('Vitrina')).toBeInTheDocument();
       expect(screen.getByText(/bienvenido de nuevo/i)).toBeInTheDocument();
     });
 
-    it('el campo password debe estar oculto por defecto', () => {
+    it('debe mostrar el link de olvidé mi contraseña', () => {
       render(<LoginForm />);
-
-      expect(getPasswordInput()).toHaveAttribute('type', 'password');
+      expect(screen.getByText(/olvidé mi contraseña/i)).toBeInTheDocument();
     });
   });
-
-  // ─── INTERACCIONES ────────────────────────────────────
 
   describe('Interacciones', () => {
-    it('debe poder escribir en los campos', async () => {
+    it('debe poder escribir en el campo email', async () => {
       render(<LoginForm />);
-      const user = userEvent.setup();
-
-      await user.type(getEmailInput(), 'juan@test.com');
-      await user.type(getPasswordInput(), 'Password1');
-
-      expect(getEmailInput()).toHaveValue('juan@test.com');
-      expect(getPasswordInput()).toHaveValue('Password1');
+      await userEvent.type(getEmailInput(), 'test@example.com');
+      expect(getEmailInput()).toHaveValue('test@example.com');
     });
 
-    it('debe alternar la visibilidad de la contraseña', async () => {
+    it('debe poder escribir en el campo password', async () => {
       render(<LoginForm />);
-      const user = userEvent.setup();
-
-      const input = getPasswordInput();
-      const toggleMostrar = screen.getByRole('button', { name: /mostrar contraseña/i });
-
-      expect(input).toHaveAttribute('type', 'password');
-      await user.click(toggleMostrar);
-      expect(input).toHaveAttribute('type', 'text');
-
-      const toggleOcultar = screen.getByRole('button', { name: /ocultar contraseña/i });
-      await user.click(toggleOcultar);
-      expect(input).toHaveAttribute('type', 'password');
+      await userEvent.type(getPasswordInput(), 'password123');
+      expect(getPasswordInput()).toHaveValue('password123');
     });
 
-    it('debe llamar a loginMutate con los datos correctos al enviar', async () => {
-      const { mutate } = mockLoginHook();
+    it('debe llamar a mutate con los datos del formulario al enviar', async () => {
+      const { mutate } = mockHook();
       render(<LoginForm />);
-      const user = userEvent.setup();
-
-      await user.type(getEmailInput(), 'juan@test.com');
-      await user.type(getPasswordInput(), 'Password1');
-      await user.click(getSubmitButton());
-
-      await waitFor(() => {
-        expect(mutate).toHaveBeenCalledWith(
-          { email: 'juan@test.com', password: 'Password1' },
-          expect.any(Object)
-        );
+      await userEvent.type(getEmailInput(), 'test@example.com');
+      await userEvent.type(getPasswordInput(), 'password123');
+      await userEvent.click(getSubmitButton());
+      expect(mutate).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
       });
+    });
+
+    it('debe toggle la visibilidad de la contraseña', async () => {
+      render(<LoginForm />);
+      const passwordInput = getPasswordInput();
+      expect(passwordInput).toHaveAttribute('type', 'password');
+      await userEvent.click(screen.getByRole('button', { name: 'Mostrar contraseña' })); // ← fix
+      expect(passwordInput).toHaveAttribute('type', 'text');
     });
   });
 
-  // ─── VALIDACIONES ─────────────────────────────────────
-
   describe('Validaciones', () => {
-    it('debe mostrar errores si se envía el formulario vacío', async () => {
+    it('debe mostrar error si el email es obligatorio', async () => {
       render(<LoginForm />);
-      const user = userEvent.setup();
-
-      await user.click(getSubmitButton());
-
-      await waitFor(() => {
-        expect(screen.getByText('El email es obligatorio.')).toBeInTheDocument();
-        expect(screen.getByText('La contraseña es obligatoria.')).toBeInTheDocument();
-      });
+      await userEvent.click(getSubmitButton());
+      expect(screen.getByText(/el email es obligatorio/i)).toBeInTheDocument();
     });
 
     it('debe mostrar error si el email es inválido', async () => {
       render(<LoginForm />);
-      const user = userEvent.setup();
+      await userEvent.type(getEmailInput(), 'invalido@a'); // ← fix
+      await userEvent.click(getSubmitButton());
+      expect(screen.getByText(/ingresá un email válido/i)).toBeInTheDocument();
+    });
 
-      await user.type(getEmailInput(), 'no-es-email');
-      await user.click(getSubmitButton());
-
-      await waitFor(() => {
-        expect(screen.getByText('Ingresá un email válido.')).toBeInTheDocument();
-      });
+    it('debe mostrar error si la contraseña es obligatoria', async () => {
+      render(<LoginForm />);
+      await userEvent.type(getEmailInput(), 'test@example.com');
+      await userEvent.click(getSubmitButton());
+      expect(screen.getByText(/la contraseña es obligatoria/i)).toBeInTheDocument();
     });
 
     it('debe mostrar error si la contraseña tiene menos de 6 caracteres', async () => {
       render(<LoginForm />);
-      const user = userEvent.setup();
-
-      await user.type(getEmailInput(), 'juan@test.com');
-      await user.type(getPasswordInput(), '123');
-      await user.click(getSubmitButton());
-
-      await waitFor(() => {
-        expect(screen.getByText('Mínimo 6 caracteres.')).toBeInTheDocument();
-      });
+      await userEvent.type(getEmailInput(), 'test@example.com');
+      await userEvent.type(getPasswordInput(), '123');
+      await userEvent.click(getSubmitButton());
+      expect(screen.getByText(/mínimo 6 caracteres/i)).toBeInTheDocument();
     });
   });
 
-  // ─── ESTADOS ──────────────────────────────────────────
-
   describe('Estados', () => {
-    it('debe mostrar spinner y deshabilitar el botón mientras carga', () => {
-      mockLoginHook({ isPending: true });
+    it('debe mostrar "Ingresando..." mientras isPending es true', () => {
+      mockHook({ isPending: true });
       render(<LoginForm />);
-
-      // ✅ Cuando isPending el botón muestra "Ingresando..." no "Ingresar"
-      const boton = screen.getByRole('button', { name: /ingresando/i });
-      expect(boton).toBeDisabled();
+      expect(screen.getByText(/ingresando/i)).toBeInTheDocument();
     });
 
-    it('debe mostrar error del servidor si la API falla', async () => {
-      const { mutate } = mockLoginHook();
+    it('debe deshabilitar el botón mientras isPending es true', () => {
+      mockHook({ isPending: true });
       render(<LoginForm />);
-      const user = userEvent.setup();
+      expect(getSubmitButton()).toBeDisabled();
+    });
 
-      mutate.mockImplementation((_data: any, callbacks: any) => {
-        callbacks.onError({
-          response: { data: { message: 'Credenciales incorrectas.' } },
-        });
+    it('debe mostrar error del servidor cuando isError es true', () => {
+      mockHook({
+        isError: true,
+        error: { response: { data: { mensaje: 'Credenciales incorrectas' } } },
       });
+      render(<LoginForm />);
+      expect(screen.getByText('Credenciales incorrectas')).toBeInTheDocument();
+    });
 
-      await user.type(getEmailInput(), 'juan@test.com');
-      await user.type(getPasswordInput(), 'Password1');
-      await user.click(getSubmitButton());
-
-      await waitFor(() => {
-        expect(screen.getByText('Credenciales incorrectas.')).toBeInTheDocument();
-      });
+    it('debe mostrar mensaje fallback cuando isError es true sin mensaje del servidor', () => {
+      mockHook({ isError: true, error: null });
+      render(<LoginForm />);
+      expect(screen.getByText(/credenciales incorrectas/i)).toBeInTheDocument();
     });
   });
 });

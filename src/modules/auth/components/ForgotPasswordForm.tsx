@@ -1,12 +1,15 @@
 import { ArrowRight, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useRequestPasswordReset } from '../hooks/useAuth';
+import type { AxiosError } from 'axios';
+import type { IErrorResponse } from '../../../types/api.type';
+
 
 type RecoveryFormData = {
   email: string;
 };
+
 const ForgotPasswordForm = () => {
-  //manejo del formulario con RHF
   const {
     register,
     handleSubmit: onSubmitRHF,
@@ -15,12 +18,21 @@ const ForgotPasswordForm = () => {
     defaultValues: { email: '' },
   });
 
-  //Tquery para el manejo de la peticion
-  const { mutate: requestResetMutate, isPending: loading } = useRequestPasswordReset();
+  const {
+    mutate: requestResetMutate,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useRequestPasswordReset();
 
   const handleSubmit = (data: RecoveryFormData) => {
     requestResetMutate(data.email);
   };
+
+  const errorMessage = isError
+    ? (error as AxiosError<IErrorResponse>)?.response?.data?.mensaje ?? 'Error al enviar la solicitud'
+    : null;
 
   return (
     <form onSubmit={onSubmitRHF(handleSubmit)} className="space-y-6">
@@ -38,12 +50,11 @@ const ForgotPasswordForm = () => {
           <input
             id="email"
             type="email"
-            required
             {...register('email', {
               required: 'El email es obligatorio.',
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Por favor, introduce un email válido.',
+                message: 'Ingresá un email válido.',
               },
             })}
             placeholder="ejemplo@correo.com"
@@ -51,35 +62,38 @@ const ForgotPasswordForm = () => {
           />
         </div>
 
-        {/* Error message */}
+        {/* Error de validación RHF */}
         {errors.email && (
           <p className="text-xs text-red-500 font-medium ml-1 mt-1">{errors.email.message}</p>
         )}
       </div>
 
-      {/* Submit button */}
+      {/* Feedback del servidor */}
+      {isSuccess && (
+        <p className="text-sm text-green-600 font-medium">
+          Solicitud enviada con éxito
+        </p>
+      )}
+      {isError && (
+        <p className="text-sm text-red-500 font-medium">
+          {errorMessage}
+        </p>
+      )}
+
+      {/* Submit */}
       <button
         type="submit"
-        disabled={loading}
+        disabled={isPending}
         className="w-full bg-[#6344ee] hover:bg-[#4d2ad3] disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-[0_10px_20px_-5px_rgba(99,68,238,0.3)] hover:-translate-y-px active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group"
       >
-        {loading ? (
-          // Spinner
-          <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
-            />
-          </svg>
+        {isPending ? (
+          <>
+            <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+            </svg>
+            <span>Enviando solicitud</span>
+          </>
         ) : (
           <>
             <span>Enviar instrucciones</span>
