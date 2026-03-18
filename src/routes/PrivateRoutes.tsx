@@ -1,7 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuthSessionStore } from '../modules/auth/store/useAuthSession';
-import { useShallow } from 'zustand/react/shallow';
 
 const RoutesPrivate = () => {
   const isLoggedIn = useAuthSessionStore((s) => s.isLoggedIn);
