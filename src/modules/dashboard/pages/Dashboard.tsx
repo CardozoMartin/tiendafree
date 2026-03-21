@@ -48,6 +48,7 @@ export default function Dashboard() {
       >
         {/* ── SIDEBAR (desktop) ── */}
         <DashboardSidebar
+          myShop={myShop}
           active={currentActive}
           setActive={setActive}
           accent={accent}
@@ -68,10 +69,12 @@ export default function Dashboard() {
           <main className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">
             <div className="max-w-5xl mx-auto w-full">
               <SectionRenderer
+
                 active={currentActive}
                 accent={accent}
                 setAccent={setAccent}
                 isActiveShop={isActiveShop}
+                myShop={myShop}
               />
             </div>
           </main>

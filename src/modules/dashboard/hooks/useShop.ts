@@ -1,6 +1,6 @@
 import type { AxiosError } from 'axios';
 import type { IErrorResponse, ISuccessResponse } from '../../../types/api.type';
-import { getMyShopFn, postCreateShopFn } from '../api/shop.api';
+import { getMyShopFn, getPublicShopFn, postCreateShopFn } from '../api/shop.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { IShopData } from '../types/shop.type';
@@ -34,3 +34,12 @@ export const useMyShop = () => {
     enabled: true
   });
 };
+
+//Hooks para obtener los datos de la tienda publica por slug, para mostrar en el sitio publico
+export const usePublicShop = (slug: string) => {
+  return useQuery({
+    queryKey: ['publicShop', slug],
+    queryFn: () => getPublicShopFn(slug),
+    enabled: !!slug
+  });
+}

@@ -712,13 +712,7 @@ const CartToast = ({ message, visible }: { message: string; visible: boolean }) 
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 
-export default function TemplateModern({
-  accent,
-  personalizacion,
-}: {
-  accent?: string;
-  personalizacion?: any;
-}) {
+export default function TemplateModern({ accent, personalizacion }: { accent?: string; personalizacion?: any }) {
   const temaConfig = personalizacion?.temaConfig || {};
   const activeAccent = temaConfig.color_primario || accent || '#0ea5e9';
   const heroTitulo = temaConfig.hero_titulo || 'Nuevas Llegadas en la Colección De Primavera';

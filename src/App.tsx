@@ -8,6 +8,7 @@ import PublicRoutes from './routes/PublicRoutes';
 import LoginPage from './modules/auth/pages/LoginPage';
 import RegisterPage from './modules/auth/pages/RegisterPage';
 import { RecoveryPassPage } from './modules/auth/pages/RecoveryPassPage';
+import PublicStorePage from './pages/PublicStorePage';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
         <Route element={<PrivateRoutes />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
-
+        <Route path="/tienda/:slug" element={<PublicStorePage />} />
         {/* Rutas no encontradas */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
