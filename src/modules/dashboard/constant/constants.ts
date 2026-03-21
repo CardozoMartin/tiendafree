@@ -1,6 +1,15 @@
 // ── Navigation Items ──────────────────────────────────────────────────────
 export const NAV_ITEMS = [
-  { id: 'store', icon: 'palette', label: 'Mi Tienda' },
+  {
+    id: 'store',
+    icon: 'palette',
+    label: 'Mi Tienda',
+    submenu: [
+      { id: 'store-templates', icon: 'image', label: 'Plantillas' },
+      { id: 'store-edit', icon: 'edit_square', label: 'Editar Página' },
+      { id: 'store-website', icon: 'language', label: 'Sitio Web' },
+    ],
+  },
   { id: 'home', icon: 'home', label: 'Inicio' },
   { id: 'products', icon: 'inventory_2', label: 'Productos' },
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos' },

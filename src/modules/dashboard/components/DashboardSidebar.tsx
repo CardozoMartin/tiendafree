@@ -1,4 +1,5 @@
 import { LogOut } from 'lucide-react';
+import { useState } from 'react';
 import { useConfirm } from '../../../hooks/useConfirm';
 import { useAuthSessionStore } from '../../auth/store/useAuthSession';
 import { NAV_ITEMS } from '../constant/constants';
@@ -21,6 +22,7 @@ export const DashboardSidebar = ({
   setSidebarCollapsed,
   isActiveShop,
 }: DashboardSidebarProps) => {
+  const [expandedMenu, setExpandedMenu] = useState<string | null>('store');
   const { confirm, ConfirmModal } = useConfirm();
   const handleLogout = async () => {
     const confirmedLogout = await confirm({
@@ -61,29 +63,75 @@ export const DashboardSidebar = ({
           const isActive = active === item.id;
           const isDisabled = !isActiveShop && item.id !== 'store';
           const label = !isActiveShop && item.id === 'store' ? 'Crear Tienda' : item.label;
+          const isExpanded = expandedMenu === item.id;
+          const hasSubmenu = 'submenu' in item && item.submenu;
 
           return (
-            <button
-              key={item.id}
-              onClick={() => !isDisabled && setActive(item.id)}
-              disabled={isDisabled}
-              className={`w-full flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition-all ${
-                isDisabled
-                  ? 'opacity-50 cursor-not-allowed text-slate-400'
-                  : isActive
-                    ? 'text-white'
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              } ${sidebarCollapsed ? 'justify-center' : ''}`}
-              style={
-                isActive && !isDisabled
-                  ? { backgroundColor: accent, boxShadow: `0 4px 12px ${accent}30` }
-                  : {}
-              }
-              title={sidebarCollapsed ? label : undefined}
-            >
-              <MI name={item.icon} className="!text-xl shrink-0" />
-              {!sidebarCollapsed && <span>{label}</span>}
-            </button>
+            <div key={item.id}>
+              <button
+                onClick={() => {
+                  if (hasSubmenu && isActiveShop) {
+                    setExpandedMenu(isExpanded ? null : item.id);
+                  } else {
+                    !isDisabled && setActive(item.id);
+                  }
+                }}
+                disabled={isDisabled}
+                className={`w-full flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition-all ${
+                  isDisabled
+                    ? 'opacity-50 cursor-not-allowed text-slate-400'
+                    : isActive || isExpanded
+                      ? 'text-white'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                } ${sidebarCollapsed ? 'justify-center' : ''}`}
+                style={
+                  (isActive || isExpanded) && !isDisabled
+                    ? { backgroundColor: accent, boxShadow: `0 4px 12px ${accent}30` }
+                    : {}
+                }
+                title={sidebarCollapsed ? label : undefined}
+              >
+                <MI name={item.icon} className="!text-xl shrink-0" />
+                {!sidebarCollapsed && <span className="flex-1 text-left">{label}</span>}
+                {!sidebarCollapsed && hasSubmenu && isActiveShop && (
+                  <MI
+                    name={isExpanded ? 'expand_less' : 'expand_more'}
+                    className="!text-lg text-slate-400"
+                  />
+                )}
+              </button>
+
+              {/* Submenu */}
+              {hasSubmenu && isActiveShop && isExpanded && !sidebarCollapsed && (
+                <div className="space-y-0.5 mt-1 pl-2">
+                  {item.submenu.map((subitem) => {
+                    const isSubActive = active === subitem.id;
+                    return (
+                      <button
+                        key={subitem.id}
+                        onClick={() => setActive(subitem.id)}
+                        className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold transition-all ${
+                          isSubActive
+                            ? 'text-white'
+                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                        style={
+                          isSubActive
+                            ? {
+                                backgroundColor: accent,
+                                boxShadow: `0 2px 8px ${accent}30`,
+                              }
+                            : {}
+                        }
+                      >
+                        <MI name={subitem.icon} className="!text-xs shrink-0" />
+                        <span>{subitem.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>

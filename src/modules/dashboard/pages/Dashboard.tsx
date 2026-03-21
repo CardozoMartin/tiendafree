@@ -9,7 +9,7 @@ import { useMyShop } from '../hooks/useShop';
 
 
 export default function Dashboard() {
-  const [active, setActive] = useState('home');
+  const [active, setActive] = useState('store');
   const [accent, setAccent] = useState('#6344ee');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
