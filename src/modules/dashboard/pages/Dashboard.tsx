@@ -4,6 +4,7 @@ import DashboardHeader from '../components/DashboardHeader';
 import DashboardMobileHeader from '../components/DashboardMobileHeader';
 import SectionRenderer from '../components/SectionRenderer';
 import DashboardBottomNav from '../components/DashboardBottomNav';
+import { useMyShop } from '../hooks/useShop';
 
 
 
@@ -12,11 +13,14 @@ export default function Dashboard() {
   const [accent, setAccent] = useState('#6344ee');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  //Hook que devuelve la tienda del usuario si tienda una tienda creada y activa, sino devuelve null
+   const { data: myShop } = useMyShop();
+
   //hook para verificar si el usuario tiene una tienda creada y activa
   // const { data: checkUserStoreData } = useCheckUserStore();
   // const isActiveShop = checkUserStoreData?.data.hasActiveStore ?? false;
 
-  const isActiveShop = false
+  const isActiveShop = !!myShop;
   // Cuando no tiene tienda activa, forzar a 'store' (Crear Tienda)
    const currentActive = !isActiveShop ? 'store' : active;
   return (
@@ -61,8 +65,8 @@ export default function Dashboard() {
           <DashboardMobileHeader accent={accent} />
 
           {/* ── Scrollable Content ── */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
-            <div className="max-w-3xl mx-auto">
+          <main className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">
+            <div className="max-w-5xl mx-auto w-full">
               <SectionRenderer
                 active={currentActive}
                 accent={accent}

@@ -2,68 +2,12 @@ import { useState } from 'react';
 import MI from './MaterialIcon';
 
 
-const MOCK_PRODUCTS = [
-  {
-    id: 1,
-    name: 'Torta de chocolate',
-    price: 3500,
-    stock: 8,
-    category: 'Tortas',
-    img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&q=80',
-    active: true,
-  },
-  {
-    id: 2,
-    name: 'Alfajores x12',
-    price: 1800,
-    stock: 24,
-    category: 'Golosinas',
-    img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&q=80',
-    active: true,
-  },
-  {
-    id: 3,
-    name: 'Cheesecake frutilla',
-    price: 2800,
-    stock: 5,
-    category: 'Tortas',
-    img: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=300&q=80',
-    active: false,
-  },
-  {
-    id: 4,
-    name: 'Brownie x6',
-    price: 1200,
-    stock: 15,
-    category: 'Postres',
-    img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300&q=80',
-    active: true,
-  },
-  {
-    id: 5,
-    name: 'Macaron surtido',
-    price: 2200,
-    stock: 0,
-    category: 'Golosinas',
-    img: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=300&q=80',
-    active: true,
-  },
-  {
-    id: 6,
-    name: 'Tiramisú individual',
-    price: 950,
-    stock: 10,
-    category: 'Postres',
-    img: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=300&q=80',
-    active: true,
-  },
-];
+
 const ProductsSection = ({ accent }: { accent: string }) => {
-  const [filter, setFilter] = useState('Todos');
+
   const [showModal, setShowModal] = useState(false);
-  const categories = ['Todos', 'Tortas', 'Golosinas', 'Postres'];
-  const filtered =
-    filter === 'Todos' ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter((p) => p.category === filter);
+
+
 
   return (
     <div className="space-y-5">
@@ -79,69 +23,11 @@ const ProductsSection = ({ accent }: { accent: string }) => {
         </button>
       </div>
 
-      {/* Category filter */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        {categories.map((c) => (
-          <button
-            key={c}
-            onClick={() => setFilter(c)}
-            className="shrink-0 rounded-xl px-4 py-2 text-sm font-bold transition-all"
-            style={
-              filter === c
-                ? { backgroundColor: accent, color: 'white' }
-                : { backgroundColor: '#f1f5f9', color: '#64748b' }
-            }
-          >
-            {c}
-          </button>
-        ))}
-      </div>
+
+
 
       {/* Product grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {filtered.map((p) => (
-          <div
-            key={p.id}
-            className="group relative rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5"
-          >
-            <div className="relative aspect-square overflow-hidden bg-slate-100">
-              <img
-                src={p.img}
-                alt={p.name}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              {!p.active && (
-                <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                  <span className="text-xs font-bold text-slate-500 bg-white rounded-full px-3 py-1 shadow">
-                    Pausado
-                  </span>
-                </div>
-              )}
-              {p.stock === 0 && p.active && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
-                  Sin stock
-                </div>
-              )}
-            </div>
-            <div className="p-3">
-              <p className="text-sm font-bold text-slate-900 truncate">{p.name}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{p.category}</p>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-base font-black" style={{ color: accent }}>
-                  ${p.price.toLocaleString()}
-                </span>
-                <span className="text-xs text-slate-400 font-medium">{p.stock} u.</span>
-              </div>
-            </div>
-            {/* Quick actions */}
-            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-md text-slate-600 hover:text-blue-600 transition-colors">
-                <MI name="edit" className="!text-sm" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       {/* Add product modal */}
       {showModal && (

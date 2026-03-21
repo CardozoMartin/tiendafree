@@ -6,3 +6,9 @@ export const postCreateShopFn = async (data:IShopData)=>{
     const response = await api.post('/tiendas/', data)
     return response.data
 }
+
+//funcion para obtener los datos de la tienda solo si el usuarios es dueño y OWNER
+export const getMyShopFn = async () => {
+  const response = await api.get('/tiendas/mi-tienda/')
+  return response.data
+}

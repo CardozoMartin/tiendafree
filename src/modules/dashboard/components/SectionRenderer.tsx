@@ -17,9 +17,9 @@ export const SectionRenderer = ({
   active,
   accent,
   setAccent,
+  isActiveShop = false,
 }: SectionRendererProps) => {
 
-  const isActiveShop = false
   switch (active) {
     case 'home':
       return <HomeSection accent={accent} />;

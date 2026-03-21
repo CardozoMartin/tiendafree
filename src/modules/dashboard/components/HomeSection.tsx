@@ -1,7 +1,6 @@
 import { MI } from '../components/MaterialIcon';
 import { STATUS_META } from '../constant/constants';
 
-// ── Mock Data ──────────────────────────────────────────────────────────────
 const MOCK_ORDERS = [
   {
     id: '#0042',
@@ -29,7 +28,6 @@ const MOCK_ORDERS = [
   },
 ];
 
-// ── Badge Component ────────────────────────────────────────────────────────
 const Badge = ({ status }: { status: 'new' | 'pending' | 'done' }) => {
   const m = STATUS_META[status];
   return (
@@ -41,7 +39,6 @@ const Badge = ({ status }: { status: 'new' | 'pending' | 'done' }) => {
   );
 };
 
-// ── Main Component ─────────────────────────────────────────────────────────
 interface HomeSectionProps {
   accent: string;
 }
@@ -83,7 +80,7 @@ const HomeSection = ({ accent }: HomeSectionProps) => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Greeting */}
       <div className="flex items-center justify-between">
         <div>
@@ -99,8 +96,8 @@ const HomeSection = ({ accent }: HomeSectionProps) => {
         </button>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {/* Stats grid — 4 columnas desde md */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => (
           <div
             key={s.label}
@@ -118,54 +115,55 @@ const HomeSection = ({ accent }: HomeSectionProps) => {
         ))}
       </div>
 
-      {/* Recent orders */}
-      <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-base font-bold text-slate-900">Últimos pedidos</h2>
-          <button className="text-xs font-bold" style={{ color: accent }}>
-            Ver todos →
-          </button>
+      {/* Desktop: 2 col layout — Orders (2/3) + Link card (1/3) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Recent orders — ocupa 2/3 */}
+        <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <h2 className="text-base font-bold text-slate-900">Últimos pedidos</h2>
+            <button className="text-xs font-bold" style={{ color: accent }}>
+              Ver todos →
+            </button>
+          </div>
+          <div className="divide-y divide-slate-50">
+            {MOCK_ORDERS.map((o) => (
+              <div
+                key={o.id}
+                className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors"
+              >
+                <div className="size-9 rounded-xl flex items-center justify-center bg-slate-100 shrink-0">
+                  <MI name="person" className="text-slate-400 !text-lg" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-900 truncate">{o.client}</p>
+                  <p className="text-xs text-slate-400 truncate">
+                    {o.product} · {o.time}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-sm font-bold text-slate-800">
+                    ${o.total.toLocaleString()}
+                  </span>
+                  <Badge status={o.status} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="divide-y divide-slate-50">
-          {MOCK_ORDERS.slice(0, 3).map((o) => (
-            <div
-              key={o.id}
-              className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors"
-            >
-              <div className="size-9 rounded-xl flex items-center justify-center bg-slate-100 shrink-0">
-                <MI name="person" className="text-slate-400 !text-lg" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-900 truncate">{o.client}</p>
-                <p className="text-xs text-slate-400 truncate">
-                  {o.product} · {o.time}
-                </p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-sm font-bold text-slate-800">
-                  ${o.total.toLocaleString()}
-                </span>
-                <Badge status={o.status} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Share link card */}
-      <div
-        className="rounded-2xl p-6 text-white"
-        style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
-      >
-        <div className="flex items-center justify-between gap-4">
+        {/* Link card — ocupa 1/3 */}
+        <div
+          className="rounded-2xl p-6 text-white flex flex-col justify-between min-h-[180px]"
+          style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
+        >
           <div>
             <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-1">
               Tu link de tienda
             </p>
-            <p className="text-lg font-black">vitrina.ar/caro-pasteleria</p>
-            <p className="text-white/60 text-xs mt-1">Compartilo y empezá a recibir pedidos</p>
+            <p className="text-lg font-black leading-snug">vitrina.ar/caro-pasteleria</p>
+            <p className="text-white/60 text-xs mt-2">Compartilo y empezá a recibir pedidos</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm">
               <MI name="content_copy" className="!text-base" />
             </button>

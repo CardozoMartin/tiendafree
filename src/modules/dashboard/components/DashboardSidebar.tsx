@@ -4,7 +4,6 @@ import { useAuthSessionStore } from '../../auth/store/useAuthSession';
 import { NAV_ITEMS } from '../constant/constants';
 import MI from './MaterialIcon';
 
-
 interface DashboardSidebarProps {
   active: string;
   setActive: (id: string) => void;
@@ -22,11 +21,8 @@ export const DashboardSidebar = ({
   setSidebarCollapsed,
   isActiveShop,
 }: DashboardSidebarProps) => {
-
-  const {confirm,ConfirmModal} = useConfirm()
+  const { confirm, ConfirmModal } = useConfirm();
   const handleLogout = async () => {
-
-
     const confirmedLogout = await confirm({
       titulo: '¿Cerrar sesión?',
       descripcion: '¿Estás seguro de que deseas cerrar sesión?',
@@ -45,7 +41,7 @@ export const DashboardSidebar = ({
         sidebarCollapsed ? 'w-[72px]' : 'w-[220px]'
       }`}
     >
-        {ConfirmModal}
+      {ConfirmModal}
       {/* Logo */}
       <div
         className={`flex items-center gap-2.5 px-4 py-5 border-b border-slate-100 ${sidebarCollapsed ? 'justify-center' : ''}`}

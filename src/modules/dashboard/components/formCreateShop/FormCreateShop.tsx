@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { useCreateShop } from '../../hooks/useShop';
 import { useConfirm } from '../../../../hooks/useConfirm';
+import { useCreateShop } from '../../hooks/useShop';
 export interface IShopData {
   nombre: string;
   titulo: string;
@@ -15,7 +15,6 @@ export interface IShopData {
 }
 
 const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
-
   //RHF para menejo del formulario
   const {
     register,
@@ -29,7 +28,6 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
   const { mutateAsync: createShop, isPending } = useCreateShop();
   //Funcion que se ejecuta al enviar el formulario, recibe los datos validados
   const handleSubmit = async (data: IShopData) => {
-
     const userConfirmed = await confirm({
       titulo: '¿Estas seguro?',
       descripcion: '¿Estás seguro de que deseas crear la tienda?',
@@ -38,7 +36,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
       variant: 'info',
     });
 
-    if (!userConfirmed) {
+    if (userConfirmed) {
       await createShop(data);
     }
   };
@@ -74,6 +72,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
         </div>
 
         <div className="p-5 space-y-4">
+          {/*Input de nombre */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelBase}>
@@ -101,7 +100,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
               {errors.titulo && <p className={errorMsg}>{errors.titulo.message}</p>}
             </div>
           </div>
-
+          {/*Input de descripción */}
           <div>
             <label className={labelBase}>Descripción</label>
             <textarea
@@ -111,7 +110,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
               {...register('descripcion')}
             />
           </div>
-
+          {/*Input de plantilla */}
           <div className="sm:w-1/2">
             <label className={labelBase}>
               Plantilla <span style={{ color: accent }}>*</span>
@@ -143,6 +142,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
 
         <div className="p-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/*Input de WhatsApp */}
             <div>
               <label className={labelBase}>WhatsApp</label>
               <div className="relative">
@@ -157,7 +157,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
                 />
               </div>
             </div>
-
+            {/*Input de Instagram */}
             <div>
               <label className={labelBase}>Instagram</label>
               <div className="relative">
@@ -172,7 +172,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
                 />
               </div>
             </div>
-
+            {/*Input de Facebook */}
             <div>
               <label className={labelBase}>Facebook</label>
               <div className="relative">
@@ -200,6 +200,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
 
         <div className="p-5">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/*Input de país */}
             <div>
               <label className={labelBase}>
                 País <span style={{ color: accent }}>*</span>
@@ -212,7 +213,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
               />
               {errors.pais && <p className={errorMsg}>{errors.pais.message}</p>}
             </div>
-
+            {/*Input de provincia */}
             <div>
               <label className={labelBase}>
                 Provincia <span style={{ color: accent }}>*</span>
@@ -225,7 +226,7 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
               />
               {errors.provincia && <p className={errorMsg}>{errors.provincia.message}</p>}
             </div>
-
+            {/*Input de ciudad */}
             <div>
               <label className={labelBase}>
                 Ciudad <span style={{ color: accent }}>*</span>
