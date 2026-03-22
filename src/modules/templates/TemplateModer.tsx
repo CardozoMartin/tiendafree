@@ -1,6 +1,72 @@
 import { useState } from 'react';
 import HeroGallery from './templateModer/HeroGallery';
 
+// ─── EDITOR TYPES & WRAPPER ──────────────────────────────────────────────────
+
+export interface SectionEditorConfig {
+  sectionId: string;
+  label: string;
+  onEdit: () => void;
+}
+
+export interface EditorConfig {
+  enabled: boolean;
+  activeSectionId?: string | null;
+  data?: any;
+  onChange?: (patch: any) => void;
+  sections: SectionEditorConfig[];
+}
+
+const EditableSection = ({
+  children,
+  sectionId,
+  label,
+  editorConfig,
+}: {
+  children: React.ReactNode;
+  sectionId: string;
+  label: string;
+  editorConfig?: EditorConfig;
+}) => {
+  if (!editorConfig?.enabled) return <>{children}</>;
+
+  const sectionConfig = editorConfig.sections.find((s) => s.sectionId === sectionId);
+  if (!sectionConfig) return <>{children}</>;
+
+  const isEditingThis = editorConfig.activeSectionId === sectionId;
+  const isEditingOther = editorConfig.activeSectionId && !isEditingThis;
+
+  return (
+    <div className={`relative group/editable ${isEditingThis ? 'ring-2 ring-indigo-400 rounded-sm ring-offset-4 ring-offset-indigo-50' : ''}`}>
+      {children}
+      
+      {!isEditingThis && !isEditingOther && (
+        <>
+          <div className="absolute inset-0 ring-1 ring-indigo-200 md:ring-transparent md:ring-2 group-hover/editable:ring-indigo-400 group-hover/editable:ring-offset-0 rounded-sm transition-all duration-200 pointer-events-none z-10" />
+          <button
+            onClick={sectionConfig.onEdit}
+            className="
+              absolute top-4 right-4 z-30
+              opacity-90 md:opacity-0 group-hover/editable:opacity-100
+              transition-all duration-200 scale-100 md:scale-95 group-hover/editable:scale-100
+              flex items-center gap-1.5 px-3 py-1.5
+              bg-white border border-indigo-200 rounded-lg shadow-md
+              text-xs font-semibold text-indigo-600
+              hover:bg-indigo-600 hover:text-white hover:border-indigo-600
+            "
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            Editar {label}
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const CATEGORIES = ['Todo', 'Camisas', 'Zapatos', 'Accesorios', 'Pantalones', 'Vestidos'];
@@ -291,13 +357,34 @@ const StarRating = ({ rating, max = 5 }: { rating: number; max?: number }) => (
 
 // ─── NAVBAR ──────────────────────────────────────────────────────────────────
 
-const Header = ({ cartCount, onCartClick }: { cartCount: number; onCartClick: () => void }) => {
+const Header = ({
+  cartCount,
+  onCartClick,
+  brandName = 'Mi Logo',
+  editMode,
+  onChange,
+}: {
+  cartCount: number;
+  onCartClick: () => void;
+  brandName?: string;
+  editMode?: boolean;
+  onChange?: (val: string) => void;
+}) => {
   const [open, setOpen] = useState(false);
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative z-40">
-      <a href="#">
-        <span className="text-xl font-semibold text-indigo-600 tracking-tight">Mi Logo</span>
-      </a>
+      {editMode ? (
+         <input
+           className="font-semibold text-xl tracking-tight text-indigo-600 bg-transparent outline-none w-48 border-b-2 border-dashed border-indigo-300 focus:border-indigo-500 transition-colors"
+           value={brandName}
+           onChange={(e) => onChange?.(e.target.value)}
+           placeholder="Nombre de tienda"
+         />
+      ) : (
+        <a href="#">
+          <span className="text-xl font-semibold text-indigo-600 tracking-tight">{brandName}</span>
+        </a>
+      )}
 
       <div className="hidden sm:flex items-center gap-8">
         {['Inicio', 'Nosotros', 'Contacto'].map((l) => (
@@ -912,6 +999,7 @@ interface TemplateModernProps {
   tema?: any;
   accent?: string;
   personalizacion?: any;
+  editorConfig?: EditorConfig;
 }
 
 // ─── APP ─────────────────────────────────────────────────────────────────────
@@ -927,16 +1015,23 @@ export interface HeroGalleryProps {
     orden?: number;
     activa?: boolean;
   }>;
+  editMode?: boolean;
+  onChange?: (patch: any) => void;
 }
 export default function TemplateConCarrito(props: TemplateModernProps) {
   // ──── Props
-  const { tienda, tema, accent = '#6344ee', personalizacion } = props;
+  const { tienda, tema, accent = '#6344ee', personalizacion, editorConfig } = props;
 
   //props que se le pasara a hero gallery
   const heroProps: HeroGalleryProps = {
-    titulo: tienda.titulo,
-    descripcion: tienda.descripcion,
-    carrusel: tienda.carrusel,
+    titulo: editorConfig?.activeSectionId === 'hero' ? editorConfig.data?.titulo : tienda.titulo,
+    descripcion: editorConfig?.activeSectionId === 'hero' ? editorConfig.data?.descripcion : tienda.descripcion,
+    carrusel: editorConfig?.activeSectionId === 'hero' ? editorConfig.data?.carrusel : tienda.carrusel,
+    editMode: editorConfig?.activeSectionId === 'hero',
+    onChange: (patch) => {
+      // HeroGallery sends { titulo, descripcion, carrusel } partials
+      editorConfig?.onChange?.(patch);
+    }
   };
   console.log(tienda.carrusel);
   const tituloTienda = tienda.titulo;
@@ -973,7 +1068,15 @@ export default function TemplateConCarrito(props: TemplateModernProps) {
     <div className="min-h-screen bg-white text-gray-900">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap'); * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }`}</style>
 
-      <Header cartCount={cartCount} onCartClick={() => setCartOpen(true)} />
+      <EditableSection sectionId="navbar" label="Menú Navegación" editorConfig={editorConfig}>
+        <Header 
+          cartCount={cartCount} 
+          onCartClick={() => setCartOpen(true)} 
+          brandName={editorConfig?.activeSectionId === 'navbar' ? editorConfig?.data?.titulo : tienda.titulo}
+          editMode={editorConfig?.activeSectionId === 'navbar'}
+          onChange={(val) => editorConfig?.onChange?.({ titulo: val })}
+        />
+      </EditableSection>
 
       {selectedProduct ? (
         <ProductDetail
@@ -983,10 +1086,42 @@ export default function TemplateConCarrito(props: TemplateModernProps) {
         />
       ) : (
         <>
-          <HeroGallery {...heroProps} />
-          <LogoMarquee />
-          <NewArrivals />
-          <ProductsSection onSelectProduct={setSelectedProduct} onAddToCart={handleAddToCart} />
+          <EditableSection sectionId="hero" label="Hero / Galería" editorConfig={editorConfig}>
+            <HeroGallery {...heroProps} />
+          </EditableSection>
+          
+          <EditableSection sectionId="marcas" label="Marcas" editorConfig={editorConfig}>
+            {editorConfig?.activeSectionId === 'marcas' ? (
+               <div className="py-20 bg-indigo-50 border-2 border-dashed border-indigo-200 flex flex-col items-center justify-center text-indigo-400 rounded-xl m-10">
+                 <span className="text-4xl mb-3">🏷️</span>
+                 <p className="font-semibold text-sm">Editor de marcas — Próximamente</p>
+               </div>
+            ) : (
+              <LogoMarquee />
+            )}
+          </EditableSection>
+
+          <EditableSection sectionId="nuevos" label="Nuevos Ingresos" editorConfig={editorConfig}>
+            {editorConfig?.activeSectionId === 'nuevos' ? (
+               <div className="py-20 bg-indigo-50 border-2 border-dashed border-indigo-200 flex flex-col items-center justify-center text-indigo-400 rounded-xl m-10">
+                 <span className="text-4xl mb-3">✨</span>
+                 <p className="font-semibold text-sm">Editor de nuevos ingresos — Próximamente</p>
+               </div>
+            ) : (
+              <NewArrivals />
+            )}
+          </EditableSection>
+
+          <EditableSection sectionId="productos" label="Todos los productos" editorConfig={editorConfig}>
+            {editorConfig?.activeSectionId === 'productos' ? (
+               <div className="py-20 bg-indigo-50 border-2 border-dashed border-indigo-200 flex flex-col items-center justify-center text-indigo-400 rounded-xl m-10">
+                 <span className="text-4xl mb-3">📦</span>
+                 <p className="font-semibold text-sm">Los productos se gestionan desde el panel "Productos"</p>
+               </div>
+            ) : (
+              <ProductsSection onSelectProduct={setSelectedProduct} onAddToCart={handleAddToCart} />
+            )}
+          </EditableSection>
         </>
       )}
 

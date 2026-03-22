@@ -6,6 +6,12 @@ export const config: TemplateConfig = {
   descripcion: 'Template con enfoque en belleza y estilo visual editorial.',
   secciones: [
     {
+      id: 'navbar',
+      label: 'Navegación / Encabezado',
+      descripcion: 'Logotipo y nombre principal',
+      campos: ['titulo'],
+    },
+    {
       id: 'hero',
       label: 'Hero Principal',
       descripcion: 'Título, descripción y galería principal',

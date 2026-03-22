@@ -1,115 +1,143 @@
-import { useEffect, useState } from 'react';
-import { getTemplateSectionEditor } from '../../../templates/editorRegistry';
+import { useState } from 'react';
 import { getTemplateConfig, resolveTemplateIdFromShop } from '../../../templates/registry';
 import type { TiendaData } from '../../../templates/types';
-import { usePublicShop } from '../../hooks/useShop';
+import RuntimeTemplatePink from '../../../templates/templatePink/TemplatePink';
+import type { EditorConfig } from '../../../templates/templatePink/TemplatePink';
+import TemplateModern from '../../../templates/TemplateModer';
 
 interface EditingSiteProps {
   tienda?: any;
 }
 
-// ─── COMPONENTE ──────────────────────────────────────────────────────────────
-
 const EditingSite = ({ tienda }: EditingSiteProps) => {
-  const tiendaSlug = tienda?.slug ?? tienda?.datos?.slug;
-  const { data: publicShop } = usePublicShop(tiendaSlug ?? '');
-
-  const plantillaId = resolveTemplateIdFromShop(publicShop ?? tienda);
+  const plantillaId = resolveTemplateIdFromShop(tienda);
   const templateConfig = getTemplateConfig(plantillaId);
 
+  // Sección actualmente en modo "edición inline" (solo puede haber una)
   const [editingSection, setEditingSection] = useState<string | null>(null);
+
+  // Datos locales de edición (se sincronizan con la tienda)
   const [data, setData] = useState<TiendaData>({
-    titulo: tienda?.titulo ?? 'Sin título',
+    titulo: tienda?.titulo ?? '',
     descripcion: tienda?.descripcion ?? '',
     carrusel: tienda?.carrusel ?? [],
   });
-
-  useEffect(() => {
-    if (tienda) {
-      setData({
-        titulo: tienda?.titulo ?? 'Sin título',
-        descripcion: tienda?.descripcion ?? '',
-        carrusel: tienda?.carrusel ?? [],
-      });
-    }
-  }, [tienda]);
 
   const handleChange = (patch: Partial<TiendaData>) => {
     setData((prev) => ({ ...prev, ...patch }));
   };
 
-  const handleSave = (sectionId: string) => {
-    console.log(`Guardando sección "${sectionId}":`, data);
+  const handleSave = () => {
+    console.log(`[EditingSite] Guardando sección "${editingSection}":`, data);
+    setEditingSection(null);
+  };
+
+  const handleCancel = () => {
+    // Revertir a los datos de la tienda original
+    setData({
+      titulo: tienda?.titulo ?? '',
+      descripcion: tienda?.descripcion ?? '',
+      carrusel: tienda?.carrusel ?? [],
+    });
     setEditingSection(null);
   };
 
   if (!templateConfig) {
     return (
-      <div className="p-6 text-sm text-gray-400">
-        Plantilla "{plantillaId}" no encontrada en el registro.
+      <div className="p-8 text-center text-sm text-gray-400">
+        <p>⚠️ Plantilla "{plantillaId}" no encontrada.</p>
       </div>
     );
   }
 
+  // Configuración de edición pasada a las plantillas
+  const editorConfig: EditorConfig = {
+    enabled: true,
+    activeSectionId: editingSection,
+    onChange: handleChange,
+    data,
+    sections: templateConfig.secciones.map((s) => ({
+      sectionId: s.id,
+      label: s.label,
+      onEdit: () => {
+        // Al interactuar con el botón "Editar", activamos el modo edición de esa sección
+        setEditingSection(s.id);
+      },
+    })),
+  };
+
+  // Construir los props simulando los datos en tiempo real
+  const tiendaConEdicion = {
+    ...tienda,
+    titulo: data.titulo,
+    descripcion: data.descripcion,
+    carrusel: data.carrusel,
+  };
+
+  const tema = tienda?.temaConfig ?? {};
+  const personalizacion = {
+    temaConfig: {
+      color_primario: tema?.colorPrimario,
+      hero_titulo: data.titulo,
+      hero_subtitulo: data.descripcion,
+    },
+    sections: Object.entries(tema?.seccionesVisibles ?? {}).map(([key, enabled], i) => ({
+      id: i + 1,
+      key,
+      enabled,
+    })),
+  };
+
   return (
-    <div className="flex flex-col">
-      {templateConfig.secciones.map((seccion) => {
-        const Editor = getTemplateSectionEditor(plantillaId, seccion.id);
-        const isEditing = editingSection === seccion.id;
+    <div className="relative w-full h-screen overflow-y-auto bg-white">
+      {/* ── Plantilla real (Renderizada a pantalla completa) ── */}
+      {plantillaId === 'plantilla_pink' ? (
+        <RuntimeTemplatePink
+          tienda={tiendaConEdicion}
+          tema={tema}
+          accent={tema?.colorPrimario ?? '#f43f5e'}
+          personalizacion={personalizacion}
+          editorConfig={editorConfig}
+        />
+      ) : (
+        <TemplateModern
+          tienda={tiendaConEdicion}
+          tema={tema}
+          accent={tema?.colorPrimario ?? '#6344ee'}
+          personalizacion={personalizacion}
+          editorConfig={editorConfig}
+        />
+      )}
 
-        return (
-          <div key={seccion.id} className="relative group/section">
-            {Editor ? (
-              <Editor
-                templateId={plantillaId}
-                sectionId={seccion.id}
-                tienda={tienda}
-                data={data}
-                editMode={isEditing}
-                onChange={handleChange}
-                onSave={() => handleSave(seccion.id)}
-                onCancel={() => setEditingSection(null)}
-              />
-            ) : (
-              <div className="px-6 md:px-16 py-10 border-b border-dashed border-gray-100">
-                <p className="text-sm text-gray-300 text-center">
-                  {seccion.label} - editor próximamente
-                </p>
-              </div>
-            )}
-
-            {!isEditing && Editor && (
+      {/* ── Barra flotante de guardado ── */}
+      {editingSection && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-[slideUp_0.3s_ease-out] w-[90vw] md:w-auto max-w-lg">
+          <div className="bg-slate-900 border border-slate-700 shadow-2xl rounded-2xl px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row items-center gap-3 md:gap-6">
+            <div className="flex flex-col text-center md:text-left w-full">
+              <span className="text-white font-semibold text-sm">
+                Editando sección: <span className="text-rose-400 capitalize">{editingSection}</span>
+              </span>
+              <span className="text-slate-400 text-xs hidden md:block mt-0.5">
+                Modifica los textos e imágenes directamente
+              </span>
+            </div>
+            <div className="flex items-center justify-between w-full gap-3 md:ml-4 md:border-l md:border-slate-700 md:pl-6 pt-3 border-t border-slate-700 md:pt-0 md:border-t-0 md:w-auto md:justify-start">
               <button
-                onClick={() => setEditingSection(seccion.id)}
-                className="
-                  absolute top-3 right-3 z-10
-                  opacity-0 group-hover/section:opacity-100
-                  transition-opacity duration-150
-                  flex items-center gap-1.5 px-3 py-1.5
-                  bg-white border border-gray-200 rounded-lg shadow-sm
-                  text-xs font-medium text-gray-600
-                  hover:border-indigo-400 hover:text-indigo-500
-                "
+                onClick={handleCancel}
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors w-full md:w-auto"
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-                Editar {seccion.label}
+                Cancelar
               </button>
-            )}
+              <button
+                onClick={handleSave}
+                className="px-6 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-rose-500/25 transition-all w-full md:w-auto whitespace-nowrap"
+              >
+                Guardar cambios
+              </button>
+            </div>
           </div>
-        );
-      })}
+        </div>
+      )}
     </div>
   );
 };

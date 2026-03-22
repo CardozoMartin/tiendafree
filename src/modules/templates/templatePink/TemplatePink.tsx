@@ -23,12 +23,81 @@ interface SectionVisibility {
   enabled: boolean;
 }
 
+// ─── SOPORTE DE EDICIÓN ───────────────────────────────────────────────────────
+export interface SectionEditorConfig {
+  sectionId: string;
+  label: string;
+  onEdit: () => void;
+}
+
+export interface EditorConfig {
+  enabled: boolean;
+  activeSectionId?: string | null;
+  data?: any;
+  onChange?: (patch: any) => void;
+  sections: SectionEditorConfig[];
+}
+
 interface TemplatePinkDemoProps {
   tienda?: unknown;
   tema?: unknown;
   accent?: string;
   personalizacion?: unknown;
+  editorConfig?: EditorConfig;
 }
+
+// ─── WRAPPER DE SECCIÓN EDITABLE ─────────────────────────────────────────────
+const EditableSection = ({
+  children,
+  sectionId,
+  label,
+  editorConfig,
+}: {
+  children: React.ReactNode;
+  sectionId: string;
+  label: string;
+  editorConfig?: EditorConfig;
+}) => {
+  if (!editorConfig?.enabled) return <>{children}</>;
+
+  const sectionConfig = editorConfig.sections.find((s) => s.sectionId === sectionId);
+  if (!sectionConfig) return <>{children}</>;
+
+  const isEditingThis = editorConfig.activeSectionId === sectionId;
+  const isEditingOther = editorConfig.activeSectionId && !isEditingThis;
+
+  return (
+    <div className={`relative group/editable ${isEditingThis ? 'ring-2 ring-rose-400 rounded-sm ring-offset-4 ring-offset-rose-50' : ''}`}>
+      {children}
+      
+      {!isEditingThis && !isEditingOther && (
+        <>
+          <div className="absolute inset-0 ring-1 ring-rose-200 md:ring-transparent md:ring-2 group-hover/editable:ring-rose-400 group-hover/editable:ring-offset-0 rounded-sm transition-all duration-200 pointer-events-none z-10" />
+          <button
+            onClick={sectionConfig.onEdit}
+            className="
+              absolute top-3 right-3 z-30
+              opacity-90 md:opacity-0 group-hover/editable:opacity-100
+              transition-all duration-200 scale-100 md:scale-95 group-hover/editable:scale-100
+              flex items-center gap-1.5 px-3 py-1.5
+              bg-white border border-rose-200 rounded-lg shadow-md
+              text-xs font-semibold text-rose-600
+              hover:bg-rose-600 hover:text-white hover:border-rose-600
+            "
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            Editar {label}
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+
 
 // ─── DATOS DE EJEMPLO ─────────────────────────────────────────────────────────
 const PRODUCTS: Product[] = [
@@ -95,22 +164,35 @@ const Navbar = ({
   cartCount,
   onLogoClick,
   brandName = 'LUMÉ',
+  editMode,
+  onChange,
 }: {
   onCartClick: () => void;
   cartCount: number;
   onLogoClick: () => void;
   brandName?: string;
+  editMode?: boolean;
+  onChange?: (val: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 py-4 border-b border-rose-100 bg-white sticky top-0 z-50">
-      <button
-        onClick={onLogoClick}
-        className="font-black text-2xl tracking-tight text-rose-900 cursor-pointer"
-      >
-        {brandName}
-      </button>
+      {editMode ? (
+         <input
+           className="font-black text-2xl tracking-tight text-rose-900 bg-transparent outline-none w-48 border-b-2 border-dashed border-rose-300 focus:border-rose-500 transition-colors"
+           value={brandName}
+           onChange={(e) => onChange?.(e.target.value)}
+           placeholder="Nombre de tienda"
+         />
+      ) : (
+        <button
+          onClick={onLogoClick}
+          className="font-black text-2xl tracking-tight text-rose-900 cursor-pointer"
+        >
+          {brandName}
+        </button>
+      )}
 
       <div className="hidden sm:flex items-center gap-8 text-sm font-medium text-slate-600">
         <a href="#" className="hover:text-rose-600 transition-colors">
@@ -186,81 +268,168 @@ const Hero = ({
   onShopClick,
   title,
   subtitle,
+  editMode,
+  data,
+  onChange,
 }: {
   onShopClick: () => void;
   title: string;
   subtitle: string;
-}) => (
-  <section className="relative overflow-hidden bg-rose-50 min-h-[85vh] flex items-center">
-    <div className="max-w-6xl w-full mx-auto px-6 md:px-16 grid md:grid-cols-2 gap-12 items-center py-20">
-      <div>
-        <span className="inline-block text-xs font-semibold tracking-widest text-rose-500 uppercase mb-4">
-          Nueva colección 2025
-        </span>
-        <h1 className="text-5xl md:text-6xl font-black text-rose-900 leading-tight">
-          {title}
-        </h1>
-        <p className="mt-6 text-slate-500 text-base max-w-md leading-relaxed">
-          {subtitle}
-        </p>
-        <div className="flex items-center gap-4 mt-8">
-          <button
-            onClick={onShopClick}
-            className="px-7 py-3.5 bg-rose-600 text-white font-semibold rounded-full hover:bg-rose-700 transition-colors text-sm"
-          >
-            Ver colección
-          </button>
-          <button className="px-7 py-3.5 border border-rose-200 text-rose-700 font-semibold rounded-full hover:bg-rose-100 transition-colors text-sm">
-            Nuestra historia
-          </button>
+  editMode?: boolean;
+  data?: any;
+  onChange?: (patch: any) => void;
+}) => {
+  const images = editMode ? (data?.carrusel || []) : [
+    { url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=800&fit=crop' },
+    { url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=600&fit=crop' },
+  ];
+
+  const handleUpdateImage = (index: number) => {
+    const url = window.prompt('Pega la URL de la nueva imagen:');
+    if (url && onChange && data) {
+      const arr = [...(data.carrusel || [])];
+      arr[index] = { url };
+      onChange({ carrusel: arr });
+    }
+  };
+
+  return (
+    <section className="relative overflow-hidden bg-rose-50 min-h-[85vh] flex items-center">
+      <div className="max-w-6xl w-full mx-auto px-6 md:px-16 grid md:grid-cols-2 gap-12 items-center py-20">
+        <div>
+          <span className="inline-block text-xs font-semibold tracking-widest text-rose-500 uppercase mb-4">
+            Nueva colección 2025
+          </span>
+          {editMode ? (
+            <input
+              className="w-full bg-transparent outline-none border-b-2 border-dashed border-rose-300 focus:border-rose-500 text-5xl md:text-6xl font-black text-rose-900 leading-tight transition-colors"
+              value={data?.titulo ?? title}
+              onChange={(e) => onChange?.({ titulo: e.target.value })}
+              placeholder="Escribe el título"
+            />
+          ) : (
+            <h1 className="text-5xl md:text-6xl font-black text-rose-900 leading-tight">
+              {title}
+            </h1>
+          )}
+          {editMode ? (
+            <textarea
+              className="mt-6 w-full bg-transparent outline-none border-b-2 border-dashed border-rose-300 focus:border-rose-500 text-slate-500 text-base max-w-md leading-relaxed resize-none transition-colors"
+              rows={3}
+              value={data?.descripcion ?? subtitle}
+              onChange={(e) => onChange?.({ descripcion: e.target.value })}
+              placeholder="Escribe una pequeña descripción"
+            />
+          ) : (
+            <p className="mt-6 text-slate-500 text-base max-w-md leading-relaxed">
+              {subtitle}
+            </p>
+          )}
+          <div className="flex items-center gap-4 mt-8">
+            <button
+              onClick={onShopClick}
+              className="px-7 py-3.5 bg-rose-600 text-white font-semibold rounded-full hover:bg-rose-700 transition-colors text-sm"
+            >
+              Ver colección
+            </button>
+            <button className="px-7 py-3.5 border border-rose-200 text-rose-700 font-semibold rounded-full hover:bg-rose-100 transition-colors text-sm">
+              Nuestra historia
+            </button>
+          </div>
+          <div className="flex items-center gap-8 mt-12">
+            {[
+              ['12k+', 'Clientas'],
+              ['100%', 'Natural'],
+              ['4.9★', 'Valoración'],
+            ].map(([val, label]) => (
+              <div key={label}>
+                <p className="text-2xl font-black text-rose-900">{val}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex items-center gap-8 mt-12">
-          {[
-            ['12k+', 'Clientas'],
-            ['100%', 'Natural'],
-            ['4.9★', 'Valoración'],
-          ].map(([val, label]) => (
-            <div key={label}>
-              <p className="text-2xl font-black text-rose-900">{val}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{label}</p>
+        <div className="relative flex mt-12 md:mt-0 justify-center group/images">
+          {images[0] ? (
+            <div className="w-64 h-80 md:w-72 md:h-96 rounded-3xl overflow-hidden shadow-2xl shadow-rose-200 rotate-2 relative group/img1">
+              <img
+                src={images[0].url}
+                alt="hero"
+                className="w-full h-full object-cover"
+              />
+              {editMode && (
+                <div className="absolute inset-0 bg-black/40 opacity-90 md:opacity-0 group-hover/img1:opacity-100 transition-opacity flex items-center justify-center">
+                  <button onClick={() => handleUpdateImage(0)} className="bg-white text-rose-600 px-4 py-2 rounded-xl text-sm font-bold shadow-lg hover:scale-105 transition-transform cursor-pointer">
+                    Cambiar imagen
+                  </button>
+                </div>
+              )}
             </div>
-          ))}
+          ) : editMode && (
+            <div className="w-64 h-80 md:w-72 md:h-96 rounded-3xl bg-rose-100 border-2 border-dashed border-rose-300 rotate-2 flex items-center justify-center relative hover:bg-rose-200 transition-colors cursor-pointer" onClick={() => handleUpdateImage(0)}>
+              <span className="text-rose-500 font-semibold text-sm">+ Imagen principal</span>
+            </div>
+          )}
+          {images[1] ? (
+            <div className="absolute -bottom-4 -left-2 md:-left-4 w-40 h-56 md:w-48 md:h-64 rounded-2xl overflow-hidden shadow-xl shadow-rose-100 -rotate-3 relative group/img2">
+              <img
+                src={images[1].url}
+                alt="hero2"
+                className="w-full h-full object-cover"
+              />
+              {editMode && (
+                <div className="absolute inset-0 bg-black/40 opacity-90 md:opacity-0 group-hover/img2:opacity-100 transition-opacity flex items-center justify-center">
+                  <button onClick={() => handleUpdateImage(1)} className="bg-white text-rose-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg hover:scale-105 transition-transform text-center mx-2 cursor-pointer">
+                    Cambiar secundaria
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : editMode && (
+            <div className="absolute -bottom-4 -left-2 md:-left-4 w-40 h-56 md:w-48 md:h-64 rounded-2xl bg-rose-100 border-2 border-dashed border-rose-300 -rotate-3 flex items-center justify-center hover:bg-rose-200 transition-colors cursor-pointer" onClick={() => handleUpdateImage(1)}>
+              <span className="text-rose-500 font-semibold text-xs">+ Secundaria</span>
+            </div>
+          )}
+          <div className="absolute top-4 -right-4 w-16 h-16 md:w-20 md:h-20 bg-rose-400 rounded-full opacity-20" />
+          <div className="absolute bottom-20 right-0 w-8 h-8 md:w-10 md:h-10 bg-rose-300 rounded-full opacity-30" />
         </div>
       </div>
-      <div className="relative hidden md:flex justify-center">
-        <div className="w-72 h-96 rounded-3xl overflow-hidden shadow-2xl shadow-rose-200 rotate-2">
-          <img
-            src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=800&fit=crop"
-            alt="hero"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute -bottom-4 -left-4 w-48 h-64 rounded-2xl overflow-hidden shadow-xl shadow-rose-100 -rotate-3">
-          <img
-            src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=600&fit=crop"
-            alt="hero2"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="absolute top-4 -right-4 w-20 h-20 bg-rose-400 rounded-full opacity-20" />
-        <div className="absolute bottom-20 right-0 w-10 h-10 bg-rose-300 rounded-full opacity-30" />
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ─── GALERÍA / COLECCIÓN ──────────────────────────────────────────────────────
-const Gallery = ({ imgs }: { imgs?: string[] }) => {
-  const galleryItems =
-    imgs && imgs.length > 0
-      ? imgs
-      : [
+const Gallery = ({ 
+  imgs,
+  editMode,
+  onChange,
+}: { 
+  imgs?: string[];
+  editMode?: boolean;
+  onChange?: (imgs: string[]) => void;
+}) => {
+  const defaultImages = [
     'https://images.unsplash.com/photo-1562619371-b67725b6fde2?w=400&h=600&fit=crop',
     'https://images.unsplash.com/photo-1633983482450-bfb7b566fe6a?w=400&h=600&fit=crop',
     'https://plus.unsplash.com/premium_photo-1671209879721-3082e78307e3?w=400&h=600&fit=crop',
     'https://images.unsplash.com/photo-1563089145-599997674d42?w=400&h=600&fit=crop',
     'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=600&fit=crop',
   ];
+  
+  const galleryItems = imgs && imgs.length > 0 ? imgs : editMode ? [] : defaultImages;
+
+  const handleRemove = (index: number) => {
+    if (!onChange) return;
+    const ne = [...galleryItems];
+    ne.splice(index, 1);
+    onChange(ne);
+  };
+
+  const handleAdd = () => {
+    if (!onChange) return;
+    const url = window.prompt("Pega la URL de la imagen para la galería:");
+    if (url) onChange([...galleryItems, url]);
+  };
 
   return (
     <section className="py-20 px-6 md:px-16 max-w-6xl mx-auto">
@@ -273,16 +442,43 @@ const Gallery = ({ imgs }: { imgs?: string[] }) => {
           Una colección visual de nuestros looks favoritos, creados con nuestros productos.
         </p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {galleryItems.map((src, i) => (
-          <img
-            key={i}
-            src={src}
-            alt={`look-${i}`}
-            className="w-full h-80 object-cover rounded-2xl hover:-translate-y-1 transition-transform duration-300 cursor-pointer"
-          />
-        ))}
-      </div>
+      {(galleryItems.length > 0 || editMode) && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {galleryItems.map((src, i) => (
+            <div key={i} className="relative group/gallery">
+              <img
+                src={src}
+                alt={`look-${i}`}
+                className={`w-full h-80 object-cover rounded-2xl ${
+                  !editMode ? 'hover:-translate-y-1 transition-transform duration-300 cursor-pointer' : ''
+                }`}
+              />
+              {editMode && (
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/gallery:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                  <button
+                    onClick={() => handleRemove(i)}
+                    className="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+          {editMode && (
+             <div 
+               onClick={handleAdd}
+               className="w-full h-80 rounded-2xl border-2 border-dashed border-rose-300 bg-rose-50 flex flex-col items-center justify-center text-rose-400 hover:bg-rose-100 hover:text-rose-500 cursor-pointer transition-colors"
+             >
+               <span className="text-3xl mb-2">+</span>
+               <span className="text-sm font-semibold">Agregar imagen</span>
+             </div>
+          )}
+        </div>
+      )}
     </section>
   );
 };
@@ -739,6 +935,7 @@ export default function TemplatePink(props: TemplatePinkDemoProps = {}) {
   const tema = isRecord(props.tema) ? props.tema : {};
   const personalizacion = isRecord(props.personalizacion) ? props.personalizacion : {};
   const temaConfig = isRecord(personalizacion.temaConfig) ? personalizacion.temaConfig : {};
+  const editorConfig = props.editorConfig;
 
   const sections: SectionVisibility[] = Array.isArray(personalizacion.sections)
     ? personalizacion.sections
@@ -806,36 +1003,57 @@ export default function TemplatePink(props: TemplatePinkDemoProps = {}) {
     <div style={{ fontFamily: "'Poppins', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');`}</style>
 
-      <Navbar
-        onCartClick={() => setCartOpen(true)}
-        cartCount={cartCount}
-        onLogoClick={() => setView('home')}
-        brandName={brandName}
-      />
+      <EditableSection sectionId="navbar" label="Menú Navegación" editorConfig={editorConfig}>
+        <Navbar
+          editMode={editorConfig?.activeSectionId === 'navbar'}
+          onChange={(val) => editorConfig?.onChange?.({ titulo: val })}
+          onCartClick={() => setCartOpen(true)}
+          cartCount={cartCount}
+          onLogoClick={() => setView('home')}
+          brandName={editorConfig?.activeSectionId === 'navbar' ? editorConfig?.data?.titulo : brandName}
+        />
+      </EditableSection>
 
       {view === 'home' && (
         <>
           {showHero && (
-            <Hero
-              onShopClick={() =>
-                document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
-              }
-              title={heroTitle}
-              subtitle={heroSubtitle}
-            />
-          )}
-          {showGallery && <Gallery imgs={galleryImages} />}
-          {showProducts && (
-            <div id="productos">
-              <ProductGrid
-                products={dynamicProducts}
-                onView={(p) => {
-                  setSelectedProduct(p);
-                  setView('detail');
-                }}
-                onAddCart={addToCart}
+            <EditableSection sectionId="hero" label="Hero / Principal" editorConfig={editorConfig}>
+              <Hero
+                editMode={editorConfig?.activeSectionId === 'hero'}
+                data={editorConfig?.data}
+                onChange={editorConfig?.onChange}
+                onShopClick={() =>
+                  document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
+                }
+                title={heroTitle}
+                subtitle={heroSubtitle}
               />
-            </div>
+            </EditableSection>
+          )}
+          {showGallery && (
+            <EditableSection sectionId="galeria" label="Galería" editorConfig={editorConfig}>
+              <Gallery 
+                editMode={editorConfig?.activeSectionId === 'galeria'}
+                imgs={editorConfig?.activeSectionId === 'galeria' ? (editorConfig?.data?.carrusel?.map((c: any) => c.url) || []) : galleryImages} 
+                onChange={(imgs) => {
+                  editorConfig?.onChange?.({ carrusel: imgs.map(url => ({ url })) });
+                }}
+              />
+            </EditableSection>
+          )}
+          {showProducts && (
+            <EditableSection sectionId="productos" label="Productos" editorConfig={editorConfig}>
+              <div id="productos">
+                <ProductGrid
+                  products={dynamicProducts}
+                  onView={(p) => {
+                    setSelectedProduct(p);
+                    setView('detail');
+                  }}
+                  onAddCart={addToCart}
+                />
+              </div>
+            </EditableSection>
           )}
           <Banner />
         </>

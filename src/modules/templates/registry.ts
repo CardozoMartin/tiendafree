@@ -112,55 +112,63 @@ export const resolveTemplateIdFromShop = (
     ? datosTemaConfigSnake?.plantilla
     : undefined;
 
+  // Prioridad: los valores más directos y específicos primero.
+  // Los objetos anidados (como plantilla={id,nombre,...}) no se resuelven
+  // porque normalizeTemplateId sólo acepta string y number.
+  // Por eso ponemos plantilla?.nombre y los id/plantillaId antes.
   const candidates = [
-    tienda?.plantilla,
-    plantilla?.nombre,
-    plantilla?.id,
-    tienda?.template,
-    tienda?.plantillaId,
+    // ── Nivel raíz: plantilla anidada ──────────────────────────────────────
+    plantilla?.nombre,       // "plantilla_pink" ← más directo posible
+    plantilla?.id,           // 2
+    tienda?.plantillaId,     // 2
     tienda?.plantilla_id,
     tienda?.templateId,
     tienda?.template_id,
-    datos?.plantilla,
+    tienda?.template,
+    tienda?.plantilla,       // puede ser string en algunos casos
+    // ── Nivel datos ────────────────────────────────────────────────────────
     plantillaDatos?.nombre,
     plantillaDatos?.id,
     datos?.plantillaId,
     datos?.plantilla_id,
-    datos?.template,
     datos?.templateId,
     datos?.template_id,
-    temaConfig?.plantilla,
+    datos?.template,
+    datos?.plantilla,
+    // ── temaConfig ─────────────────────────────────────────────────────────
     plantillaTemaConfig?.nombre,
     plantillaTemaConfig?.id,
     temaConfig?.plantillaId,
     temaConfig?.plantilla_id,
-    temaConfig?.template,
     temaConfig?.templateId,
     temaConfig?.template_id,
-    temaConfigSnake?.plantilla,
+    temaConfig?.template,
+    temaConfig?.plantilla,
     plantillaTemaConfigSnake?.nombre,
     plantillaTemaConfigSnake?.id,
     temaConfigSnake?.plantillaId,
     temaConfigSnake?.plantilla_id,
-    temaConfigSnake?.template,
     temaConfigSnake?.templateId,
     temaConfigSnake?.template_id,
-    datosTemaConfig?.plantilla,
+    temaConfigSnake?.template,
+    temaConfigSnake?.plantilla,
+    // ── datos.temaConfig ───────────────────────────────────────────────────
     plantillaDatosTemaConfig?.nombre,
     plantillaDatosTemaConfig?.id,
     datosTemaConfig?.plantillaId,
     datosTemaConfig?.plantilla_id,
-    datosTemaConfig?.template,
     datosTemaConfig?.templateId,
     datosTemaConfig?.template_id,
-    datosTemaConfigSnake?.plantilla,
+    datosTemaConfig?.template,
+    datosTemaConfig?.plantilla,
     plantillaDatosTemaConfigSnake?.nombre,
     plantillaDatosTemaConfigSnake?.id,
     datosTemaConfigSnake?.plantillaId,
     datosTemaConfigSnake?.plantilla_id,
-    datosTemaConfigSnake?.template,
     datosTemaConfigSnake?.templateId,
     datosTemaConfigSnake?.template_id,
+    datosTemaConfigSnake?.template,
+    datosTemaConfigSnake?.plantilla,
   ];
 
   for (const candidate of candidates) {

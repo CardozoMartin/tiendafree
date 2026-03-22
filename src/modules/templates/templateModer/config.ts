@@ -7,6 +7,12 @@ export const configModer: TemplateConfig = {
   descripcion: 'Diseño limpio y versátil. Ideal para moda, accesorios y productos generales.',
   secciones: [
     {
+      id: 'navbar',
+      label: 'Navegación / Encabezado',
+      descripcion: 'Logotipo y nombre principal',
+      campos: ['titulo'],
+    },
+    {
       id: 'hero',
       label: 'Hero / Galería',
       descripcion: 'Título, descripción e imágenes principales',
