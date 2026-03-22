@@ -42,9 +42,9 @@ export const SectionRenderer = ({
     case 'store-templates':
       return <Plantillas />;
     case 'store-edit':
-      return isActiveShop ? <EditingSite /> : <CreateShop />;
+      return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop />;
     case 'store-website':
-      return isActiveShop ? <StoreSection accent={accent} setAccent={setAccent} /> : <CreateShop />;
+      return null; // Solo abre nueva pestaña, no renderiza nada
     case 'settings':
       return <SettingsSection accent={accent} />;
     default:

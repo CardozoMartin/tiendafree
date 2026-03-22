@@ -4,6 +4,7 @@ import { TEMPLATES } from '../components/Templates';
 
 const DEMO_MAP: Record<string, string> = {
   moderna: 'plantilla_comun',
+  pink: 'plantilla_pink',
 };
 
 const DemoStorePage = () => {

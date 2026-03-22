@@ -1,8 +1,10 @@
-import TemplateModern from "./TemplateModer";
-
+import TemplateModern from './TemplateModer';
+import TemplatePink from './TemplatePink';
+import { resolveTemplateIdFromShop } from './registry';
 
 const TEMPLATES: Record<string, React.ComponentType<any>> = {
   plantilla_comun: TemplateModern,
+  plantilla_pink: TemplatePink,
   // plantilla_elegante: TemplateElegant,  ← escalable
 };
 
@@ -11,11 +13,14 @@ interface StoreRendererProps {
 }
 
 const StoreRenderer = ({ tienda }: StoreRendererProps) => {
-  const Template = TEMPLATES[tienda.plantilla.nombre] ?? TemplateModern;
+  const templateId = resolveTemplateIdFromShop(tienda);
+  const Template = TEMPLATES[templateId] ?? TemplateModern;
   const tema = tienda.temaConfig;
 
   return (
     <Template
+      tienda={tienda}
+      tema={tema}
       accent={tema?.colorPrimario ?? '#6344ee'}
       personalizacion={{
         temaConfig: {

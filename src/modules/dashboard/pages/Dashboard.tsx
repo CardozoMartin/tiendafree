@@ -14,7 +14,8 @@ export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   //Hook que devuelve la tienda del usuario si tienda una tienda creada y activa, sino devuelve null
-   const { data: myShop } = useMyShop();
+  const { data: myShop } = useMyShop();
+  console.log( myShop);
 
   //hook para verificar si el usuario tiene una tienda creada y activa
   // const { data: checkUserStoreData } = useCheckUserStore();
