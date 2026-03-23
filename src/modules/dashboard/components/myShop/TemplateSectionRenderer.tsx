@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { getTemplateSectionEditor } from '../../../templates/editorRegistry';
 import { resolveTemplateIdFromShop } from '../../../templates/registry';
-import type { TemplateConfig } from '../../../templates/types';
-import type { TiendaData } from '../../../templates/types';
+import type { TemplateConfig, TiendaData } from '../../../templates/types';
 
 interface TemplateSectionRendererProps {
   config: TemplateConfig | undefined;
@@ -65,9 +64,7 @@ export const TemplateSectionRenderer = ({
               </div>
               {Editor && (
                 <button
-                  onClick={() =>
-                    setEditingSection(isEditing ? null : seccion.id)
-                  }
+                  onClick={() => setEditingSection(isEditing ? null : seccion.id)}
                   className={`ml-4 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                     isEditing
                       ? 'bg-indigo-500 text-white'

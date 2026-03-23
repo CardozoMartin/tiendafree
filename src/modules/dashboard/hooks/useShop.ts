@@ -1,6 +1,15 @@
 import type { AxiosError } from 'axios';
 import type { IErrorResponse, ISuccessResponse } from '../../../types/api.type';
-import { getMyShopFn, getPublicShopFn, postCreateShopFn } from '../api/shop.api';
+import { getMyShopFn, getPublicShopFn, postCreateShopFn,
+  putUpdateShopFn,
+  putUpdateShopVisualFn,
+  getMetodosPagoCatalogoFn,
+  getMetodosEntregaCatalogoFn,
+  postAgregarMetodoPagoFn,
+  deleteEliminarMetodoPagoFn,
+  postAgregarMetodoEntregaFn,
+  deleteEliminarMetodoEntregaFn,
+} from '../api/shop.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { IShopData } from '../types/shop.type';
@@ -43,3 +52,107 @@ export const usePublicShop = (slug: string) => {
     enabled: !!slug
   });
 }
+
+//hook para actualizar los datos de la tienda
+export const useUpdateShop = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: putUpdateShopFn,
+    onSuccess: (data: ISuccessResponse<IShopData>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+//hook para actualizar los datos visuales de la tienda (colores, fuentes, etc)
+export const useUpdateShopVisual = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: putUpdateShopVisualFn,
+    onSuccess: (data: ISuccessResponse<IShopData>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+// ── Catálogo ──
+
+export const useMetodosPagoCatalogo = () => {
+  return useQuery({
+    queryKey: ['metodosPagoCatalogo'],
+    queryFn: getMetodosPagoCatalogoFn,
+  });
+};
+
+export const useMetodosEntregaCatalogo = () => {
+  return useQuery({
+    queryKey: ['metodosEntregaCatalogo'],
+    queryFn: getMetodosEntregaCatalogoFn,
+  });
+};
+
+// ── Mutaciones ──
+
+export const useAgregarMetodoPago = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postAgregarMetodoPagoFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useEliminarMetodoPago = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteEliminarMetodoPagoFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useAgregarMetodoEntrega = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postAgregarMetodoEntregaFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useEliminarMetodoEntrega = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteEliminarMetodoEntregaFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};

@@ -1,24 +1,22 @@
-import { configModer } from './templateModer/config';
-import { config as configPink } from './templatePink/config';
 import type { TemplateConfig } from './types';
 
 export const TEMPLATES: Record<string, TemplateConfig> = {
-  plantilla_comun: configModer,
-  plantilla_pink: configPink,
+  plantilla_accesorios: { id: 'plantilla_accesorios', nombre: 'Accesorios', descripcion: 'Joyería y accesorios artesanales', secciones: [] },
+  plantilla_gorras: { id: 'plantilla_gorras', nombre: 'Gorras', descripcion: 'Gorras y streetwear', secciones: [] },
+  plantilla_ropa: { id: 'plantilla_ropa', nombre: 'Ropa', descripcion: 'Moda y ropa de autor', secciones: [] },
 };
 
 const TEMPLATE_ALIASES: Record<string, string> = {
-  '1': 'plantilla_comun',
-  '2': 'plantilla_pink',
-  moderna: 'plantilla_comun',
-  moder: 'plantilla_comun',
-  comun: 'plantilla_comun',
-  common: 'plantilla_comun',
-  plantilla_moderna: 'plantilla_comun',
-  plantilla_moder: 'plantilla_comun',
-  pink: 'plantilla_pink',
-  rosada: 'plantilla_pink',
-  plantilla_rosa: 'plantilla_pink',
+  '3': 'plantilla_ropa',
+  '4': 'plantilla_gorras',
+  '5': 'plantilla_accesorios',
+  accesorios: 'plantilla_accesorios',
+  joyeria: 'plantilla_accesorios',
+  gorras: 'plantilla_gorras',
+  caps: 'plantilla_gorras',
+  ropa: 'plantilla_ropa',
+  moda: 'plantilla_ropa',
+  veste: 'plantilla_ropa',
 };
 
 export const normalizeTemplateId = (value: unknown): string | null => {
@@ -91,7 +89,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 
 export const resolveTemplateIdFromShop = (
   tienda: TiendaWithTemplate | null | undefined,
-  fallback = 'plantilla_comun'
+  fallback = 'plantilla_accesorios'
 ): string => {
   const plantilla = isRecord(tienda?.plantilla) ? tienda?.plantilla : undefined;
   const datos = isRecord(tienda?.datos) ? tienda?.datos : undefined;
@@ -118,14 +116,14 @@ export const resolveTemplateIdFromShop = (
   // Por eso ponemos plantilla?.nombre y los id/plantillaId antes.
   const candidates = [
     // ── Nivel raíz: plantilla anidada ──────────────────────────────────────
-    plantilla?.nombre,       // "plantilla_pink" ← más directo posible
-    plantilla?.id,           // 2
-    tienda?.plantillaId,     // 2
+    plantilla?.nombre, // "plantilla_pink" ← más directo posible
+    plantilla?.id, // 2
+    tienda?.plantillaId, // 2
     tienda?.plantilla_id,
     tienda?.templateId,
     tienda?.template_id,
     tienda?.template,
-    tienda?.plantilla,       // puede ser string en algunos casos
+    tienda?.plantilla, // puede ser string en algunos casos
     // ── Nivel datos ────────────────────────────────────────────────────────
     plantillaDatos?.nombre,
     plantillaDatos?.id,

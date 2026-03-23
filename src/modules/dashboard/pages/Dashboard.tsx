@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardSidebar from '../components/DashboardSidebar';
 import DashboardHeader from '../components/DashboardHeader';
 import DashboardMobileHeader from '../components/DashboardMobileHeader';
@@ -9,9 +9,16 @@ import { useMyShop } from '../hooks/useShop';
 
 
 export default function Dashboard() {
-  const [active, setActive] = useState('store');
+  const [active, setActive] = useState(() => {
+    return localStorage.getItem('dashboard_active_section') || 'store';
+  });
   const [accent, setAccent] = useState('#6344ee');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Persistir la sección activa
+  useEffect(() => {
+    localStorage.setItem('dashboard_active_section', active);
+  }, [active]);
 
   //Hook que devuelve la tienda del usuario si tienda una tienda creada y activa, sino devuelve null
   const { data: myShop } = useMyShop();

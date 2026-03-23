@@ -63,11 +63,14 @@ const PinkHeroSectionEditor = ({
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          {(images.length > 0 ? images.slice(0, 6) : [
-            'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=800&fit=crop',
-            'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=800&fit=crop',
-            'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&h=800&fit=crop',
-          ]).map((src, idx) => (
+          {(images.length > 0
+            ? images.slice(0, 6)
+            : [
+                'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=800&fit=crop',
+                'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=800&fit=crop',
+                'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&h=800&fit=crop',
+              ]
+          ).map((src, idx) => (
             <img
               key={`${src}-${idx}`}
               src={src}

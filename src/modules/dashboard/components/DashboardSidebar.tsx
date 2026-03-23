@@ -12,6 +12,7 @@ interface DashboardSidebarProps {
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
   isActiveShop?: boolean;
+  myShop?: any;
   user?: {
     name: string;
     email: string;
@@ -163,29 +164,29 @@ export const DashboardSidebar = ({
                   ${sidebarCollapsed ? 'justify-center px-0 py-2' : 'gap-2.5 px-2.5 py-2'}
                   ${
                     isDisabled
-                      ? 'opacity-40 cursor-not-allowed text-zinc-400'
-                      : isActive
-                        ? 'text-zinc-900 font-medium'
-                        : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 font-normal'
+                      ? 'opacity-40 cursor-not-allowed text-zinc-400 font-medium'
+                      : isActive || isExpanded
+                        ? 'text-zinc-900 font-bold'
+                        : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 font-medium'
                   }
                 `}
                 style={
-                  isActive && !isDisabled ? { backgroundColor: `${accent}12`, color: accent } : {}
+                  (isActive || isExpanded) && !isDisabled ? { backgroundColor: `${accent}12`, color: accent } : {}
                 }
               >
                 {/* Icon */}
                 <span
                   className={`shrink-0 flex items-center justify-center size-[18px] ${
-                    isActive ? '' : 'opacity-70'
+                    isActive || isExpanded ? '' : 'opacity-70'
                   }`}
-                  style={isActive ? { color: accent } : {}}
+                  style={isActive || isExpanded ? { color: accent } : {}}
                 >
                   <MI name={item.icon} className="!text-[17px]" />
                 </span>
 
                 {!sidebarCollapsed && (
                   <>
-                    <span className="flex-1 text-left text-[13px]">{label}</span>
+                    <span className="flex-1 text-left text-[14px]">{label}</span>
                     {hasSubmenu && isActiveShop && (
                       <span className="text-zinc-300">
                         {isExpanded ? (
@@ -210,7 +211,7 @@ export const DashboardSidebar = ({
 
                 {/* Submenu */}
                 {hasSubmenu && isActiveShop && isExpanded && !sidebarCollapsed && (
-                  <div className="mt-0.5 ml-3.5 pl-3 border-l border-zinc-100 space-y-0.5 py-0.5">
+                  <div className="mt-0.5 ml-4 pl-3.5 border-l border-zinc-200/60 space-y-0.5 py-1">
                     {item.submenu.map((sub) => {
                       const isSubActive = active === sub.id;
                       return (
@@ -218,18 +219,18 @@ export const DashboardSidebar = ({
                           key={sub.id}
                           onClick={() => setActive(sub.id)}
                           className={`
-                            w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] transition-all duration-150
+                            w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[12.5px] transition-all duration-150
                             ${
                               isSubActive
-                                ? 'font-medium'
-                                : 'text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50'
+                                ? 'font-semibold'
+                                : 'text-zinc-500 font-medium hover:text-zinc-800 hover:bg-zinc-50'
                             }
                           `}
                           style={
                             isSubActive ? { color: accent, backgroundColor: `${accent}10` } : {}
                           }
                         >
-                          <MI name={sub.icon} className="!text-[13px] shrink-0" />
+                          <MI name={sub.icon} className="!text-[14px] shrink-0" />
                           <span>{sub.label}</span>
                         </button>
                       );
@@ -264,7 +265,9 @@ export const DashboardSidebar = ({
               onClick={handleLogout}
               onMouseEnter={() => setLogoutHovered(true)}
               onMouseLeave={() => setLogoutHovered(false)}
-              className="p-1.5 rounded-md transition-all duration-150 hover:bg-red-50 text-zinc-300 hover:text-red-400 shrink-0"
+              className={`p-1.5 rounded-md transition-all duration-150 shrink-0 ${
+                logoutHovered ? 'bg-red-50 text-red-500 shadow-sm' : 'text-zinc-300'
+              }`}
               title="Cerrar sesión"
             >
               <LogOut className="w-3.5 h-3.5" />

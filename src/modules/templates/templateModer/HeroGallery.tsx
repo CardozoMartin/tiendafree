@@ -1,7 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Plus, X, Upload } from 'lucide-react';
-
-// ─── TIPOS ───────────────────────────────────────────────────────────────────
 
 interface CarruselItem {
   id?: number;
@@ -18,20 +16,15 @@ export interface HeroGalleryProps {
   titulo: string;
   descripcion?: string;
   carrusel?: CarruselItem[];
-
-  // modo edición
   editMode?: boolean;
   onChange?: (patch: { titulo?: string; descripcion?: string; carrusel?: CarruselItem[] }) => void;
   onSave?: () => void;
   onCancel?: () => void;
+  heroLayout?: string;
 }
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
 
 const nextId = (items: CarruselItem[]) =>
   items.length > 0 ? Math.max(...items.map((i) => i.id ?? 0)) + 1 : 1;
-
-// ─── COMPONENTE ──────────────────────────────────────────────────────────────
 
 export const HeroGallery = ({
   titulo,
@@ -41,21 +34,18 @@ export const HeroGallery = ({
   onChange,
   onSave,
   onCancel,
+  heroLayout = 'split',
 }: HeroGalleryProps) => {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleTitulo = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitulo = (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange?.({ titulo: e.target.value });
-  };
 
-  const handleDescripcion = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleDescripcion = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
     onChange?.({ descripcion: e.target.value });
-  };
 
-  const handleRemoveImg = (index: number) => {
-    const updated = carrusel.filter((_, i) => i !== index);
-    onChange?.({ carrusel: updated });
-  };
+  const handleRemoveImg = (index: number) =>
+    onChange?.({ carrusel: carrusel.filter((_, i) => i !== index) });
 
   const handleAddUrl = () => {
     const url = prompt('Pegá la URL de la imagen:');
@@ -88,7 +78,10 @@ export const HeroGallery = ({
   };
 
   return (
-    <section className="px-6 md:px-16 lg:px-24 xl:px-32 py-12 relative">
+    <section 
+      className="px-6 md:px-16 lg:px-24 xl:px-32 py-12 relative transition-colors duration-500"
+      style={{ backgroundColor: 'var(--hero-bg)' }}
+    >
       {/* ── Título ── */}
       {editMode ? (
         <input
@@ -108,15 +101,19 @@ export const HeroGallery = ({
           onChange={handleDescripcion}
           rows={2}
           placeholder="Descripción breve de tu tienda..."
-          className="w-full text-sm text-center text-slate-500 mt-3 max-w-lg mx-auto block bg-transparent border-b border-dashed border-gray-300 outline-none resize-none focus:border-indigo-400 transition placeholder-gray-300"
+          className={`w-full text-sm text-slate-500 mt-3 max-w-lg mx-auto block bg-transparent border-b border-dashed border-gray-300 outline-none resize-none focus:border-indigo-400 transition placeholder-gray-300 ${
+            heroLayout === 'centered' ? 'text-center' : 'text-left md:ml-0'
+          }`}
         />
       ) : (
-        <p className="text-sm text-slate-500 text-center mt-2 max-w-lg mx-auto">
+        <p
+          className={`text-sm text-slate-500 mt-2 max-w-lg mx-auto ${heroLayout === 'centered' ? 'text-center' : 'text-left md:ml-0'}`}
+        >
           {descripcion || 'Bienvenido a nuestra tienda online.'}
         </p>
       )}
 
-      {/* ── Galería desktop ── */}
+      {/* ── Galería desktop (Paridad Exacta con Ejemplo) ── */}
       <div className="hidden md:flex items-center gap-2 h-[400px] w-full max-w-4xl mt-10 mx-auto">
         {carrusel.length === 0 && !editMode && (
           <p className="text-slate-400 text-sm mx-auto">No hay imágenes cargadas</p>
@@ -125,8 +122,8 @@ export const HeroGallery = ({
         {carrusel.map((img, i) => (
           <div
             key={img.id ?? i}
-            className={`relative group flex-grow transition-all w-20 rounded-lg overflow-hidden h-[400px] duration-500 ${
-              editMode ? 'hover:w-32' : 'hover:w-full'
+            className={`relative group flex-grow transition-all w-56 rounded-lg overflow-hidden h-[400px] duration-500 cursor-pointer ${
+              editMode ? 'hover:w-80' : 'hover:w-full'
             }`}
           >
             <img
@@ -134,7 +131,6 @@ export const HeroGallery = ({
               src={img.url || img.src}
               alt={`gallery-${i}`}
             />
-            {/* Botón eliminar — solo en editMode */}
             {editMode && (
               <button
                 onClick={() => handleRemoveImg(i)}
@@ -149,7 +145,7 @@ export const HeroGallery = ({
         {/* Slot agregar — solo en editMode */}
         {editMode && (
           <div
-            className="flex-shrink-0 w-24 h-[400px] rounded-lg border-2 border-dashed border-gray-200 hover:border-indigo-400 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer bg-gray-50/50 group"
+            className="flex-shrink-0 w-[72px] h-[400px] rounded-lg border-2 border-dashed border-gray-200 hover:border-indigo-400 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer bg-gray-50/50 group"
             onClick={() => fileRef.current?.click()}
           >
             <div className="w-9 h-9 rounded-full bg-gray-100 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
@@ -164,10 +160,7 @@ export const HeroGallery = ({
 
       {/* ── Galería mobile ── */}
       <div className="md:hidden mt-8">
-        <div
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth"
-          style={{ scrollbarWidth: 'none' }}
-        >
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth [scrollbar-width:none]">
           {carrusel.map((img, i) => (
             <div
               key={img.id ?? i}
@@ -189,7 +182,6 @@ export const HeroGallery = ({
             </div>
           ))}
 
-          {/* Slot agregar mobile */}
           {editMode && (
             <div
               className="snap-center flex-shrink-0 w-[40vw] h-64 rounded-2xl border-2 border-dashed border-gray-200 hover:border-indigo-400 transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer bg-gray-50"
@@ -202,7 +194,7 @@ export const HeroGallery = ({
         </div>
       </div>
 
-      {/* ── Botones de agregar por URL + upload ── */}
+      {/* ── Botones agregar por URL + upload ── */}
       {editMode && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <button
@@ -244,7 +236,6 @@ export const HeroGallery = ({
         </div>
       )}
 
-      {/* Input de archivo oculto */}
       <input
         ref={fileRef}
         type="file"

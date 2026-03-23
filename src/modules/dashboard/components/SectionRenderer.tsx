@@ -6,7 +6,7 @@ import CreateShop from './CreateShop';
 import EditingSite from './myShop/EditingSite';
 import Plantillas from './myShop/Plantillas';
 import SettingsSection from './SettingsSection';
-import StoreSection from './StoreSection';
+import MethodsSection from './myShop/MethodsSection';
 
 interface SectionRendererProps {
   active: string;
@@ -19,7 +19,6 @@ interface SectionRendererProps {
 export const SectionRenderer = ({
   active,
   accent,
-  setAccent,
   isActiveShop = false,
   myShop,
 }: SectionRendererProps) => {
@@ -43,6 +42,8 @@ export const SectionRenderer = ({
       return <Plantillas />;
     case 'store-edit':
       return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop />;
+    case 'store-methods':
+      return <MethodsSection accent={accent} />;
     case 'store-website':
       return null; // Solo abre nueva pestaña, no renderiza nada
     case 'settings':

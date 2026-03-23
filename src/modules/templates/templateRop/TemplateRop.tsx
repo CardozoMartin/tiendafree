@@ -1,0 +1,2236 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+const FONTS = `
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
+`;
+
+// ── PALETA ────────────────────────────────────────────────────
+const BG = '#f7f5f2';
+const DARK = '#141414';
+const SURFACE = '#ffffff';
+let ACENTO = '#e63946'; // rojo editorial
+const MUTED = '#888580';
+const SUBTLE = '#b8b4af';
+const BORDER = 'rgba(20,20,20,0.09)';
+const BTN_TXT = '#ffffff';
+
+// ── TIENDA ────────────────────────────────────────────────────
+let TIENDA = {
+  nombre: 'VESTE',
+  tagline: 'Ropa de autor · Tucumán',
+  descripcion:
+    'Diseño local con identidad propia. Prendas que combinan comodidad, tendencia y carácter tucumano.',
+  whatsapp: '5493812345678',
+  instagram: 'veste.tuc',
+  ciudad: 'Tucumán',
+  pais: 'Argentina',
+};
+
+// ── HERO SLIDES ───────────────────────────────────────────────
+const SLIDES = [
+  {
+    img: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1400&h=900&fit=crop&q=85',
+    label: 'SS 2025',
+    title: 'NUEVA\nTEMPORADA',
+    sub: 'La colección que esperabas.',
+    cta: 'Ver lookbook',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1400&h=900&fit=crop&q=85',
+    label: 'Exclusivo',
+    title: 'DISEÑO\nLOCAL',
+    sub: 'Hecho en Tucumán, para el mundo.',
+    cta: 'Explorar',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1400&h=900&fit=crop&q=85',
+    label: 'Edición limitada',
+    title: 'PRENDAS\nÚNICAS',
+    sub: 'Cada pieza, una historia diferente.',
+    cta: 'Descubrir',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=900&fit=crop&q=85',
+    label: 'Invierno',
+    title: 'ABRIGO\nY ESTILO',
+    sub: 'Para los días que piden más.',
+    cta: 'Ver más',
+  },
+];
+
+// ── PRODUCTOS ─────────────────────────────────────────────────
+const PRODUCTOS = [
+  {
+    id: 1,
+    nombre: 'Blazer Oversize Crudo',
+    cat: 'Blazers',
+    precio: 8500,
+    precioAnt: 10000,
+    badge: 'Sale',
+    img: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=700&h=900&fit=crop&q=80',
+    talla: 'S M L XL',
+  },
+  {
+    id: 2,
+    nombre: 'Top Lencero Negro',
+    cat: 'Tops',
+    precio: 3200,
+    precioAnt: null,
+    badge: 'Nuevo',
+    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=700&h=900&fit=crop&q=80',
+    talla: 'XS S M',
+  },
+  {
+    id: 3,
+    nombre: 'Pantalón Wide Leg',
+    cat: 'Pantalones',
+    precio: 6800,
+    precioAnt: null,
+    badge: null,
+    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&h=900&fit=crop&q=80',
+    talla: 'S M L',
+  },
+  {
+    id: 4,
+    nombre: 'Campera Cargo Verde',
+    cat: 'Camperas',
+    precio: 9200,
+    precioAnt: 11000,
+    badge: 'Limitado',
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&h=900&fit=crop&q=80',
+    talla: 'M L XL',
+  },
+  {
+    id: 5,
+    nombre: 'Vestido Midi Floral',
+    cat: 'Vestidos',
+    precio: 7400,
+    precioAnt: null,
+    badge: 'Nuevo',
+    img: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=700&h=900&fit=crop&q=80',
+    talla: 'XS S M L',
+  },
+  {
+    id: 6,
+    nombre: 'Remera Básica Oversize',
+    cat: 'Tops',
+    precio: 2800,
+    precioAnt: 3500,
+    badge: 'Sale',
+    img: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=700&h=900&fit=crop&q=80',
+    talla: 'S M L XL',
+  },
+  {
+    id: 7,
+    nombre: 'Short Lino Natural',
+    cat: 'Pantalones',
+    precio: 4200,
+    precioAnt: null,
+    badge: null,
+    img: 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=700&h=900&fit=crop&q=80',
+    talla: 'S M L',
+  },
+  {
+    id: 8,
+    nombre: 'Saco Largo Camel',
+    cat: 'Blazers',
+    precio: 11500,
+    precioAnt: 13000,
+    badge: 'Más vendido',
+    img: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=700&h=900&fit=crop&q=80',
+    talla: 'S M L',
+  },
+];
+
+const CATS = ['Todo', 'Blazers', 'Tops', 'Pantalones', 'Camperas', 'Vestidos'];
+
+// ── LOOKBOOK (editorial) ──────────────────────────────────────
+const LOOKBOOK = [
+  {
+    img: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&h=800&fit=crop&q=80',
+    span: '1/3',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=400&fit=crop&q=80',
+    span: '1/1',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=400&fit=crop&q=80',
+    span: '1/1',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=800&fit=crop&q=80',
+    span: '1/3',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&q=80',
+    span: '1/1',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&h=400&fit=crop&q=80',
+    span: '1/1',
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════ */
+function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const el = document.querySelector('.vt-scroll');
+    const fn = () => setScrolled((el?.scrollTop ?? 0) > 70);
+    el?.addEventListener('scroll', fn, { passive: true });
+    return () => el?.removeEventListener('scroll', fn);
+  }, []);
+
+  return (
+    <nav
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        background: scrolled ? 'rgba(247,245,242,0.96)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? `1px solid ${BORDER}` : 'none',
+        padding: '0 2rem',
+        height: '68px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        transition: 'all .3s ease',
+      }}
+    >
+      {/* Brand */}
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+        <span
+          style={{
+            fontFamily: "'Bebas Neue',sans-serif",
+            fontSize: '1.8rem',
+            color: DARK,
+            letterSpacing: '.08em',
+            lineHeight: 0.9,
+          }}
+        >
+          {TIENDA.nombre}
+        </span>
+        <span
+          style={{
+            fontFamily: "'Outfit',sans-serif",
+            fontSize: '.52rem',
+            color: MUTED,
+            letterSpacing: '.18em',
+            textTransform: 'uppercase',
+            marginTop: '1px',
+          }}
+        >
+          {TIENDA.tagline}
+        </span>
+      </div>
+
+      {/* Desktop links */}
+      <div className="vt-hide-mob" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        {['Colección', 'Lookbook', 'Nosotros', 'Contacto'].map((l) => (
+          <a
+            key={l}
+            href="#"
+            style={{
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.78rem',
+              fontWeight: 500,
+              color: `${DARK}70`,
+              textDecoration: 'none',
+              letterSpacing: '.04em',
+              transition: 'color .2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = ACENTO)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = `${DARK}70`)}
+          >
+            {l}
+          </a>
+        ))}
+      </div>
+
+      {/* Right actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+        {/* Search */}
+        <button
+          className="vt-hide-mob"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '4px',
+            color: MUTED,
+          }}
+        >
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M10.836 10.615 15 14.695"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+            />
+            <path
+              clipRule="evenodd"
+              d="M9.141 11.738c2.729-1.136 4.001-4.224 2.841-6.898S7.67.921 4.942 2.057C2.211 3.193.94 6.281 2.1 8.955s4.312 3.92 7.041 2.783"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+
+        {/* Cart */}
+        <button
+          onClick={onCart}
+          style={{
+            position: 'relative',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '4px',
+          }}
+        >
+          <svg width="19" height="19" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
+              stroke={ACENTO}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {cartCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-3px',
+                right: '-5px',
+                background: ACENTO,
+                color: BTN_TXT,
+                fontSize: '.5rem',
+                fontWeight: 700,
+                width: '15px',
+                height: '15px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {cartCount}
+            </span>
+          )}
+        </button>
+
+        {/* CTA */}
+        <button
+          className="vt-hide-mob"
+          style={{
+            padding: '9px 22px',
+            background: DARK,
+            color: BTN_TXT,
+            border: 'none',
+            borderRadius: '4px',
+            fontFamily: "'Outfit',sans-serif",
+            fontSize: '.72rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            letterSpacing: '.06em',
+            transition: 'background .2s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = DARK)}
+        >
+          Ingresar
+        </button>
+
+        {/* Hamburger */}
+        <button
+          className="vt-show-mob"
+          onClick={() => setOpen(!open)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <svg width="22" height="14" viewBox="0 0 22 14" fill="none">
+            <rect width="22" height="1.5" rx=".75" fill={DARK} />
+            <rect x="5" y="6.25" width="17" height="1.5" rx=".75" fill={DARK} />
+            <rect x="2" y="12.5" width="20" height="1.5" rx=".75" fill={DARK} />
+          </svg>
+        </button>
+      </div>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '68px',
+            left: 0,
+            right: 0,
+            background: SURFACE,
+            borderBottom: `1px solid ${BORDER}`,
+            padding: '1.5rem 2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            zIndex: 50,
+            boxShadow: '0 8px 24px rgba(0,0,0,.06)',
+          }}
+        >
+          {['Colección', 'Lookbook', 'Nosotros', 'Contacto'].map((l) => (
+            <a
+              key={l}
+              href="#"
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.9rem',
+                fontWeight: 500,
+                color: MUTED,
+                textDecoration: 'none',
+              }}
+            >
+              {l}
+            </a>
+          ))}
+          <button
+            style={{
+              alignSelf: 'flex-start',
+              padding: '10px 24px',
+              background: DARK,
+              color: BTN_TXT,
+              border: 'none',
+              borderRadius: '4px',
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.78rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              marginTop: '.5rem',
+            }}
+          >
+            Ingresar
+          </button>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   HERO — FULLSCREEN DRAG SLIDER
+═══════════════════════════════════════════════ */
+function Hero({ carrusel }: { carrusel: any[] }) {
+  const [cur, setCur] = useState(0);
+  const [fading, setFading] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [offsetX, setOffsetX] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const go = useCallback(
+    (dir: number) => {
+      if (fading) return;
+      setFading(true);
+      setTimeout(() => {
+        setCur((c) => (c + dir + carrusel.length) % carrusel.length);
+        setFading(false);
+      }, 550);
+      clearInterval(timerRef.current!);
+      timerRef.current = setInterval(() => go(1), 6000);
+    },
+    [fading]
+  );
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => go(1), 6000);
+    return () => clearInterval(timerRef.current!);
+  }, [go]);
+
+  const onDown = (e: any) => {
+    setDragging(true);
+    setStartX(e.touches?.[0]?.clientX ?? e.clientX);
+  };
+  const onMove = (e: any) => {
+    if (!dragging) return;
+    setOffsetX((e.touches?.[0]?.clientX ?? e.clientX) - startX);
+  };
+  const onUp = () => {
+    if (Math.abs(offsetX) > 55) go(offsetX < 0 ? 1 : -1);
+    setDragging(false);
+    setOffsetX(0);
+  };
+
+  const slide = carrusel[cur];
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        height: '94vh',
+        minHeight: '520px',
+        overflow: 'hidden',
+        background: DARK,
+        userSelect: 'none',
+        cursor: dragging ? 'grabbing' : 'grab',
+      }}
+      onMouseDown={onDown}
+      onMouseMove={onMove}
+      onMouseUp={onUp}
+      onMouseLeave={onUp}
+      onTouchStart={onDown}
+      onTouchMove={onMove}
+      onTouchEnd={onUp}
+    >
+      {/* Slides */}
+      {carrusel.map((s, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            opacity: i === cur ? (fading ? 0 : 1) : 0,
+            transition: 'opacity .55s ease',
+            pointerEvents: i === cur ? 'auto' : 'none',
+          }}
+        >
+          <img
+            src={s.url}
+            alt=""
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: 'brightness(.45)',
+              transform: `translateX(${i === cur ? offsetX * 0.04 : 0}px) scale(1.02)`,
+              transition: dragging ? 'none' : 'transform .5s ease',
+            }}
+          />
+        </div>
+      ))}
+
+      {/* Vignette */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(to top, rgba(20,20,20,.8) 0%, transparent 45%), linear-gradient(to right, rgba(20,20,20,.4) 0%, transparent 55%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Número de slide (top right) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '2rem',
+          right: '2.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          pointerEvents: 'none',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "'Bebas Neue',sans-serif",
+            fontSize: '1.1rem',
+            color: 'rgba(255,255,255,.7)',
+            letterSpacing: '.1em',
+          }}
+        >
+          {String(cur + 1).padStart(2, '0')}
+        </span>
+        <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,.25)' }} />
+        <span
+          style={{
+            fontFamily: "'Bebas Neue',sans-serif",
+            fontSize: '1.1rem',
+            color: 'rgba(255,255,255,.3)',
+            letterSpacing: '.1em',
+          }}
+        >
+          {String(carrusel.length).padStart(2, '0')}
+        </span>
+      </div>
+
+      {/* Label */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '2rem',
+          left: '2.5rem',
+          opacity: fading ? 0 : 1,
+          transition: 'opacity .4s ease',
+        }}
+      >
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: ACENTO }} />
+          <span
+            style={{
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.65rem',
+              letterSpacing: '.2em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,.6)',
+              fontWeight: 500,
+            }}
+          >
+            {slide?.subtitulo || 'Colección'}
+          </span>
+        </div>
+      </div>
+
+      {/* Content bottom-left */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '3.5rem',
+          left: '2.5rem',
+          right: '2.5rem',
+          pointerEvents: 'none',
+        }}
+      >
+        <h1
+          style={{
+            fontFamily: "'Bebas Neue',sans-serif",
+            fontSize: 'clamp(4rem,9vw,8rem)',
+            fontWeight: 400,
+            color: '#f7f5f2',
+            lineHeight: 0.92,
+            letterSpacing: '.03em',
+            whiteSpace: 'pre-line',
+            marginBottom: '1.2rem',
+            opacity: fading ? 0 : 1,
+            transform: fading ? 'translateY(16px)' : 'translateY(0)',
+            transition: 'all .5s ease',
+          }}
+        >
+          {slide.titulo || 'Nueva Colección'}
+        </h1>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.5rem',
+            flexWrap: 'wrap',
+            pointerEvents: 'auto',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.85rem',
+              fontWeight: 300,
+              color: 'rgba(247,245,242,.5)',
+              opacity: fading ? 0 : 1,
+              transition: 'opacity .5s .1s ease',
+            }}
+          >
+            {slide.subtitulo || 'Descubre nuestras mejores prendas'}
+          </p>
+          <button
+            style={{
+              padding: '12px 28px',
+              background: ACENTO,
+              color: BTN_TXT,
+              border: 'none',
+              borderRadius: '4px',
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.72rem',
+              fontWeight: 600,
+              letterSpacing: '.1em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              flexShrink: 0,
+              opacity: fading ? 0 : 1,
+              transition: 'opacity .5s .15s ease',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          >
+            {slide.cta || 'Explorar'}
+          </button>
+        </div>
+      </div>
+
+      {/* Arrows */}
+      {([-1, 1] as const).map((dir) => (
+        <button
+          key={dir}
+          onClick={() => go(dir)}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            [dir === -1 ? 'left' : 'right']: '1.5rem',
+            transform: 'translateY(-50%)',
+            width: '44px',
+            height: '44px',
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,.1)',
+            border: '0.5px solid rgba(255,255,255,.2)',
+            color: '#fff',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background .2s',
+            pointerEvents: 'auto',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.1)')}
+        >
+          {dir === -1 ? '←' : '→'}
+        </button>
+      ))}
+
+      {/* Progress bar dots */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '1.5rem',
+          right: '2.5rem',
+          display: 'flex',
+          gap: '6px',
+        }}
+      >
+        {carrusel.map((_, i) => (
+          <div
+            key={i}
+            onClick={() => {
+              if (!fading) {
+                setFading(true);
+                setTimeout(() => {
+                  setCur(i);
+                  setFading(false);
+                }, 550);
+              }
+            }}
+            style={{
+              width: i === cur ? '24px' : '6px',
+              height: '6px',
+              borderRadius: '3px',
+              background: i === cur ? ACENTO : 'rgba(255,255,255,.25)',
+              transition: 'all .35s ease',
+              cursor: 'pointer',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Drag hint */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '1.6rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: "'Outfit',sans-serif",
+          fontSize: '.55rem',
+          letterSpacing: '.22em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,.2)',
+          pointerEvents: 'none',
+        }}
+      >
+        ← arrastrá →
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   MARQUEE
+═══════════════════════════════════════════════ */
+function Marquee() {
+  const words = [
+    'VESTE',
+    'Nueva colección',
+    'Ropa de autor',
+    'Tucumán',
+    'SS 2025',
+    'Diseño local',
+    'Tendencia',
+  ];
+  const items = [...words, ...words, ...words];
+  return (
+    <div style={{ background: DARK, overflow: 'hidden', padding: '10px 0' }}>
+      <style>{`@keyframes vtmq{from{transform:translateX(0)}to{transform:translateX(-33.33%)}} .vt-mq{display:flex;width:max-content;animation:vtmq 22s linear infinite} .vt-mq:hover{animation-play-state:paused}`}</style>
+      <div className="vt-mq">
+        {items.map((w, i) => (
+          <span
+            key={i}
+            style={{
+              fontFamily: "'Bebas Neue',sans-serif",
+              fontSize: '1rem',
+              letterSpacing: '.18em',
+              color: i % 3 === 1 ? ACENTO : 'rgba(247,245,242,0.35)',
+              padding: '0 1.5rem',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {w}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   LOOKBOOK — galería editorial asimétrica
+═══════════════════════════════════════════════ */
+function Lookbook() {
+  const [hov, setHov] = useState<number | null>(null);
+
+  return (
+    <section style={{ background: BG, padding: '5rem 2rem' }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            marginBottom: '2.5rem',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div>
+            <span
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.62rem',
+                letterSpacing: '.24em',
+                textTransform: 'uppercase',
+                color: ACENTO,
+                fontWeight: 600,
+                display: 'block',
+                marginBottom: '.5rem',
+              }}
+            >
+              SS 2025
+            </span>
+            <h2
+              style={{
+                fontFamily: "'Bebas Neue',sans-serif",
+                fontSize: 'clamp(2.5rem,5vw,4rem)',
+                color: DARK,
+                letterSpacing: '.04em',
+                lineHeight: 0.9,
+              }}
+            >
+              LOOKBOOK
+            </h2>
+          </div>
+          <p
+            style={{
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.8rem',
+              fontWeight: 300,
+              color: MUTED,
+              maxWidth: '280px',
+              lineHeight: 1.7,
+            }}
+          >
+            {TIENDA.descripcion}
+          </p>
+        </div>
+
+        {/* Masonry grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateRows: 'auto',
+            gap: '8px',
+          }}
+        >
+          {LOOKBOOK.map((item, i) => (
+            <div
+              key={i}
+              onMouseEnter={() => setHov(i)}
+              onMouseLeave={() => setHov(null)}
+              style={{
+                gridRow: item.span,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                position: 'relative',
+                cursor: 'pointer',
+                aspectRatio: item.span === '1/3' ? '3/4' : '1',
+              }}
+            >
+              <img
+                src={item.img}
+                alt=""
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform: hov === i ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'transform .55s ease',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'rgba(20,20,20,.4)',
+                  opacity: hov === i ? 1 : 0,
+                  transition: 'opacity .3s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'Bebas Neue',sans-serif",
+                    fontSize: '1.1rem',
+                    color: '#fff',
+                    letterSpacing: '.18em',
+                  }}
+                >
+                  VER MÁS
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   CARRUSEL HORIZONTAL — productos
+═══════════════════════════════════════════════ */
+function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items: any[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [isDrag, setIsDrag] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hov, setHov] = useState<number | null>(null);
+
+  const onDown = (e: React.MouseEvent) => {
+    setIsDrag(true);
+    setStartX(e.pageX - (trackRef.current?.offsetLeft ?? 0));
+    setScrollLeft(trackRef.current?.scrollLeft ?? 0);
+  };
+  const onMov = (e: React.MouseEvent) => {
+    if (!isDrag) return;
+    e.preventDefault();
+    const x = e.pageX - (trackRef.current?.offsetLeft ?? 0);
+    const walk = (x - startX) * 1.5;
+    if (trackRef.current) trackRef.current.scrollLeft = scrollLeft - walk;
+  };
+  const onUp = () => setIsDrag(false);
+
+  const scroll = (dir: number) => {
+    if (trackRef.current) trackRef.current.scrollBy({ left: dir * 320, behavior: 'smooth' });
+  };
+
+  return (
+    <section style={{ background: SURFACE, padding: '5rem 0' }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '0 2rem' }}>
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            marginBottom: '2rem',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div>
+            <span
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.62rem',
+                letterSpacing: '.24em',
+                textTransform: 'uppercase',
+                color: ACENTO,
+                fontWeight: 600,
+                display: 'block',
+                marginBottom: '.5rem',
+              }}
+            >
+              Catálogo
+            </span>
+            <h2
+              style={{
+                fontFamily: "'Bebas Neue',sans-serif",
+                fontSize: 'clamp(2.5rem,4vw,3.5rem)',
+                color: DARK,
+                letterSpacing: '.04em',
+                lineHeight: 0.9,
+              }}
+            >
+              NUEVA COLECCIÓN
+            </h2>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {[-1, 1].map((dir) => (
+              <button
+                key={dir}
+                onClick={() => scroll(dir)}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: 'transparent',
+                  border: `1px solid ${BORDER}`,
+                  color: DARK,
+                  fontSize: '.9rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = ACENTO;
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = ACENTO;
+                  (e.currentTarget as HTMLButtonElement).style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER;
+                  (e.currentTarget as HTMLButtonElement).style.color = DARK;
+                }}
+              >
+                {dir === -1 ? '←' : '→'}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Track */}
+      <div
+        ref={trackRef}
+        onMouseDown={onDown}
+        onMouseMove={onMov}
+        onMouseUp={onUp}
+        onMouseLeave={onUp}
+        style={{
+          display: 'flex',
+          gap: '12px',
+          overflowX: 'auto',
+          paddingLeft: 'max(2rem, calc((100% - 1060px) / 2 + 2rem))',
+          paddingRight: '2rem',
+          paddingBottom: '1rem',
+          scrollbarWidth: 'none',
+          cursor: isDrag ? 'grabbing' : 'grab',
+          userSelect: 'none',
+        }}
+      >
+        <style>{`.vt-scroll::-webkit-scrollbar{display:none}`}</style>
+
+        {PRODUCTOS.map((p, i) => (
+          <div
+            key={p.id}
+            onMouseEnter={() => setHov(i)}
+            onMouseLeave={() => setHov(null)}
+            style={{
+              flexShrink: 0,
+              width: '260px',
+              display: 'flex',
+              flexDirection: 'column',
+              cursor: 'pointer',
+            }}
+          >
+            {/* Image */}
+            <div
+              style={{
+                position: 'relative',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                aspectRatio: '3/4',
+                background: BG,
+              }}
+            >
+              <img
+                src={p.img}
+                alt={p.nombre}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform: hov === i ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'transform .5s ease',
+                }}
+              />
+
+              {/* Overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(to top, rgba(20,20,20,.7) 0%, transparent 55%)',
+                  opacity: hov === i ? 1 : 0,
+                  transition: 'opacity .3s',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  padding: '14px',
+                }}
+              >
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  {p.talla.split(' ').map((t) => (
+                    <span
+                      key={t}
+                      style={{
+                        fontFamily: "'Outfit',sans-serif",
+                        fontSize: '.6rem',
+                        fontWeight: 600,
+                        color: 'rgba(255,255,255,.7)',
+                        border: '0.5px solid rgba(255,255,255,.3)',
+                        borderRadius: '3px',
+                        padding: '2px 6px',
+                      }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  onClick={() => onCart(p)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: ACENTO,
+                    color: BTN_TXT,
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: '.65rem',
+                    fontWeight: 700,
+                    letterSpacing: '.1em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Agregar al carrito
+                </button>
+              </div>
+
+              {/* Badge */}
+              {p.badge && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    background: ACENTO,
+                    color: BTN_TXT,
+                    fontSize: '.56rem',
+                    fontWeight: 700,
+                    padding: '3px 9px',
+                    borderRadius: '3px',
+                    letterSpacing: '.1em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {p.badge}
+                </span>
+              )}
+            </div>
+
+            {/* Info */}
+            <div style={{ marginTop: '10px', padding: '0 2px' }}>
+              <p
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.82rem',
+                  fontWeight: 500,
+                  color: DARK,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  marginBottom: '3px',
+                }}
+              >
+                {p.nombre}
+              </p>
+              <p
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.65rem',
+                  color: MUTED,
+                  marginBottom: '5px',
+                }}
+              >
+                {p.cat}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                {p.precioAnt && (
+                  <span
+                    style={{ fontSize: '.68rem', color: SUBTLE, textDecoration: 'line-through' }}
+                  >
+                    ${p.precioAnt.toLocaleString()}
+                  </span>
+                )}
+                <span
+                  style={{
+                    fontFamily: "'Bebas Neue',sans-serif",
+                    fontSize: '1.2rem',
+                    color: p.precioAnt ? ACENTO : DARK,
+                    letterSpacing: '.04em',
+                  }}
+                >
+                  ${p.precio.toLocaleString()}
+                </span>
+                {p.precioAnt && (
+                  <span
+                    style={{
+                      background: `${ACENTO}15`,
+                      color: ACENTO,
+                      fontSize: '.56rem',
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                      borderRadius: '3px',
+                    }}
+                  >
+                    -{Math.round((1 - p.precio / p.precioAnt) * 100)}%
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   GRID PRODUCTOS — todos los productos con filtro
+═══════════════════════════════════════════════ */
+function GridProductos({ onCart }: { onCart: (p: any) => void }) {
+  const [cat, setCat] = useState('Todo');
+  const [hov, setHov] = useState<number | null>(null);
+  const filtered = cat === 'Todo' ? PRODUCTOS : PRODUCTOS.filter((p) => p.cat === cat);
+
+  return (
+    <section style={{ background: BG, padding: '5rem 2rem' }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            marginBottom: '2rem',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Bebas Neue',sans-serif",
+              fontSize: 'clamp(2.5rem,4vw,3.5rem)',
+              color: DARK,
+              letterSpacing: '.04em',
+              lineHeight: 0.9,
+            }}
+          >
+            TODO EL
+            <br />
+            <span style={{ color: ACENTO }}>CATÁLOGO</span>
+          </h2>
+          {/* Filtros */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {CATS.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCat(c)}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '4px',
+                  border: `1px solid ${c === cat ? ACENTO : BORDER}`,
+                  background: c === cat ? ACENTO : 'transparent',
+                  color: c === cat ? BTN_TXT : MUTED,
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.7rem',
+                  fontWeight: c === cat ? 600 : 400,
+                  cursor: 'pointer',
+                  letterSpacing: '.06em',
+                  transition: 'all .18s',
+                }}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))',
+            gap: '16px',
+          }}
+        >
+          {filtered.map((p, i) => (
+            <div
+              key={p.id}
+              onMouseEnter={() => setHov(i)}
+              onMouseLeave={() => setHov(null)}
+              style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+            >
+              <div
+                style={{
+                  position: 'relative',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  aspectRatio: '3/4',
+                  background: SURFACE,
+                  transition: 'transform .25s',
+                  transform: hov === i ? 'translateY(-3px)' : 'translateY(0)',
+                }}
+              >
+                <img
+                  src={p.img}
+                  alt={p.nombre}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transform: hov === i ? 'scale(1.05)' : 'scale(1)',
+                    transition: 'transform .5s ease',
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(20,20,20,.5)',
+                    opacity: hov === i ? 1 : 0,
+                    transition: 'opacity .3s',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '12px',
+                  }}
+                >
+                  <button
+                    onClick={() => onCart(p)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      background: ACENTO,
+                      color: BTN_TXT,
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.62rem',
+                      fontWeight: 700,
+                      letterSpacing: '.1em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    + Agregar
+                  </button>
+                </div>
+                {p.badge && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      background: ACENTO,
+                      color: BTN_TXT,
+                      fontSize: '.56rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: '3px',
+                      letterSpacing: '.08em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {p.badge}
+                  </span>
+                )}
+              </div>
+              <div style={{ marginTop: '8px', padding: '0 2px' }}>
+                <p
+                  style={{
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: '.8rem',
+                    fontWeight: 500,
+                    color: DARK,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {p.nombre}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: '.62rem',
+                    color: MUTED,
+                    marginBottom: '3px',
+                  }}
+                >
+                  {p.cat}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                  {p.precioAnt && (
+                    <span
+                      style={{ fontSize: '.65rem', color: SUBTLE, textDecoration: 'line-through' }}
+                    >
+                      ${p.precioAnt.toLocaleString()}
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      fontFamily: "'Bebas Neue',sans-serif",
+                      fontSize: '1.1rem',
+                      color: p.precioAnt ? ACENTO : DARK,
+                      letterSpacing: '.04em',
+                    }}
+                  >
+                    ${p.precio.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   BANNER — promo strip
+═══════════════════════════════════════════════ */
+function Banner() {
+  return (
+    <section style={{ background: ACENTO, padding: '3.5rem 2rem' }}>
+      <div
+        style={{
+          maxWidth: '1060px',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1.5rem',
+        }}
+      >
+        <div>
+          <h3
+            style={{
+              fontFamily: "'Bebas Neue',sans-serif",
+              fontSize: 'clamp(2rem,4vw,3rem)',
+              color: BTN_TXT,
+              letterSpacing: '.04em',
+              lineHeight: 0.9,
+              marginBottom: '.5rem',
+            }}
+          >
+            ENVÍO GRATIS
+            <br />
+            EN PEDIDOS +$10.000
+          </h3>
+          <p
+            style={{
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: '.8rem',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,.75)',
+            }}
+          >
+            A todo Tucumán y alrededores.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '2rem' }}>
+          {[
+            { n: '+300', l: 'prendas vendidas' },
+            { n: '100%', l: 'diseño local' },
+            { n: '4.9★', l: 'calificación' },
+          ].map(({ n, l }) => (
+            <div key={l} style={{ textAlign: 'center' }}>
+              <div
+                style={{
+                  fontFamily: "'Bebas Neue',sans-serif",
+                  fontSize: '1.8rem',
+                  color: BTN_TXT,
+                  letterSpacing: '.06em',
+                  lineHeight: 1,
+                }}
+              >
+                {n}
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.62rem',
+                  color: 'rgba(255,255,255,.65)',
+                  marginTop: '3px',
+                  letterSpacing: '.06em',
+                }}
+              >
+                {l}
+              </div>
+            </div>
+          ))}
+        </div>
+        <a
+          href={`https://wa.me/${TIENDA.whatsapp}`}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            padding: '13px 28px',
+            background: DARK,
+            color: BTN_TXT,
+            borderRadius: '4px',
+            textDecoration: 'none',
+            fontFamily: "'Outfit',sans-serif",
+            fontSize: '.75rem',
+            fontWeight: 600,
+            letterSpacing: '.1em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Consultanos →
+        </a>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   CART DRAWER
+═══════════════════════════════════════════════ */
+function CartDrawer({
+  items,
+  onClose,
+  onQty,
+  onRemove,
+}: {
+  items: any[];
+  onClose: () => void;
+  onQty: (id: number, q: number) => void;
+  onRemove: (id: number) => void;
+}) {
+  const subtotal = items.reduce((a, i) => a + i.precio * i.qty, 0);
+  const ship = subtotal >= 10000 ? 0 : 900;
+  const total = subtotal + ship;
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,.45)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 40,
+        }}
+      />
+      <div
+        style={{
+          position: 'fixed',
+          right: 0,
+          top: 0,
+          height: '100%',
+          width: 'min(400px,100vw)',
+          background: SURFACE,
+          borderLeft: `1px solid ${BORDER}`,
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '-20px 0 60px rgba(0,0,0,.1)',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1.25rem 1.5rem',
+            borderBottom: `1px solid ${BORDER}`,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Bebas Neue',sans-serif",
+              fontSize: '1.4rem',
+              color: DARK,
+              letterSpacing: '.08em',
+            }}
+          >
+            CARRITO{' '}
+            {items.length > 0 && (
+              <span
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.72rem',
+                  fontWeight: 400,
+                  color: ACENTO,
+                  letterSpacing: 0,
+                }}
+              >
+                {items.length} ítems
+              </span>
+            )}
+          </span>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: MUTED,
+              fontSize: '1.1rem',
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Items */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 1.5rem' }}>
+          {items.length === 0 ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                gap: '1rem',
+              }}
+            >
+              <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', color: MUTED }}>
+                Tu carrito está vacío
+              </p>
+              <button
+                onClick={onClose}
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.78rem',
+                  color: ACENTO,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px',
+                }}
+              >
+                Seguir comprando
+              </button>
+            </div>
+          ) : (
+            items.map((item) => (
+              <div
+                key={item.id}
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  padding: '14px 0',
+                  borderBottom: `1px solid ${BORDER}`,
+                }}
+              >
+                <div
+                  style={{
+                    width: '72px',
+                    height: '90px',
+                    borderRadius: '6px',
+                    overflow: 'hidden',
+                    background: BG,
+                    flexShrink: 0,
+                  }}
+                >
+                  <img
+                    src={item.img}
+                    alt={item.nombre}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.8rem',
+                      fontWeight: 500,
+                      color: DARK,
+                    }}
+                  >
+                    {item.nombre}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.65rem',
+                      color: MUTED,
+                      marginTop: '2px',
+                    }}
+                  >
+                    {item.cat}
+                  </p>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: '10px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        border: `1px solid ${BORDER}`,
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {[
+                        {
+                          l: '−',
+                          a: () =>
+                            item.qty > 1 ? onQty(item.id, item.qty - 1) : onRemove(item.id),
+                        },
+                        { l: String(item.qty), a: null },
+                        { l: '+', a: () => onQty(item.id, item.qty + 1) },
+                      ].map(({ l, a }, i) => (
+                        <div
+                          key={i}
+                          onClick={a ?? undefined}
+                          style={{
+                            width: '30px',
+                            height: '30px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: a ? 'pointer' : 'default',
+                            color: i === 1 ? DARK : MUTED,
+                            fontFamily: "'Outfit',sans-serif",
+                            fontSize: '.85rem',
+                            fontWeight: i === 1 ? 600 : 400,
+                            borderLeft: i > 0 ? `1px solid ${BORDER}` : 'none',
+                            background: i === 1 ? BG : 'transparent',
+                          }}
+                        >
+                          {l}
+                        </div>
+                      ))}
+                    </div>
+                    <span
+                      style={{
+                        fontFamily: "'Bebas Neue',sans-serif",
+                        fontSize: '1.15rem',
+                        color: ACENTO,
+                        letterSpacing: '.04em',
+                      }}
+                    >
+                      ${(item.precio * item.qty).toLocaleString()}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => onRemove(item.id)}
+                    style={{
+                      marginTop: '6px',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.62rem',
+                      color: SUBTLE,
+                      padding: 0,
+                      transition: 'color .2s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = SUBTLE)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Summary */}
+        {items.length > 0 && (
+          <div
+            style={{ padding: '1.25rem 1.5rem', borderTop: `1px solid ${BORDER}`, background: BG }}
+          >
+            {[
+              { l: 'Subtotal', v: `$${subtotal.toLocaleString()}` },
+              {
+                l: 'Envío',
+                v: ship === 0 ? 'Gratis' : `$${ship.toLocaleString()}`,
+                green: ship === 0,
+              },
+            ].map(({ l, v, green }: any) => (
+              <div
+                key={l}
+                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '7px' }}
+              >
+                <span
+                  style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED }}
+                >
+                  {l}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: '.75rem',
+                    color: green ? '#16a34a' : SUBTLE,
+                  }}
+                >
+                  {v}
+                </span>
+              </div>
+            ))}
+            {ship > 0 && (
+              <p
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.62rem',
+                  color: SUBTLE,
+                  marginBottom: '8px',
+                }}
+              >
+                Envío gratis en pedidos desde $10.000
+              </p>
+            )}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                paddingTop: '10px',
+                borderTop: `1px solid ${BORDER}`,
+                marginBottom: '1.1rem',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.88rem',
+                  fontWeight: 600,
+                  color: DARK,
+                }}
+              >
+                Total
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Bebas Neue',sans-serif",
+                  fontSize: '1.5rem',
+                  color: DARK,
+                  letterSpacing: '.04em',
+                }}
+              >
+                ${total.toLocaleString()}
+              </span>
+            </div>
+            <button
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: DARK,
+                color: BTN_TXT,
+                border: 'none',
+                borderRadius: '4px',
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.75rem',
+                fontWeight: 700,
+                letterSpacing: '.12em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                marginBottom: '8px',
+                transition: 'background .2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = DARK)}
+            >
+              Confirmar pedido
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                width: '100%',
+                padding: '11px',
+                background: 'transparent',
+                border: `1px solid ${BORDER}`,
+                borderRadius: '4px',
+                color: MUTED,
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.72rem',
+                cursor: 'pointer',
+              }}
+            >
+              Seguir comprando
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+function Footer() {
+  const socials = [
+    {
+      label: 'IG',
+      href: `https://instagram.com/${TIENDA.instagram}`,
+      icon: (
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        >
+          <rect x="2" y="2" width="20" height="20" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.5" cy="6.5" r=".5" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      label: 'WA',
+      href: `https://wa.me/${TIENDA.whatsapp}`,
+      icon: (
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        >
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        </svg>
+      ),
+    },
+  ];
+  return (
+    <footer style={{ background: DARK, padding: '0 2rem' }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '2.5rem',
+            justifyContent: 'space-between',
+            padding: '3rem 0 2.5rem',
+            borderBottom: '0.5px solid rgba(247,245,242,0.1)',
+          }}
+        >
+          <div style={{ minWidth: '180px' }}>
+            <div
+              style={{
+                fontFamily: "'Bebas Neue',sans-serif",
+                fontSize: '2rem',
+                color: BG,
+                letterSpacing: '.08em',
+                marginBottom: '4px',
+              }}
+            >
+              {TIENDA.nombre}
+            </div>
+            <div
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.62rem',
+                color: 'rgba(247,245,242,.3)',
+                letterSpacing: '.16em',
+                textTransform: 'uppercase',
+                marginBottom: '12px',
+              }}
+            >
+              {TIENDA.tagline}
+            </div>
+            <p
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.72rem',
+                fontWeight: 300,
+                color: 'rgba(247,245,242,.45)',
+                lineHeight: 1.8,
+                maxWidth: '220px',
+              }}
+            >
+              {TIENDA.descripcion}
+            </p>
+          </div>
+          <div>
+            <p
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.58rem',
+                letterSpacing: '.2em',
+                textTransform: 'uppercase',
+                color: 'rgba(247,245,242,.25)',
+                marginBottom: '.9rem',
+                fontWeight: 600,
+              }}
+            >
+              Contacto
+            </p>
+            <a
+              href={`https://wa.me/${TIENDA.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'block',
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.72rem',
+                color: 'rgba(247,245,242,.5)',
+                textDecoration: 'none',
+                marginBottom: '6px',
+              }}
+            >
+              📱 {TIENDA.whatsapp}
+            </a>
+            <a
+              href={`https://instagram.com/${TIENDA.instagram}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'block',
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.72rem',
+                color: 'rgba(247,245,242,.5)',
+                textDecoration: 'none',
+              }}
+            >
+              📷 @{TIENDA.instagram}
+            </a>
+          </div>
+          <div>
+            <p
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.58rem',
+                letterSpacing: '.2em',
+                textTransform: 'uppercase',
+                color: 'rgba(247,245,242,.25)',
+                marginBottom: '.9rem',
+                fontWeight: 600,
+              }}
+            >
+              Ubicación
+            </p>
+            <p
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.72rem',
+                color: 'rgba(247,245,242,.5)',
+                lineHeight: 1.75,
+              }}
+            >
+              {TIENDA.ciudad}
+              <br />
+              {TIENDA.pais}
+            </p>
+          </div>
+          <div>
+            <p
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.58rem',
+                letterSpacing: '.2em',
+                textTransform: 'uppercase',
+                color: 'rgba(247,245,242,.25)',
+                marginBottom: '.9rem',
+                fontWeight: 600,
+              }}
+            >
+              Seguinos
+            </p>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {socials.map(({ label, href, icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '4px',
+                    border: '0.5px solid rgba(247,245,242,.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'rgba(247,245,242,.35)',
+                    textDecoration: 'none',
+                    transition: 'all .2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = ACENTO;
+                    e.currentTarget.style.color = ACENTO;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(247,245,242,.12)';
+                    e.currentTarget.style.color = 'rgba(247,245,242,.35)';
+                  }}
+                >
+                  {icon}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+        <p
+          style={{
+            fontFamily: "'Outfit',sans-serif",
+            fontSize: '.62rem',
+            color: 'rgba(247,245,242,.18)',
+            textAlign: 'center',
+            padding: '.9rem 0',
+          }}
+        >
+          © {new Date().getFullYear()}{' '}
+          <span style={{ color: ACENTO, opacity: 0.8 }}>{TIENDA.nombre}</span> — Todos los derechos
+          reservados.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+function Toast({ msg, visible }: { msg: string; visible: boolean }) {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '1.5rem',
+        left: '50%',
+        transform: `translateX(-50%) translateY(${visible ? '0' : '12px'})`,
+        background: DARK,
+        border: `1.5px solid ${ACENTO}`,
+        borderRadius: '4px',
+        padding: '11px 22px',
+        fontFamily: "'Outfit',sans-serif",
+        fontSize: '.75rem',
+        fontWeight: 500,
+        color: BG,
+        zIndex: 60,
+        opacity: visible ? 1 : 0,
+        pointerEvents: 'none',
+        transition: 'all .3s ease',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <span style={{ color: ACENTO, marginRight: '8px', fontWeight: 700 }}>✓</span>
+      {msg}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   ROOT
+═══════════════════════════════════════════════ */
+export interface PlantillaRopaProps {
+  tienda?: any;
+  tema?: any;
+  accent?: string;
+  themeConfig?: any;
+}
+
+export default function PlantillaRopa({ tienda, accent, themeConfig }: PlantillaRopaProps) {
+  const resolvedAccent = accent || themeConfig?.primary || '#e63946';
+
+  const mergedTienda = useMemo(
+    () => ({
+      ...TIENDA,
+      nombre: tienda?.nombre || tienda?.titulo || TIENDA.nombre,
+      tagline: tienda?.tagline || TIENDA.tagline,
+      descripcion: tienda?.descripcion || TIENDA.descripcion,
+      whatsapp: tienda?.whatsapp || TIENDA.whatsapp,
+      instagram: tienda?.instagram || TIENDA.instagram,
+      ciudad: tienda?.ciudad || TIENDA.ciudad,
+    }),
+    [tienda]
+  );
+
+  useEffect(() => {
+    ACENTO = resolvedAccent;
+    TIENDA = { ...mergedTienda };
+  }, [resolvedAccent, mergedTienda]);
+
+  //props que le pasamos a carrusel
+  const carruselItems = tienda?.carrusel || [];
+
+  console.log('carrusel en tienda ', tienda?.carrusel);
+  const [cart, setCart] = useState<any[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [toast, setToast] = useState({ msg: '', visible: false });
+
+  const addToCart = (p: any) => {
+    setCart((prev) => {
+      const ex = prev.find((i) => i.id === p.id);
+      return ex
+        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i))
+        : [...prev, { ...p, qty: 1 }];
+    });
+    setToast({ msg: `${p.nombre} agregado`, visible: true });
+    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+  };
+
+  const cartCount = cart.reduce((a, i) => a + i.qty, 0);
+
+  return (
+    <>
+      <style>{`
+        ${FONTS}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        img { display: block; }
+        .vt-scroll { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }
+        .vt-hide-mob { display: flex !important; }
+        .vt-show-mob { display: none !important; }
+        @media(max-width: 680px) {
+          .vt-hide-mob { display: none !important; }
+          .vt-show-mob { display: flex !important; }
+        }
+      `}</style>
+
+      <div className="vt-scroll" style={{ background: BG }}>
+        <Navbar cartCount={cartCount} onCart={() => setCartOpen(true)} />
+        <Hero carrusel={carruselItems} />
+        <Marquee />
+        <Lookbook />
+        <CarruselProductos onCart={addToCart} items={carruselItems} />
+        <Banner />
+        <GridProductos onCart={addToCart} />
+        <Footer />
+      </div>
+
+      {cartOpen && (
+        <CartDrawer
+          items={cart}
+          onClose={() => setCartOpen(false)}
+          onQty={(id, q) => setCart((p) => p.map((i) => (i.id === id ? { ...i, qty: q } : i)))}
+          onRemove={(id) => setCart((p) => p.filter((i) => i.id !== id))}
+        />
+      )}
+
+      <Toast msg={toast.msg} visible={toast.visible} />
+    </>
+  );
+}

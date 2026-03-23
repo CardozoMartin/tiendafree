@@ -19,3 +19,51 @@ export const getPublicShopFn = async (slug: string) => {
   const { data } = await api.get(`/tiendas/${slug}/`);
   return data.datos;
 };
+
+//funcion para actualizar los datos de la tienda
+export const putUpdateShopFn = async (data: Partial<IShopData>) => {
+  const response = await api.put('/tiendas/mi-tienda/', data);
+  return response.data;
+}
+
+//funcion para actualizar los datos visuales de la tienda (colores, fuentes, etc)
+export const putUpdateShopVisualFn = async (data: Partial<IShopData>) => {
+  const response = await api.put('/tiendas/mi-tienda/tema/', data);
+  return response.data;
+}
+
+// ── Catálogo de métodos ──
+
+export const getMetodosPagoCatalogoFn = async () => {
+  const response = await api.get('/tiendas/metodos-pago');
+  return response.data.datos;
+};
+
+export const getMetodosEntregaCatalogoFn = async () => {
+  const response = await api.get('/tiendas/metodos-entrega');
+  return response.data.datos;
+};
+
+// ── Métodos de la tienda ──
+
+export const postAgregarMetodoPagoFn = async (data: { metodoPagoId: number; detalle?: string }) => {
+  const response = await api.post('/tiendas/mi-tienda/metodos-pago', data);
+  return response.data;
+};
+
+export const deleteEliminarMetodoPagoFn = async (id: number) => {
+  const response = await api.delete(`/tiendas/mi-tienda/metodos-pago/${id}`);
+  return response.data;
+};
+
+export const postAgregarMetodoEntregaFn = async (data: { metodoEntregaId: number; zonaCobertura?: string; detalle?: string }) => {
+  const response = await api.post('/tiendas/mi-tienda/metodos-entrega', data);
+  return response.data;
+};
+
+export const deleteEliminarMetodoEntregaFn = async (id: number) => {
+  const response = await api.delete(`/tiendas/mi-tienda/metodos-entrega/${id}`);
+  return response.data;
+};
+
+

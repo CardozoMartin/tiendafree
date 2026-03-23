@@ -1,0 +1,42 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { IErrorResponse, ISuccessResponse } from '../../../types/api.type';
+import type { AxiosError } from 'axios';
+import { deleteShopCarouselImageFn, postAddShopCarouselImageFn } from '../api/carrusel.api';
+import { toast } from 'sonner';
+import type { IShopData } from '../types/shop.type';
+
+// ─── Helper para extraer el mensaje de error ─────────────────────────────────
+const getErrorMessage = (error: AxiosError<IErrorResponse>): string => {
+  const data = error.response?.data;
+  return data?.errores?.join(' · ') ?? data?.mensaje ?? 'Error inesperado';
+};
+
+//hook para eliminar una imagen del carrusel de la tienda
+export const useDeleteShopCarouselImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteShopCarouselImageFn,
+    onSuccess: (data: ISuccessResponse<IShopData>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+//hook para añadir una imagen al carrusel de la tienda
+export const useAddShopCarouselImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postAddShopCarouselImageFn,
+    onSuccess: (data: ISuccessResponse<IShopData>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};

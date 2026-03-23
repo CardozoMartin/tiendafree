@@ -1,13 +1,15 @@
-import TemplateModernDemo from "./TemplateModernDemo";
-import TemplatePinkDemo from "./TemplatePinkDemo";
-
+import TemplateAccesoriosDemo from "./TemplateAccesoriosDemo";
+import TemplateGorrasDemo from "./TemplateGorrasDemo";
+import TemplateRopaDemo from "./TemplateRopaDemo";
 
 export const TEMPLATES: Record<string, React.ComponentType<any>> = {
-  plantilla_comun: TemplateModernDemo,
-  plantilla_pink: TemplatePinkDemo
+  plantilla_accesorios: TemplateAccesoriosDemo,
+  plantilla_gorras: TemplateGorrasDemo,
+  plantilla_ropa: TemplateRopaDemo,
 };
 
 export const DEMO_ROUTES: Record<string, string> = {
-  plantilla_comun: '/demo/moderna',
-  plantilla_pink: '/demo/pink'
+  plantilla_accesorios: '/demo/accesorios',
+  plantilla_gorras: '/demo/gorras',
+  plantilla_ropa: '/demo/ropa'
 };
