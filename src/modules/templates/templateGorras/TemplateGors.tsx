@@ -3,15 +3,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
 
 // ── COLORES FIJOS ─────────────────────────────────────────────
-let ACENTO = '#f97316'; // naranja vibrante
-const BG = '#ffffff';
-const SURFACE = '#fafafa';
-const SURFACE2 = '#f3f4f6';
-const TXT = '#111827';
-const MUTED = '#6b7280';
-const SUBTLE = '#9ca3af';
-const BORDER = 'rgba(0,0,0,0.08)';
-const BTN_TXT = '#ffffff';
+let ACENTO = 'var(--gor-acento)'; // naranja vibrante
+const BG = 'var(--gor-bg)';
+const SURFACE = 'var(--gor-surface)';
+const SURFACE2 = 'var(--gor-surface2)';
+const TXT = 'var(--gor-txt)';
+const MUTED = 'var(--gor-muted)';
+const SUBTLE = 'var(--gor-subtle)';
+const BORDER = 'var(--gor-border)';
+const BTN_TXT = 'var(--gor-btn-txt)';
 
 let TIENDA = {
   nombre: 'CapZone',
@@ -145,7 +145,7 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        background: scrolled ? 'rgba(255,255,255,0.97)' : BG,
+        background: scrolled ? 'var(--gor-bg-alpha)' : BG,
         borderBottom: `1px solid ${scrolled ? BORDER : 'transparent'}`,
         backdropFilter: scrolled ? 'blur(10px)' : 'none',
         padding: '0 2rem',
@@ -1484,7 +1484,7 @@ function Footer() {
   ];
 
   return (
-    <footer style={{ background: TXT, padding: '0 1.5rem' }}>
+    <footer style={{ background: 'var(--gor-footer-bg)', borderTop: '1px solid var(--gor-border)', padding: '0 1.5rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
         <div
           style={{
@@ -1747,10 +1747,24 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   };
 
   useEffect(() => {
-    // Keep internal globals for sub-components for now
-    ACENTO = resolvedAccent;
+    ACENTO = 'var(--gor-acento)';
     TIENDA = { ...mergedTienda };
   }, [resolvedAccent, mergedTienda]);
+
+  const isDark = themeConfig?.modoOscuro;
+  const cssVars = {
+    '--gor-bg': isDark ? '#121212' : '#ffffff',
+    '--gor-bg-alpha': isDark ? 'rgba(18,18,18,0.97)' : 'rgba(255,255,255,0.97)',
+    '--gor-surface': isDark ? '#1e1e1e' : '#fafafa',
+    '--gor-surface2': isDark ? '#262626' : '#f3f4f6',
+    '--gor-txt': isDark ? '#f3f4f6' : '#111827',
+    '--gor-muted': isDark ? '#9ca3af' : '#6b7280',
+    '--gor-subtle': isDark ? '#6b7280' : '#9ca3af',
+    '--gor-border': isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+    '--gor-btn-txt': isDark ? '#111827' : '#ffffff',
+    '--gor-footer-bg': isDark ? '#000000' : '#111827',
+    '--gor-acento': resolvedAccent,
+  } as React.CSSProperties;
 
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -1770,7 +1784,7 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   const cartCount = cart.reduce((a, i) => a + i.qty, 0);
 
   return (
-    <>
+    <div style={cssVars}>
       <style>{`
         ${FONTS}
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1804,6 +1818,6 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
       )}
 
       <Toast msg={toast.msg} visible={toast.visible} />
-    </>
+    </div>
   );
 }

@@ -5,14 +5,14 @@ const FONTS = `
 `;
 
 // ── PALETA ────────────────────────────────────────────────────
-const BG = '#f7f5f2';
-const DARK = '#141414';
-const SURFACE = '#ffffff';
-let ACENTO = '#e63946'; // rojo editorial
-const MUTED = '#888580';
-const SUBTLE = '#b8b4af';
-const BORDER = 'rgba(20,20,20,0.09)';
-const BTN_TXT = '#ffffff';
+const BG = 'var(--rop-bg)';
+const DARK = 'var(--rop-dark)';
+const SURFACE = 'var(--rop-surface)';
+let ACENTO = 'var(--rop-acento)'; // rojo editorial
+const MUTED = 'var(--rop-muted)';
+const SUBTLE = 'var(--rop-subtle)';
+const BORDER = 'var(--rop-border)';
+const BTN_TXT = 'var(--rop-btn-txt)';
 
 // ── TIENDA ────────────────────────────────────────────────────
 let TIENDA = {
@@ -192,7 +192,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        background: scrolled ? 'rgba(247,245,242,0.96)' : 'transparent',
+        background: scrolled ? 'var(--rop-bg-alpha)' : 'transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         borderBottom: scrolled ? `1px solid ${BORDER}` : 'none',
         padding: '0 2rem',
@@ -240,13 +240,13 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
               fontFamily: "'Outfit',sans-serif",
               fontSize: '.78rem',
               fontWeight: 500,
-              color: `${DARK}70`,
+              color: 'var(--rop-nav-link)',
               textDecoration: 'none',
               letterSpacing: '.04em',
               transition: 'color .2s',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = ACENTO)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = `${DARK}70`)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--rop-nav-link)')}
           >
             {l}
           </a>
@@ -766,7 +766,7 @@ function Marquee() {
               fontFamily: "'Bebas Neue',sans-serif",
               fontSize: '1rem',
               letterSpacing: '.18em',
-              color: i % 3 === 1 ? ACENTO : 'rgba(247,245,242,0.35)',
+              color: i % 3 === 1 ? ACENTO : 'var(--rop-slider-text)',
               padding: '0 1.5rem',
               whiteSpace: 'nowrap',
             }}
@@ -1925,7 +1925,7 @@ function Footer() {
     },
   ];
   return (
-    <footer style={{ background: DARK, padding: '0 2rem' }}>
+    <footer style={{ background: 'var(--rop-footer-bg)', borderTop: '1px solid var(--rop-border)', padding: '0 2rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
         <div
           style={{
@@ -2170,9 +2170,27 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   );
 
   useEffect(() => {
-    ACENTO = resolvedAccent;
+    ACENTO = 'var(--rop-acento)';
     TIENDA = { ...mergedTienda };
   }, [resolvedAccent, mergedTienda]);
+
+  const isDark = themeConfig?.modoOscuro;
+
+  // Variables inyectadas que responden mágicamente al tema Oscuro/Claro
+  const cssVars = {
+    '--rop-bg': isDark ? '#121212' : '#f7f5f2',
+    '--rop-bg-alpha': isDark ? 'rgba(18,18,18,0.96)' : 'rgba(247,245,242,0.96)',
+    '--rop-dark': isDark ? '#f5f0e8' : '#141414',
+    '--rop-surface': isDark ? '#1e1e1e' : '#ffffff',
+    '--rop-acento': resolvedAccent,
+    '--rop-muted': isDark ? '#a8a29e' : '#888580',
+    '--rop-subtle': isDark ? '#57534e' : '#b8b4af',
+    '--rop-border': isDark ? 'rgba(255,255,255,0.08)' : 'rgba(20,20,20,0.09)',
+    '--rop-btn-txt': isDark ? '#141414' : '#ffffff',
+    '--rop-nav-link': isDark ? 'rgba(245,240,232,0.7)' : 'rgba(20,20,20,0.7)',
+    '--rop-slider-text': isDark ? 'rgba(20,20,20,0.45)' : 'rgba(247,245,242,0.35)',
+    '--rop-footer-bg': isDark ? '#000000' : '#141414',
+  } as React.CSSProperties;
 
   //props que le pasamos a carrusel
   const carruselItems = tienda?.carrusel || [];
@@ -2196,7 +2214,7 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   const cartCount = cart.reduce((a, i) => a + i.qty, 0);
 
   return (
-    <>
+    <div style={cssVars}>
       <style>{`
         ${FONTS}
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2231,6 +2249,6 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
       )}
 
       <Toast msg={toast.msg} visible={toast.visible} />
-    </>
+    </div>
   );
 }

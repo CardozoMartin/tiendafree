@@ -3,15 +3,15 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');`;
 
 // ── COLORES FIJOS ─────────────────────────────────────────────
-let ACENTO = '#b5835a'; // bronce cálido
-const BG = '#f5f1eb'; // crema
-const SURFACE = '#ffffff';
-const SURFACE2 = '#ede9e2';
-const TXT = '#2a1f14';
-const MUTED = '#7a6e62';
-const SUBTLE = '#a89e94';
-const BORDER = 'rgba(42,31,20,0.1)';
-const BTN_TXT = '#ffffff';
+let ACENTO = 'var(--acc-acento)'; // bronce cálido
+const BG = 'var(--acc-bg)'; // crema
+const SURFACE = 'var(--acc-surface)';
+const SURFACE2 = 'var(--acc-surface2)';
+const TXT = 'var(--acc-txt)';
+const MUTED = 'var(--acc-muted)';
+const SUBTLE = 'var(--acc-subtle)';
+const BORDER = 'var(--acc-border)';
+const BTN_TXT = 'var(--acc-btn-txt)';
 let ACENTO_BG = `${ACENTO}18`;
 let ACENTO_BDR = `${ACENTO}40`;
 
@@ -121,7 +121,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
     return () => el?.removeEventListener('scroll', fn);
   }, []);
 
-  const navBg = scrolled ? 'rgba(245,241,235,0.97)' : 'transparent';
+  const navBg = scrolled ? 'var(--acc-bg-alpha)' : 'transparent';
 
   return (
     <nav
@@ -1445,7 +1445,7 @@ function Footer() {
   ];
 
   return (
-    <footer style={{ background: TXT, padding: '0 2rem' }}>
+    <footer style={{ background: 'var(--acc-footer-bg)', borderTop: '1px solid var(--acc-border)', padding: '0 2rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
         <div
           style={{
@@ -1700,10 +1700,24 @@ export default function PlantillaAccesorios({ tienda, accent, themeConfig }: Pla
   // Actually, the sub-components are defined in the same file and use the global ACENTO.
   // To be safe and clean, I'll update them here.
   useEffect(() => {
-     // This still mutates global, but it's triggered by props.
-     // In a strictly data-driven version, we'd pass these as props to all sub-components.
-     // But there are many. Let's stick to making the TIENDA data local first.
-  }, [resolvedAccent]);
+     ACENTO = 'var(--acc-acento)';
+     TIENDA = { ...mergedTienda };
+  }, [resolvedAccent, mergedTienda]);
+
+  const isDark = themeConfig?.modoOscuro;
+  const cssVars = {
+    '--acc-bg': isDark ? '#121212' : '#f5f1eb',
+    '--acc-bg-alpha': isDark ? 'rgba(18,18,18,0.97)' : 'rgba(245,241,235,0.97)',
+    '--acc-surface': isDark ? '#1e1e1e' : '#ffffff',
+    '--acc-surface2': isDark ? '#262626' : '#ede9e2',
+    '--acc-txt': isDark ? '#ede9e2' : '#2a1f14',
+    '--acc-muted': isDark ? '#a89e94' : '#7a6e62',
+    '--acc-subtle': isDark ? '#7a6e62' : '#a89e94',
+    '--acc-border': isDark ? 'rgba(255,255,255,0.08)' : 'rgba(42,31,20,0.1)',
+    '--acc-btn-txt': isDark ? '#2a1f14' : '#ffffff',
+    '--acc-footer-bg': isDark ? '#000000' : '#2a1f14',
+    '--acc-acento': resolvedAccent,
+  } as React.CSSProperties;
 
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -1729,7 +1743,7 @@ export default function PlantillaAccesorios({ tienda, accent, themeConfig }: Pla
   const cartCount = cart.reduce((a, i) => a + i.qty, 0);
 
   return (
-    <>
+    <div style={cssVars}>
       <style>{`
         ${FONTS}
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1763,6 +1777,6 @@ export default function PlantillaAccesorios({ tienda, accent, themeConfig }: Pla
       )}
 
       <Toast msg={toast.msg} visible={toast.visible} />
-    </>
+    </div>
   );
 }
