@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Product } from './types';
 import { StarRating } from './ProductsSectionModer';
+import { MetodoChip } from '../shared/MetodoIcons';
 
 const ProductDetailModer = ({
   product,
@@ -9,6 +10,7 @@ const ProductDetailModer = ({
   accent = '#c9a96e',
   buttonBg,
   buttonText,
+  tienda,
 }: {
   product: Product;
   onClose: () => void;
@@ -16,6 +18,7 @@ const ProductDetailModer = ({
   accent?: string;
   buttonBg?: string;
   buttonText?: string;
+  tienda?: any;
 }) => {
   const [selectedImg, setSelectedImg] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
@@ -282,21 +285,29 @@ const ProductDetailModer = ({
             </button>
           </div>
 
-          {/* Trust badges */}
-          <div className="flex gap-5 flex-wrap" style={{ paddingTop: '0.5rem' }}>
-            {[
-              { icon: '🚚', label: 'Envío gratis +$100' },
-              { icon: '↩', label: '30 días devolución' },
-              { icon: '🔒', label: 'Pago seguro' },
-            ].map(({ icon, label }) => (
-              <div key={label} className="flex items-center gap-2">
-                <span style={{ fontSize: '13px' }}>{icon}</span>
-                <span style={{ fontSize: '0.65rem', color: textMuted, letterSpacing: '0.04em' }}>
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
+          {/* Trust badges - Payment & Delivery */}
+          {(tienda?.metodosPago?.length > 0 || tienda?.metodosEntrega?.length > 0) && (
+            <div className="flex gap-3 flex-wrap" style={{ paddingTop: '0.5rem' }}>
+              {tienda?.metodosPago?.slice(0, 3).map((m: any) => (
+                <MetodoChip
+                  key={m.metodoPago?.id || m.id || m}
+                  nombre={m.metodoPago?.nombre || m.nombre || m}
+                  iconSize={18}
+                  borderColor="rgba(245,240,232,0.1)"
+                  textColor="rgba(245,240,232,0.5)"
+                />
+              ))}
+              {tienda?.metodosEntrega?.slice(0, 2).map((m: any) => (
+                <MetodoChip
+                  key={m.metodoEntrega?.id || m.id || m}
+                  nombre={m.metodoEntrega?.nombre || m.nombre || m}
+                  iconSize={18}
+                  borderColor="rgba(245,240,232,0.1)"
+                  textColor="rgba(245,240,232,0.5)"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -41,6 +41,8 @@ export interface ThemeConfig {
   cardMostrarBadge?: boolean;
   heroTitulo?: string;
   heroSubtitulo?: string;
+  hero_titulo?: string;
+  hero_subtitulo?: string;
 }
 
 export const PRODUCTS: Product[] = [

@@ -11,6 +11,7 @@ import Gallery from './GalleryPink';
 import ProductGrid from './ProductGrid';
 import ProductDetail from './ProductDetailPink';
 import Banner from './Banner';
+import AboutPink from './AboutPink';
 import Footer from './FooterPink';
 
 // Importamos el Carrito (separado en su propio archivo) y los datos tipados
@@ -66,12 +67,14 @@ const isProduct = (value: unknown): value is Product => {
 
 
 
+
 // ============================================================================
 // 5. COMPONENTE PRINCIPAL (TEMPLATE PINK)
 // ============================================================================
 export default function TemplatePink(props: TemplatePinkProps = {}) {
   const accent = props.accent || '#e11d48'; // Color rosa oscuro por defecto si falla
-  const { tienda = {}, tema = {}, themeConfig: temaConfig = {} } = props;
+  const temaConfig = props.themeConfig || ({} as ThemeConfig);
+  const { tienda = {}, tema = {} } = props;
 
   // --- B. PREPARACIÓN DE SECCIONES (NUEVA LÓGICA POR OBJETO) ---
   const seccionesVisibles: Record<string, boolean> = (temaConfig.seccionesVisibles as any) || {};
@@ -152,6 +155,7 @@ export default function TemplatePink(props: TemplatePinkProps = {}) {
   const showGallery = seccionesVisibles.galeria !== false;
   const showProducts = seccionesVisibles.productos !== false;
   const showNavbar = seccionesVisibles.navbar !== false;
+  const showAbout = seccionesVisibles.sobreNosotros !== false;
   const showFooter = seccionesVisibles.footer !== false;
 
 
@@ -275,11 +279,17 @@ export default function TemplatePink(props: TemplatePinkProps = {}) {
           accent={theme.primary}
           buttonBg={theme.buttonBg}
           buttonText={theme.buttonText}
+          tienda={tienda}
         />
       )}
 
       {/*
-        ------------------ SECCIÓN 5: FOOTER ------------------
+        ------------------ SECCIÓN 5: SOBRE NOSOTROS ------------------
+      */}
+      {showAbout && <AboutPink tienda={tienda} accent={accent} bgColor={theme.background} />}
+
+      {/*
+        ------------------ SECCIÓN 6: FOOTER ------------------
       */}
       {showFooter && <Footer brandName={String(tienda?.nombre || 'LUMÉ')} />}
 

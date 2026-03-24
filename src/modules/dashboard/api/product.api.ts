@@ -52,8 +52,8 @@ export const postCrearProductoFn = async (payload: ICreateProductDto) => {
   formData.append('nombre', payload.nombre);
   formData.append('precio', payload.precio.toString());
   formData.append('moneda', payload.moneda);
-  formData.append('disponible', payload.disponible.toString());
-  formData.append('destacado', payload.destacado.toString());
+  formData.append('disponible', payload.disponible ? 'true' : 'false');
+  formData.append('destacado', payload.destacado ? 'true' : 'false');
   
   if (payload.descripcion) formData.append('descripcion', payload.descripcion);
   if (payload.precioOferta !== undefined && payload.precioOferta !== null) {
@@ -86,7 +86,6 @@ export const postCrearProductoFn = async (payload: ICreateProductDto) => {
   return data;
 };
 
-/** Actualiza un producto existente */
 export const putActualizarProductoFn = async ({
   id,
   payload,
@@ -94,29 +93,41 @@ export const putActualizarProductoFn = async ({
   id: number;
   payload: IUpdateProductDto;
 }) => {
-  const formData = new FormData();
+  // Vamos a intentar enviar JSON en lugar de FormData, ya que muchos backends ignoran
+  // multipart/form-data en verbos PUT o si carecen de interceptores configurados para updates.
+  const jsonPayload: Record<string, any> = { ...payload };
+
+  // Removemos el objeto File ya que no se puede enviar por JSON
+  delete jsonPayload.imagenPrincipal;
+
+  // En NestJS/class-validator, si una propiedad es @IsOptional(), enviar `null` o string vacío
+  // puede fallar las validaciones estrictas (ej: @IsNumber).
+  // Es más seguro enviar nulos u omitirlos.
+  if (
+    jsonPayload.precioOferta === null ||
+    jsonPayload.precioOferta === '' ||
+    Number.isNaN(jsonPayload.precioOferta)
+  ) {
+    delete jsonPayload.precioOferta;
+  }
   
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value === undefined) return;
-    
-    if (key === 'imagenPrincipal' && value instanceof File) {
-      formData.append('photo', value);
-    } else if (key === 'tags' && Array.isArray(value)) {
-      formData.append('tags', value.join(','));
-    } else if (key === 'variantes' && Array.isArray(value)) {
-      formData.append('variantes', JSON.stringify(value));
-    } else if (key === 'categoriaId') {
-      formData.append('categoriaId', value?.toString() || '');
-    } else if (key !== 'imagenPrincipalUrl') {
-      formData.append(key, value?.toString() || '');
+  if (
+    jsonPayload.categoriaId === null ||
+    jsonPayload.categoriaId === '' ||
+    Number.isNaN(jsonPayload.categoriaId)
+  ) {
+    delete jsonPayload.categoriaId;
+  }
+
+  // Eliminar cualquier otro undefined explicito para asegurar un JSON limpio
+  Object.keys(jsonPayload).forEach(key => {
+    if (jsonPayload[key] === undefined) {
+      delete jsonPayload[key];
     }
   });
 
-  // Si no se envió archivo pero sí URL, enviarla explícitamente si es necesario 
-  // (aunque el loop de arriba ya maneja el resto de campos)
-
-  const { data } = await api.put<IApiResponse<IProduct>>(`/mis-productos/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+  const { data } = await api.put<IApiResponse<IProduct>>(`/mis-productos/${id}`, jsonPayload, {
+    headers: { 'Content-Type': 'application/json' },
   });
   return data;
 };

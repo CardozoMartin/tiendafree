@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Product } from './types';
+import { MetodoChip } from '../shared/MetodoIcons';
 
 const ProductDetail = ({
   product,
@@ -8,6 +9,7 @@ const ProductDetail = ({
   accent,
   buttonBg,
   buttonText,
+  tienda,
 }: {
   product: Product;
   onBack: () => void;
@@ -15,8 +17,11 @@ const ProductDetail = ({
   accent?: string;
   buttonBg?: string;
   buttonText?: string;
+  tienda?: any;
 }) => {
   const [thumbnail, setThumbnail] = useState(product.image1);
+  const pagos = tienda?.metodosPago || [];
+  const envios = tienda?.metodosEntrega || [];
 
   return (
     <section className="max-w-6xl w-full mx-auto px-6 md:px-16 py-12">
@@ -95,20 +100,45 @@ const ProductDetail = ({
             </ul>
           </div>
 
-          <div className="flex gap-3 mt-10">
+          <div className="flex gap-3 mt-8">
             <button
               onClick={() => onAddCart(product)}
-              className="flex-1 py-3.5 bg-slate-100 text-slate-700 font-semibold rounded-full hover:bg-slate-200 transition-colors text-sm"
+              className="flex-1 py-3 bg-slate-100 text-slate-700 font-semibold rounded-full hover:bg-slate-200 transition-colors text-xs"
             >
               Agregar al carrito
             </button>
             <button 
-              className="flex-1 py-3.5 font-semibold rounded-full opacity-90 hover:opacity-100 transition-opacity text-sm shadow-md"
+              className="flex-1 py-3 font-semibold rounded-full opacity-90 hover:opacity-100 transition-opacity text-xs shadow-md"
               style={{ backgroundColor: buttonBg || accent || '#e11d48', color: buttonText || '#ffffff' }}
             >
               Comprar ahora
             </button>
           </div>
+
+          {/* Medios de Pago y Envío */}
+          {(pagos.length > 0 || envios.length > 0) && (
+            <div className="mt-10 pt-6 border-t border-gray-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Medios de pago y envío</p>
+              <div className="flex flex-wrap gap-2">
+                {pagos.map((mp: any) => (
+                  <MetodoChip 
+                    key={mp.metodoPago.id} 
+                    nombre={mp.metodoPago.nombre} 
+                    iconSize={18}
+                    style={{ padding: '3px 8px', background: '#fafafa' }}
+                  />
+                ))}
+                {envios.map((me: any) => (
+                  <MetodoChip 
+                    key={me.metodoEntrega.id} 
+                    nombre={me.metodoEntrega.nombre} 
+                    iconSize={18}
+                    style={{ padding: '3px 8px', background: '#fafafa' }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

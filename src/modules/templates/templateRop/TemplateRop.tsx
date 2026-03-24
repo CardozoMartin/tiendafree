@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStorefrontCategorias, useStorefrontNormales } from '../../storefront/hooks/useStorefrontProducts';
+import { MetodoChip } from '../shared/MetodoIcons';
 
 const FONTS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
@@ -26,38 +27,6 @@ let TIENDA = {
   ciudad: 'Tucumán',
   pais: 'Argentina',
 };
-
-// ── HERO SLIDES ───────────────────────────────────────────────
-const SLIDES = [
-  {
-    img: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1400&h=900&fit=crop&q=85',
-    label: 'SS 2025',
-    title: 'NUEVA\nTEMPORADA',
-    sub: 'La colección que esperabas.',
-    cta: 'Ver lookbook',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1400&h=900&fit=crop&q=85',
-    label: 'Exclusivo',
-    title: 'DISEÑO\nLOCAL',
-    sub: 'Hecho en Tucumán, para el mundo.',
-    cta: 'Explorar',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1400&h=900&fit=crop&q=85',
-    label: 'Edición limitada',
-    title: 'PRENDAS\nÚNICAS',
-    sub: 'Cada pieza, una historia diferente.',
-    cta: 'Descubrir',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&h=900&fit=crop&q=85',
-    label: 'Invierno',
-    title: 'ABRIGO\nY ESTILO',
-    sub: 'Para los días que piden más.',
-    cta: 'Ver más',
-  },
-];
 
 // ── PRODUCTOS ─────────────────────────────────────────────────
 const PRODUCTOS = [
@@ -143,7 +112,6 @@ const PRODUCTOS = [
   },
 ];
 
-const CATS = ['Todo', 'Blazers', 'Tops', 'Pantalones', 'Camperas', 'Vestidos'];
 
 // ── LOOKBOOK (editorial) ──────────────────────────────────────
 const LOOKBOOK = [
@@ -439,7 +407,7 @@ function Hero({ carrusel }: { carrusel: any[] }) {
       clearInterval(timerRef.current!);
       timerRef.current = setInterval(() => go(1), 6000);
     },
-    [fading]
+    [fading, carrusel.length]
   );
 
   useEffect(() => {
@@ -1033,7 +1001,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
       >
         <style>{`.vt-scroll::-webkit-scrollbar{display:none}`}</style>
 
-        {PRODUCTOS.map((p, i) => (
+        {items.map((p, i) => (
           <div
             key={p.id}
             onMouseEnter={() => setHov(i)}
@@ -1083,7 +1051,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
                 }}
               >
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                  {p.talla.split(' ').map((t) => (
+                  {(p.talla || '').split(' ').map((t: string) => (
                     <span
                       key={t}
                       style={{
@@ -1218,6 +1186,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
   const [busqueda, setBusqueda] = useState('');
   const [busquedaFiltro, setBusquedaFiltro] = useState('');
   const [hov, setHov] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const { data: categoriasData } = useStorefrontCategorias(tiendaId);
   const categorias = categoriasData || [];
@@ -1228,6 +1197,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
   });
 
   const productos = productosData?.datos || [];
+  const visibleProducts = productos.slice(0, visibleCount);
 
   return (
     <section id="productos" style={{ background: BG, padding: '5rem 2rem' }}>
@@ -1239,7 +1209,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-end' }}>
             <form 
-              onSubmit={(e) => { e.preventDefault(); setBusquedaFiltro(busqueda); }}
+              onSubmit={(e) => { e.preventDefault(); setBusquedaFiltro(busqueda); setVisibleCount(12); }}
               style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '300px' }}
             >
               <input type="text" placeholder="Buscar..." value={busqueda} onChange={(e)=>setBusqueda(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: '4px', border: `1px solid ${BORDER}`, background: SURFACE, color: DARK, fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', outline: 'none' }} onFocus={(e)=>(e.target.style.borderColor = ACENTO)} onBlur={(e)=>(e.target.style.borderColor = BORDER)} />
@@ -1248,7 +1218,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
 
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               <button
-                onClick={() => setCat('Todo')}
+                onClick={() => { setCat('Todo'); setVisibleCount(12); }}
                 style={{ padding: '7px 16px', borderRadius: '4px', border: `1px solid ${'Todo' === cat ? ACENTO : BORDER}`, background: 'Todo' === cat ? ACENTO : 'transparent', color: 'Todo' === cat ? BTN_TXT : MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: 'Todo' === cat ? 600 : 400, cursor: 'pointer', letterSpacing: '.06em', transition: 'all .18s' }}
               >
                 Todo
@@ -1256,7 +1226,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
               {categorias.map((c: any) => (
                 <button
                   key={c.id}
-                  onClick={() => setCat(c.id)}
+                  onClick={() => { setCat(c.id); setVisibleCount(12); }}
                   style={{ padding: '7px 16px', borderRadius: '4px', border: `1px solid ${c.id === cat ? ACENTO : BORDER}`, background: c.id === cat ? ACENTO : 'transparent', color: c.id === cat ? BTN_TXT : MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: c.id === cat ? 600 : 400, cursor: 'pointer', letterSpacing: '.06em', transition: 'all .18s' }}
                 >
                   {c.nombre}
@@ -1270,7 +1240,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
           <div style={{ padding: '4rem', textAlign: 'center', color: MUTED, fontFamily: "'Outfit',sans-serif" }}>Cargando prendas...</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: '16px' }}>
-            {productos.map((p: any) => (
+            {visibleProducts.map((p: any) => (
               <div key={p.id} onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', aspectRatio: '3/4', background: SURFACE, transition: 'transform .25s', transform: hov === p.id ? 'translateY(-3px)' : 'translateY(0)' }}>
                   <img src={p.imagenPrincipalUrl || 'https://via.placeholder.com/300x400'} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: hov === p.id ? 'scale(1.05)' : 'scale(1)', transition: 'transform .5s ease' }} />
@@ -1307,54 +1277,43 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
             ))}
           </div>
         )}
+
+        {!isLoading && visibleCount < productos.length && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
+            <button
+              onClick={() => setVisibleCount((v) => v + 12)}
+              style={{
+                padding: '14px 36px',
+                background: 'transparent',
+                border: `1px solid ${DARK}`,
+                color: DARK,
+                borderRadius: '4px',
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.85rem',
+                fontWeight: 600,
+                letterSpacing: '.06em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                transition: 'all .25s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = DARK;
+                e.currentTarget.style.color = BG;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = DARK;
+              }}
+            >
+              Ver más productos
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
-// ── STORE METHODS ─────────────────────────────────────────────
-function StoreMethods({ tienda }: { tienda: any }) {
-  if (!tienda) return null;
-  const pagos = tienda.metodosPago || [];
-  const envios = tienda.metodosEntrega || [];
-  if (pagos.length === 0 && envios.length === 0) return null;
-
-  return (
-    <section style={{ background: SURFACE, padding: '4rem 1.5rem', borderBottom: `1px solid ${BORDER}` }}>
-      <div style={{ maxWidth: '1060px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center' }}>
-        
-        {pagos.length > 0 && (
-          <div style={{ flex: '1 1 300px' }}>
-            <h4 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2rem', color: DARK, marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '.04em' }}>MEDIOS DE PAGO</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-              {pagos.map((mp: any) => (
-                <div key={mp.metodoPago.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: BG, padding: '8px 14px', borderRadius: '4px', border: `1px solid ${BORDER}` }}>
-                  <span style={{ fontSize: '1.3rem' }}>💳</span>
-                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 500, color: MUTED }}>{mp.metodoPago.nombre}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {envios.length > 0 && (
-          <div style={{ flex: '1 1 300px' }}>
-            <h4 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2rem', color: DARK, marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '.04em' }}>MÉTODOS DE ENVÍO</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-              {envios.map((me: any) => (
-                <div key={me.metodoEntrega.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: BG, padding: '8px 14px', borderRadius: '4px', border: `1px solid ${BORDER}` }}>
-                  <span style={{ fontSize: '1.3rem' }}>📦</span>
-                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 500, color: MUTED }}>{me.metodoEntrega.nombre}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </div>
-    </section>
-  );
-}
 
 // ── PRODUCT DETAIL VIEW ───────────────────────────────────────
 function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; onBack: () => void; onCart: (p: any, qty: number) => void; tienda?: any }) {
@@ -1434,10 +1393,14 @@ function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; 
                   <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.05em', color: DARK, marginBottom: '0.8rem', textTransform: 'uppercase' }}>Envíos</h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {tienda.metodosEntrega.map((me: any) => (
-                      <div key={me.metodoEntrega.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', border: `1px solid ${BORDER}`, padding: '6px 10px', borderRadius: '4px' }}>
-                        <span style={{ fontSize: '1.1rem' }}>📦</span>
-                        <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED }}>{me.metodoEntrega.nombre}</span>
-                      </div>
+                      <MetodoChip 
+                        key={me.metodoEntrega.id} 
+                        nombre={me.metodoEntrega.nombre} 
+                        iconSize={18}
+                        borderColor={BORDER}
+                        backgroundColor="transparent"
+                        textColor={MUTED}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1447,10 +1410,14 @@ function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; 
                   <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.05em', color: DARK, marginBottom: '0.8rem', textTransform: 'uppercase' }}>Medios de Pago</h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {tienda.metodosPago.map((mp: any) => (
-                      <div key={mp.metodoPago.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', border: `1px solid ${BORDER}`, padding: '6px 10px', borderRadius: '4px' }}>
-                        <span style={{ fontSize: '1.1rem' }}>💳</span>
-                        <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED }}>{mp.metodoPago.nombre}</span>
-                      </div>
+                      <MetodoChip 
+                        key={mp.metodoPago.id} 
+                        nombre={mp.metodoPago.nombre} 
+                        iconSize={18}
+                        borderColor={BORDER}
+                        backgroundColor="transparent"
+                        textColor={MUTED}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1938,13 +1905,71 @@ function CartDrawer({
 }
 
 /* ═══════════════════════════════════════════════
+   SOBRE NOSOTROS
+═══════════════════════════════════════════════ */
+function SobreNosotros({ tienda }: { tienda: any }) {
+  if (!tienda?.descripcion) return null;
+
+  return (
+    <section style={{ padding: '6rem 2rem', background: BG, borderTop: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <h2
+          style={{
+            fontFamily: "'Bebas Neue',sans-serif",
+            fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+            color: DARK,
+            letterSpacing: '.04em',
+            marginBottom: '1.5rem',
+            lineHeight: 1
+          }}
+        >
+          SOBRE LA MARCA
+        </h2>
+        <p
+          style={{
+            fontFamily: "'Outfit',sans-serif",
+            fontSize: 'clamp(1rem, 2vw, 1.15rem)',
+            fontWeight: 400,
+            color: SUBTLE,
+            lineHeight: 1.8,
+            maxWidth: '600px',
+            margin: '0 auto 2.5rem'
+          }}
+        >
+          {tienda.descripcion}
+        </p>
+        
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
+          {tienda?.ciudad && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.2rem' }}>📍</span>
+              <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', color: DARK, fontWeight: 500, letterSpacing: '.05em', textTransform: 'uppercase' }}>
+                {tienda.ciudad}{tienda.provincia && `, ${tienda.provincia}`}
+              </span>
+            </div>
+          )}
+          {tienda?.instagram && (
+            <a href={`https://instagram.com/${tienda.instagram}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.2rem' }}>📷</span>
+              <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', color: DARK, fontWeight: 500, letterSpacing: '.05em', textTransform: 'uppercase' }}>
+                @{tienda.instagram}
+              </span>
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    FOOTER
 ═══════════════════════════════════════════════ */
-function Footer() {
+function Footer({ tienda }: { tienda: any }) {
   const socials = [
     {
       label: 'IG',
-      href: `https://instagram.com/${TIENDA.instagram}`,
+      href: `https://instagram.com/${tienda.instagram}`,
       icon: (
         <svg
           width="15"
@@ -1963,7 +1988,7 @@ function Footer() {
     },
     {
       label: 'WA',
-      href: `https://wa.me/${TIENDA.whatsapp}`,
+      href: `https://wa.me/${tienda.whatsapp}`,
       icon: (
         <svg
           width="15"
@@ -2002,7 +2027,7 @@ function Footer() {
                 marginBottom: '4px',
               }}
             >
-              {TIENDA.nombre}
+              {tienda.nombre}
             </div>
             <div
               style={{
@@ -2014,7 +2039,7 @@ function Footer() {
                 marginBottom: '12px',
               }}
             >
-              {TIENDA.tagline}
+              {tienda.tagline}
             </div>
             <p
               style={{
@@ -2026,7 +2051,7 @@ function Footer() {
                 maxWidth: '220px',
               }}
             >
-              {TIENDA.descripcion}
+              {tienda.descripcion}
             </p>
           </div>
           <div>
@@ -2044,7 +2069,7 @@ function Footer() {
               Contacto
             </p>
             <a
-              href={`https://wa.me/${TIENDA.whatsapp}`}
+              href={`https://wa.me/${tienda.whatsapp}`}
               target="_blank"
               rel="noreferrer"
               style={{
@@ -2056,10 +2081,10 @@ function Footer() {
                 marginBottom: '6px',
               }}
             >
-              📱 {TIENDA.whatsapp}
+              📱 {tienda.whatsapp}
             </a>
             <a
-              href={`https://instagram.com/${TIENDA.instagram}`}
+              href={`https://instagram.com/${tienda.instagram}`}
               target="_blank"
               rel="noreferrer"
               style={{
@@ -2070,7 +2095,7 @@ function Footer() {
                 textDecoration: 'none',
               }}
             >
-              📷 @{TIENDA.instagram}
+              📷 @{tienda.instagram}
             </a>
           </div>
           <div>
@@ -2095,9 +2120,9 @@ function Footer() {
                 lineHeight: 1.75,
               }}
             >
-              {TIENDA.ciudad}
+              {tienda.ciudad}
               <br />
-              {TIENDA.pais}
+              {tienda.pais}
             </p>
           </div>
           <div>
@@ -2147,6 +2172,7 @@ function Footer() {
               ))}
             </div>
           </div>
+
         </div>
         <p
           style={{
@@ -2158,7 +2184,7 @@ function Footer() {
           }}
         >
           © {new Date().getFullYear()}{' '}
-          <span style={{ color: ACENTO, opacity: 0.8 }}>{TIENDA.nombre}</span> — Todos los derechos
+          <span style={{ color: ACENTO, opacity: 0.8 }}>{tienda.nombre}</span> — Todos los derechos
           reservados.
         </p>
       </div>
@@ -2220,6 +2246,9 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
       whatsapp: tienda?.whatsapp || TIENDA.whatsapp,
       instagram: tienda?.instagram || TIENDA.instagram,
       ciudad: tienda?.ciudad || TIENDA.ciudad,
+      pais: tienda?.pais || TIENDA.pais,
+      metodosPago: tienda?.metodosPago || [],
+      metodosEntrega: tienda?.metodosEntrega || [],
     }),
     [tienda]
   );
@@ -2291,19 +2320,20 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
             product={selectedProduct} 
             onBack={() => setSelectedProduct(null)} 
             onCart={addToCart} 
-            tienda={tienda} 
+            tienda={mergedTienda} 
           />
         ) : (
           <>
             <Hero carrusel={carruselItems} />
             <Marquee />
             <Lookbook />
-            <CarruselProductos onCart={(p) => addToCart(p, 1)} items={carruselItems} />
-            <StoreMethods tienda={tienda} />
+            <CarruselProductos onCart={(p) => addToCart(p, 1)} items={PRODUCTOS} />
             <GridProductos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+            <SobreNosotros tienda={mergedTienda} />
+            <Banner />
+            <Footer tienda={mergedTienda} />
           </>
         )}
-        <Footer />
       </div>
 
       {cartOpen && (

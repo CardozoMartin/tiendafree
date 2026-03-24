@@ -142,7 +142,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     const payload = {
       ...data,
       precio: Number(data.precio),
-      precioOferta: data.precioOferta !== '' ? Number(data.precioOferta) : undefined,
+      precioOferta: data.precioOferta !== '' ? Number(data.precioOferta) : null,
       tags: tagsArray,
       imagenPrincipal: imageFile || undefined,
       imagenPrincipalUrl: !imageFile ? producto?.imagenPrincipalUrl : undefined,

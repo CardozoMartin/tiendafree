@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');`;
 
@@ -307,7 +307,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
 }
 
 // ── HERO PARALLAX ─────────────────────────────────────────────
-function Hero({ titulo, descripcion, imagenes }: IHeroProps) {
+function Hero({ titulo, descripcion }: IHeroProps) {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -691,7 +691,10 @@ function TrustBadges() {
 function Productos({ onCart }: { onCart: (p: any) => void }) {
   const [cat, setCat] = useState('Todo');
   const [hov, setHov] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState(12);
+  
   const filtered = cat === 'Todo' ? PRODUCTOS : PRODUCTOS.filter((p) => p.cat === cat);
+  const visibleProducts = filtered.slice(0, visibleCount);
 
   return (
     <section style={{ background: BG, padding: '4.5rem 2rem' }}>
@@ -752,7 +755,7 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
           {CATS.map((c) => (
             <button
               key={c}
-              onClick={() => setCat(c)}
+              onClick={() => { setCat(c); setVisibleCount(12); }}
               style={{
                 padding: '6px 16px',
                 borderRadius: '20px',
@@ -779,7 +782,7 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
             gap: '20px',
           }}
         >
-          {filtered.map((p, i) => (
+          {visibleProducts.map((p, i) => (
             <div
               key={p.id}
               onMouseEnter={() => setHov(i)}
@@ -1619,6 +1622,7 @@ function Footer() {
           </div>
         </div>
 
+
         <p
           style={{
             fontFamily: "'Jost',sans-serif",
@@ -1666,6 +1670,7 @@ function Toast({ msg, visible }: { msg: string; visible: boolean }) {
     </div>
   );
 }
+
 
 // ── ROOT ──────────────────────────────────────────────────────
 export interface PlantillaAccesoriosProps {
@@ -1761,9 +1766,9 @@ export default function PlantillaAccesorios({ tienda, accent, themeConfig }: Pla
         <Navbar cartCount={cartCount} onCart={() => setCartOpen(true)} />
         <Hero {...heroProps} />
         <Marquee />
-        <TrustBadges />
         <Productos onCart={addToCart} />
         <SobreNosotros />
+        <TrustBadges />
         <Footer />
       </div>
 

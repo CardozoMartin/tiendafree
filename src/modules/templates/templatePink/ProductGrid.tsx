@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import ProductCard from "./ProductCard";
 import type { Product } from "./types";
 import { PRODUCTS } from "./types";
@@ -18,16 +19,21 @@ const ProductGrid = ({
   borderRadius?: string;
   showPrice?: boolean;
   showBadge?: boolean;
-}) => (
-  <section className="py-20 px-6 md:px-16 max-w-6xl mx-auto">
-    <div className="text-center mb-12">
-      <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: accent || '#fb7185' }}>
+}) => {
+  const [visibleCount, setVisibleCount] = useState(10);
+  const items = products && products.length > 0 ? products : PRODUCTS;
+  const visibleItems = items.slice(0, visibleCount);
+
+  return (
+    <section className="py-20 px-6 md:px-16 max-w-6xl mx-auto">
+      <div className="text-center mb-12">
+        <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: accent || '#fb7185' }}>
         Productos
       </span>
       <h2 className="text-3xl font-black mt-2" style={{ color: accent || '#881337' }}>Nuestra colección</h2>
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-      {(products && products.length > 0 ? products : PRODUCTS).map((p) => (
+      {visibleItems.map((p) => (
         <ProductCard 
           key={p.id} 
           product={p} 
@@ -39,7 +45,19 @@ const ProductGrid = ({
         />
       ))}
     </div>
+    {visibleCount < items.length && (
+      <div className="mt-12 text-center">
+        <button
+          onClick={() => setVisibleCount((v) => v + 10)}
+          className="px-6 py-3 font-semibold rounded-full shadow-sm hover:shadow-md transition-all text-sm uppercase tracking-wider"
+          style={{ backgroundColor: accent || '#fb7185', color: '#fff' }}
+        >
+          Ver más productos
+        </button>
+      </div>
+    )}
   </section>
-);
+  );
+};
 
 export default ProductGrid;

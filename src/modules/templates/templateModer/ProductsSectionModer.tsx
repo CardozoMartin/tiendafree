@@ -205,8 +205,17 @@ const ProductsSectionModer = ({
   showBadge?: boolean;
 }) => {
   const [activeCategory, setActiveCategory] = useState('Todo');
+  const [visibleCount, setVisibleCount] = useState(12);
+
   const filtered =
     activeCategory === 'Todo' ? PRODUCTS : PRODUCTS.filter((p) => p.category === activeCategory);
+  
+  const visibleProducts = filtered.slice(0, visibleCount);
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setVisibleCount(12);
+  };
 
   return (
     <section
@@ -248,7 +257,7 @@ const ProductsSectionModer = ({
           return (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className="px-4 py-1.5 text-xs transition-all cursor-pointer"
               style={{
                 borderRadius: '20px',
@@ -268,7 +277,7 @@ const ProductsSectionModer = ({
 
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
-        {filtered.map((product) => (
+        {visibleProducts.map((product) => (
           <ProductCardModer
             key={product.id}
             product={product}
@@ -281,6 +290,32 @@ const ProductsSectionModer = ({
           />
         ))}
       </div>
+
+      {/* Button Load More */}
+      {visibleCount < filtered.length && (
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={() => setVisibleCount((v) => v + 12)}
+            className="px-8 py-3 text-sm font-medium tracking-widest uppercase transition-all duration-300 border"
+            style={{
+              borderColor: accent,
+              color: accent,
+              borderRadius: '30px',
+              fontFamily: "'Jost', sans-serif",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = accent;
+              e.currentTarget.style.color = '#0d0d12';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = accent || '#c9a96e';
+            }}
+          >
+            Ver más productos
+          </button>
+        </div>
+      )}
     </section>
   );
 };

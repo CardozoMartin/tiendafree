@@ -1,3 +1,4 @@
+
 const FooterModer = ({
   brandName = 'MyShop',
   accent = '#c9a96e',
@@ -240,6 +241,7 @@ const FooterModer = ({
           </div>
         </div>
       </div>
+
 
       {/* Bottom bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2 py-4">
