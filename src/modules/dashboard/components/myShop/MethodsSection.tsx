@@ -8,8 +8,8 @@ import {
   useEliminarMetodoEntrega,
   useMyShop,
 } from '../../hooks/useShop';
-import { 
-  Banknote, Building2, QrCode, CreditCard, Wallet, 
+import {
+  Banknote, Building2, QrCode, CreditCard, Wallet,
   Store, Truck, Package, Handshake, Bike, CircleHelp, Check, Plus, Trash2
 } from 'lucide-react';
 
@@ -35,6 +35,8 @@ export default function MethodsSection({ accent }: { accent: string }) {
   const { data: myShop, isLoading: loadingShop } = useMyShop();
   const { data: pagoCatalogo = [], isLoading: loadingPago } = useMetodosPagoCatalogo();
   const { data: entregaCatalogo = [], isLoading: loadingEntrega } = useMetodosEntregaCatalogo();
+  console.log('Métodos de pago en catálogo:', pagoCatalogo);
+  console.log('Métodos de entrega en catálogo:', entregaCatalogo);
 
   const addPago = useAgregarMetodoPago();
   const removePago = useEliminarMetodoPago();
@@ -81,7 +83,7 @@ export default function MethodsSection({ accent }: { accent: string }) {
       </div>
 
       <div className="space-y-8">
-        
+
         {/* ══════════════════════════
             SECCIÓN: PAGOS
         ══════════════════════════ */}
@@ -109,7 +111,7 @@ export default function MethodsSection({ accent }: { accent: string }) {
                     <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shrink-0 border border-gray-100/50">
                       {getLucideIcon(metodo.icono || 'payments', "w-5 h-5")}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800">{metodo.nombre}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{metodo.descripcion}</p>
@@ -217,7 +219,7 @@ export default function MethodsSection({ accent }: { accent: string }) {
                     <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shrink-0 border border-gray-100/50">
                       {getLucideIcon(metodo.icono || 'local_shipping', "w-5 h-5")}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800">{metodo.nombre}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{metodo.descripcion}</p>

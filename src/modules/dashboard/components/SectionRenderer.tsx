@@ -34,7 +34,7 @@ export const SectionRenderer = ({
     case 'home':
       return <HomeSection accent={accent} />;
     case 'products':
-      return <ProductsSection accent={accent} />;
+      return <ProductsSection />;
     case 'orders':
       return <OrdersSection accent={accent} />;
     case 'store':

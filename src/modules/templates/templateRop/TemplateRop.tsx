@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useStorefrontCategorias, useStorefrontNormales } from '../../storefront/hooks/useStorefrontProducts';
 
 const FONTS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
@@ -1212,200 +1213,254 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
 /* ═══════════════════════════════════════════════
    GRID PRODUCTOS — todos los productos con filtro
 ═══════════════════════════════════════════════ */
-function GridProductos({ onCart }: { onCart: (p: any) => void }) {
-  const [cat, setCat] = useState('Todo');
+function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tiendaId: number }) {
+  const [cat, setCat] = useState<number | 'Todo'>('Todo');
+  const [busqueda, setBusqueda] = useState('');
+  const [busquedaFiltro, setBusquedaFiltro] = useState('');
   const [hov, setHov] = useState<number | null>(null);
-  const filtered = cat === 'Todo' ? PRODUCTOS : PRODUCTOS.filter((p) => p.cat === cat);
+
+  const { data: categoriasData } = useStorefrontCategorias(tiendaId);
+  const categorias = categoriasData || [];
+
+  const { data: productosData, isLoading } = useStorefrontNormales(tiendaId, {
+    categoriaId: cat !== 'Todo' ? cat : undefined,
+    busqueda: busquedaFiltro.trim() !== '' ? busquedaFiltro : undefined,
+  });
+
+  const productos = productosData?.datos || [];
 
   return (
-    <section style={{ background: BG, padding: '5rem 2rem' }}>
+    <section id="productos" style={{ background: BG, padding: '5rem 2rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
-          <h2
-            style={{
-              fontFamily: "'Bebas Neue',sans-serif",
-              fontSize: 'clamp(2.5rem,4vw,3.5rem)',
-              color: DARK,
-              letterSpacing: '.04em',
-              lineHeight: 0.9,
-            }}
-          >
-            TODO EL
-            <br />
-            <span style={{ color: ACENTO }}>CATÁLOGO</span>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h2 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(2.5rem,4vw,3.5rem)', color: DARK, letterSpacing: '.04em', lineHeight: 0.9 }}>
+            TODO EL<br /><span style={{ color: ACENTO }}>CATÁLOGO</span>
           </h2>
-          {/* Filtros */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {CATS.map((c) => (
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-end' }}>
+            <form 
+              onSubmit={(e) => { e.preventDefault(); setBusquedaFiltro(busqueda); }}
+              style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '300px' }}
+            >
+              <input type="text" placeholder="Buscar..." value={busqueda} onChange={(e)=>setBusqueda(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: '4px', border: `1px solid ${BORDER}`, background: SURFACE, color: DARK, fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', outline: 'none' }} onFocus={(e)=>(e.target.style.borderColor = ACENTO)} onBlur={(e)=>(e.target.style.borderColor = BORDER)} />
+              <button type="submit" style={{ padding: '0 16px', background: DARK, color: BTN_TXT, border: 'none', borderRadius: '4px', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 600, transition: 'background .2s' }} onMouseEnter={(e)=>(e.currentTarget.style.background = ACENTO)} onMouseLeave={(e)=>(e.currentTarget.style.background = DARK)}>Buscar</button>
+            </form>
+
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               <button
-                key={c}
-                onClick={() => setCat(c)}
-                style={{
-                  padding: '7px 16px',
-                  borderRadius: '4px',
-                  border: `1px solid ${c === cat ? ACENTO : BORDER}`,
-                  background: c === cat ? ACENTO : 'transparent',
-                  color: c === cat ? BTN_TXT : MUTED,
-                  fontFamily: "'Outfit',sans-serif",
-                  fontSize: '.7rem',
-                  fontWeight: c === cat ? 600 : 400,
-                  cursor: 'pointer',
-                  letterSpacing: '.06em',
-                  transition: 'all .18s',
-                }}
+                onClick={() => setCat('Todo')}
+                style={{ padding: '7px 16px', borderRadius: '4px', border: `1px solid ${'Todo' === cat ? ACENTO : BORDER}`, background: 'Todo' === cat ? ACENTO : 'transparent', color: 'Todo' === cat ? BTN_TXT : MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: 'Todo' === cat ? 600 : 400, cursor: 'pointer', letterSpacing: '.06em', transition: 'all .18s' }}
               >
-                {c}
+                Todo
               </button>
-            ))}
+              {categorias.map((c: any) => (
+                <button
+                  key={c.id}
+                  onClick={() => setCat(c.id)}
+                  style={{ padding: '7px 16px', borderRadius: '4px', border: `1px solid ${c.id === cat ? ACENTO : BORDER}`, background: c.id === cat ? ACENTO : 'transparent', color: c.id === cat ? BTN_TXT : MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: c.id === cat ? 600 : 400, cursor: 'pointer', letterSpacing: '.06em', transition: 'all .18s' }}
+                >
+                  {c.nombre}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))',
-            gap: '16px',
-          }}
-        >
-          {filtered.map((p, i) => (
-            <div
-              key={p.id}
-              onMouseEnter={() => setHov(i)}
-              onMouseLeave={() => setHov(null)}
-              style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
-            >
-              <div
-                style={{
-                  position: 'relative',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  aspectRatio: '3/4',
-                  background: SURFACE,
-                  transition: 'transform .25s',
-                  transform: hov === i ? 'translateY(-3px)' : 'translateY(0)',
-                }}
-              >
-                <img
-                  src={p.img}
-                  alt={p.nombre}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    transform: hov === i ? 'scale(1.05)' : 'scale(1)',
-                    transition: 'transform .5s ease',
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'rgba(20,20,20,.5)',
-                    opacity: hov === i ? 1 : 0,
-                    transition: 'opacity .3s',
-                    display: 'flex',
-                    alignItems: 'flex-end',
-                    padding: '12px',
-                  }}
-                >
-                  <button
-                    onClick={() => onCart(p)}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      background: ACENTO,
-                      color: BTN_TXT,
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontFamily: "'Outfit',sans-serif",
-                      fontSize: '.62rem',
-                      fontWeight: 700,
-                      letterSpacing: '.1em',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    + Agregar
-                  </button>
-                </div>
-                {p.badge && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      left: '10px',
-                      background: ACENTO,
-                      color: BTN_TXT,
-                      fontSize: '.56rem',
-                      fontWeight: 700,
-                      padding: '3px 8px',
-                      borderRadius: '3px',
-                      letterSpacing: '.08em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {p.badge}
-                  </span>
-                )}
-              </div>
-              <div style={{ marginTop: '8px', padding: '0 2px' }}>
-                <p
-                  style={{
-                    fontFamily: "'Outfit',sans-serif",
-                    fontSize: '.8rem',
-                    fontWeight: 500,
-                    color: DARK,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {p.nombre}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Outfit',sans-serif",
-                    fontSize: '.62rem',
-                    color: MUTED,
-                    marginBottom: '3px',
-                  }}
-                >
-                  {p.cat}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-                  {p.precioAnt && (
-                    <span
-                      style={{ fontSize: '.65rem', color: SUBTLE, textDecoration: 'line-through' }}
-                    >
-                      ${p.precioAnt.toLocaleString()}
+        {isLoading && !productos.length ? (
+          <div style={{ padding: '4rem', textAlign: 'center', color: MUTED, fontFamily: "'Outfit',sans-serif" }}>Cargando prendas...</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: '16px' }}>
+            {productos.map((p: any) => (
+              <div key={p.id} onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', aspectRatio: '3/4', background: SURFACE, transition: 'transform .25s', transform: hov === p.id ? 'translateY(-3px)' : 'translateY(0)' }}>
+                  <img src={p.imagenPrincipalUrl || 'https://via.placeholder.com/300x400'} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: hov === p.id ? 'scale(1.05)' : 'scale(1)', transition: 'transform .5s ease' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,20,20,.4)', opacity: hov === p.id ? 1 : 0, transition: 'opacity .3s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <button onClick={() => onSelect(p)} style={{ padding: '10px 24px', background: ACENTO, color: BTN_TXT, border: 'none', borderRadius: '4px', fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                      Ver Producto
+                    </button>
+                  </div>
+                  {p.destacado && (
+                    <span style={{ position: 'absolute', top: '10px', left: '10px', background: DARK, color: BG, fontSize: '.56rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', letterSpacing: '.08em', textTransform: 'uppercase' }}>
+                      Destacado
                     </span>
                   )}
-                  <span
-                    style={{
-                      fontFamily: "'Bebas Neue',sans-serif",
-                      fontSize: '1.1rem',
-                      color: p.precioAnt ? ACENTO : DARK,
-                      letterSpacing: '.04em',
-                    }}
-                  >
-                    ${p.precio.toLocaleString()}
-                  </span>
+                </div>
+                <div style={{ marginTop: '8px', padding: '0 2px' }}>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 500, color: DARK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.nombre}
+                  </p>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.65rem', color: MUTED, marginBottom: '2px' }}>
+                    {p.categoria?.nombre || ''}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px', marginTop: '4px' }}>
+                    {p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio) ? (
+                      <>
+                        <span style={{ fontSize: '.65rem', color: SUBTLE, textDecoration: 'line-through' }}>${Number(p.precio).toLocaleString()}</span>
+                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '1.2rem', color: ACENTO, letterSpacing: '.04em' }}>${Number(p.precioOferta).toLocaleString()}</span>
+                      </>
+                    ) : (
+                      <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '1.2rem', color: DARK, letterSpacing: '.04em' }}>${Number(p.precio).toLocaleString()}</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
+  );
+}
+
+// ── STORE METHODS ─────────────────────────────────────────────
+function StoreMethods({ tienda }: { tienda: any }) {
+  if (!tienda) return null;
+  const pagos = tienda.metodosPago || [];
+  const envios = tienda.metodosEntrega || [];
+  if (pagos.length === 0 && envios.length === 0) return null;
+
+  return (
+    <section style={{ background: SURFACE, padding: '4rem 1.5rem', borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center' }}>
+        
+        {pagos.length > 0 && (
+          <div style={{ flex: '1 1 300px' }}>
+            <h4 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2rem', color: DARK, marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '.04em' }}>MEDIOS DE PAGO</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+              {pagos.map((mp: any) => (
+                <div key={mp.metodoPago.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: BG, padding: '8px 14px', borderRadius: '4px', border: `1px solid ${BORDER}` }}>
+                  <span style={{ fontSize: '1.3rem' }}>💳</span>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 500, color: MUTED }}>{mp.metodoPago.nombre}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {envios.length > 0 && (
+          <div style={{ flex: '1 1 300px' }}>
+            <h4 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2rem', color: DARK, marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '.04em' }}>MÉTODOS DE ENVÍO</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+              {envios.map((me: any) => (
+                <div key={me.metodoEntrega.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: BG, padding: '8px 14px', borderRadius: '4px', border: `1px solid ${BORDER}` }}>
+                  <span style={{ fontSize: '1.3rem' }}>📦</span>
+                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 500, color: MUTED }}>{me.metodoEntrega.nombre}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </section>
+  );
+}
+
+// ── PRODUCT DETAIL VIEW ───────────────────────────────────────
+function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; onBack: () => void; onCart: (p: any, qty: number) => void; tienda?: any }) {
+  const [qty, setQty] = useState(1);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+  if (!product) return null;
+  const hasOffer = product.precioOferta && Number(product.precioOferta) > 0 && Number(product.precioOferta) < Number(product.precio);
+  
+  return (
+    <div style={{ padding: '3rem 1.5rem', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto', width: '100%', flex: 1 }}>
+        <button
+          onClick={onBack}
+          style={{ background: 'none', border: 'none', color: MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem', padding: 0 }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>←</span> Volver al catálogo
+        </button>
+
+        <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div style={{ flex: '1 1 400px', position: 'relative', aspectRatio: '3/4', borderRadius: '8px', overflow: 'hidden', background: SURFACE }}>
+            <img src={product.imagenPrincipalUrl || 'https://via.placeholder.com/600x800'} alt={product.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+
+          <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED, marginBottom: '.75rem', textTransform: 'uppercase', letterSpacing: '.1em', fontWeight: 600 }}>
+              {product.categoria?.nombre || 'Producto'}
+            </span>
+            
+            <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(2.5rem, 4vw, 3.5rem)', color: DARK, letterSpacing: '.04em', lineHeight: 0.9, marginBottom: '1.2rem' }}>
+              {product.nombre}
+            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
+              {hasOffer ? (
+                <>
+                  <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1.2rem', color: MUTED, textDecoration: 'line-through' }}>
+                    ${Number(product.precio).toLocaleString()}
+                  </span>
+                  <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2.4rem', color: ACENTO, letterSpacing: '.04em' }}>
+                    ${Number(product.precioOferta).toLocaleString()}
+                  </span>
+                  <span style={{ background: `${ACENTO}15`, color: ACENTO, padding: '4px 10px', borderRadius: '4px', fontSize: '.7rem', fontWeight: 700, marginLeft: '4px', letterSpacing: '.1em', textTransform: 'uppercase' }}>
+                    Sale
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2.4rem', color: DARK, letterSpacing: '.04em' }}>
+                  ${Number(product.precio).toLocaleString()}
+                </span>
+              )}
+            </div>
+
+            <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1rem', color: SUBTLE, lineHeight: 1.7, marginBottom: '2.5rem' }}>
+              {product.descripcion ? product.descripcion : 'Diseño exclusivo pensado para la nueva temporada. Calidad superior y detalles únicos en cada prenda.'}
+            </p>
+
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', border: `1px solid ${BORDER}`, borderRadius: '4px', overflow: 'hidden', width: '120px', background: 'transparent' }}>
+                <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', color: DARK, fontSize: '1.2rem'}}>−</button>
+                <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit',sans-serif", fontSize: '1rem', fontWeight: 600, color: DARK }}>{qty}</span>
+                <button onClick={() => setQty(qty + 1)} style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', color: DARK, fontSize: '1.2rem'}}>+</button>
+              </div>
+              
+              <button
+                onClick={() => onCart(product, qty)}
+                style={{ flex: 1, background: DARK, color: BTN_TXT, border: 'none', borderRadius: '4px', fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', padding: '0 2rem', minHeight: '52px', transition: 'background .2s' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = DARK)}
+              >
+                Agregar al Carrito
+              </button>
+            </div>
+
+            <div style={{ marginTop: 'auto', borderTop: `1px solid ${BORDER}`, paddingTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {tienda?.metodosEntrega?.length > 0 && (
+                <div>
+                  <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.05em', color: DARK, marginBottom: '0.8rem', textTransform: 'uppercase' }}>Envíos</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {tienda.metodosEntrega.map((me: any) => (
+                      <div key={me.metodoEntrega.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', border: `1px solid ${BORDER}`, padding: '6px 10px', borderRadius: '4px' }}>
+                        <span style={{ fontSize: '1.1rem' }}>📦</span>
+                        <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED }}>{me.metodoEntrega.nombre}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {tienda?.metodosPago?.length > 0 && (
+                <div>
+                  <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.05em', color: DARK, marginBottom: '0.8rem', textTransform: 'uppercase' }}>Medios de Pago</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {tienda.metodosPago.map((mp: any) => (
+                      <div key={mp.metodoPago.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', border: `1px solid ${BORDER}`, padding: '6px 10px', borderRadius: '4px' }}>
+                        <span style={{ fontSize: '1.1rem' }}>💳</span>
+                        <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED }}>{mp.metodoPago.nombre}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -2199,13 +2254,14 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
-  const addToCart = (p: any) => {
+  const addToCart = (p: any, qty: number = 1) => {
     setCart((prev) => {
       const ex = prev.find((i) => i.id === p.id);
       return ex
-        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i))
-        : [...prev, { ...p, qty: 1 }];
+        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + qty } : i))
+        : [...prev, { ...p, qty: qty }];
     });
     setToast({ msg: `${p.nombre} agregado`, visible: true });
     setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
@@ -2230,12 +2286,23 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
 
       <div className="vt-scroll" style={{ background: BG }}>
         <Navbar cartCount={cartCount} onCart={() => setCartOpen(true)} />
-        <Hero carrusel={carruselItems} />
-        <Marquee />
-        <Lookbook />
-        <CarruselProductos onCart={addToCart} items={carruselItems} />
-        <Banner />
-        <GridProductos onCart={addToCart} />
+        {selectedProduct ? (
+          <ProductDetailView 
+            product={selectedProduct} 
+            onBack={() => setSelectedProduct(null)} 
+            onCart={addToCart} 
+            tienda={tienda} 
+          />
+        ) : (
+          <>
+            <Hero carrusel={carruselItems} />
+            <Marquee />
+            <Lookbook />
+            <CarruselProductos onCart={(p) => addToCart(p, 1)} items={carruselItems} />
+            <StoreMethods tienda={tienda} />
+            <GridProductos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+          </>
+        )}
         <Footer />
       </div>
 

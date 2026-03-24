@@ -1,6 +1,12 @@
 import { useForm } from 'react-hook-form';
+import {
+  Store as StoreIcon, Type, FileText, Phone, Instagram,
+  Globe, Map, Building2, LayoutTemplate,
+} from 'lucide-react';
+
 import { useConfirm } from '../../../../hooks/useConfirm';
 import { useCreateShop } from '../../hooks/useShop';
+
 export interface IShopData {
   nombre: string;
   titulo: string;
@@ -14,19 +20,46 @@ export interface IShopData {
   ciudad: string;
 }
 
-const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
-  //RHF para menejo del formulario
+// ─── Estilos compartidos (idénticos a FormProduct) ───────────────────────────
+
+const inputCls =
+  'w-full pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 transition-all';
+
+const inputErrorCls = 'border-red-300 focus:border-red-400 focus:ring-red-100';
+
+// ─── IconInput ───────────────────────────────────────────────────────────────
+
+const IconInput = ({
+  icon: Icon,
+  error,
+  children,
+}: {
+  icon: React.ElementType;
+  error?: boolean;
+  children: React.ReactNode;
+}) => (
+  <div className="relative">
+    <Icon
+      className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none ${
+        error ? 'text-red-400' : 'text-gray-300'
+      }`}
+    />
+    {children}
+  </div>
+);
+
+// ─── Componente ──────────────────────────────────────────────────────────────
+
+const FormCreateShop = () => {
   const {
     register,
     handleSubmit: onSubmitRHF,
     formState: { errors },
   } = useForm<IShopData>();
-  //Hook para preguntar antes al usuario si realmente quiere crar la tienda
-  const { confirm, ConfirmModal } = useConfirm();
 
-  //Hook para enviar la peticion con TQuery
+  const { confirm, ConfirmModal } = useConfirm();
   const { mutateAsync: createShop, isPending } = useCreateShop();
-  //Funcion que se ejecuta al enviar el formulario, recibe los datos validados
+
   const handleSubmit = async (data: IShopData) => {
     const userConfirmed = await confirm({
       titulo: '¿Estas seguro?',
@@ -35,210 +68,219 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
       textoConfirmar: 'Si, crear tienda',
       variant: 'info',
     });
-
-    if (userConfirmed) {
-      await createShop(data);
-    }
+    if (userConfirmed) await createShop(data);
   };
 
-  // Clases base para inputs y labels, y mensaje de error
-  const inputBase =
-    'w-full border border-slate-200 bg-white text-slate-800 placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:border-transparent transition';
-
-  const inputErrorCls = 'border-red-300 focus:ring-red-400';
-
-  const labelBase = 'block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5';
-  const errorMsg = 'text-red-500 text-xs mt-1 font-medium';
-
-  // Componente para el icono de cada sección, con fondo del color accent y sombra
-  const SectionIcon = ({ icon }: { icon: string }) => (
-    <span
-      className="size-7 rounded-lg flex items-center justify-center text-white shrink-0"
-      style={{ backgroundColor: accent, boxShadow: `0 4px 10px ${accent}40` }}
-    >
-      <span className="material-symbols-outlined !text-[16px]">{icon}</span>
-    </span>
-  );
-
-  // Render del formulario, dividido en secciones con sus respectivos campos y validaciones. El botón de submit muestra un spinner cuando se está enviando.
   return (
-    <form onSubmit={onSubmitRHF(handleSubmit)} noValidate className="space-y-4">
+    <form onSubmit={onSubmitRHF(handleSubmit)} noValidate className="space-y-8">
       {ConfirmModal}
-      {/* ── Información básica ── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">
-          <SectionIcon icon="info" />
-          <span className="text-sm font-black text-slate-700">Información básica</span>
+
+      {/* ══════════════════════════
+          SECCIÓN: IDENTIDAD
+      ══════════════════════════ */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+            Identidad
+          </h2>
+          <p className="text-xs text-gray-400 mt-1">
+            El nombre e información principal de tu tienda.
+          </p>
         </div>
 
-        <div className="p-5 space-y-4">
-          {/*Input de nombre */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelBase}>
-                Nombre <span style={{ color: accent }}>*</span>
-              </label>
+        <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+
+          {/* Nombre */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              Nombre <span className="text-red-400">*</span>
+            </label>
+            <IconInput icon={Store} error={!!errors.nombre}>
               <input
                 type="text"
                 placeholder="Mi Tienda"
-                className={`${inputBase} rhf-input-focus ${errors.nombre ? inputErrorCls : ''}`}
+                className={`${inputCls} ${errors.nombre ? inputErrorCls : ''}`}
                 {...register('nombre', { required: 'El nombre es requerido' })}
               />
-              {errors.nombre && <p className={errorMsg}>{errors.nombre.message}</p>}
-            </div>
+            </IconInput>
+            {errors.nombre && <p className="text-red-400 text-xs">{errors.nombre.message}</p>}
+          </div>
 
-            <div>
-              <label className={labelBase}>
-                Título <span style={{ color: accent }}>*</span>
-              </label>
+          {/* Título */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              Título del sitio <span className="text-red-400">*</span>
+            </label>
+            <IconInput icon={Type} error={!!errors.titulo}>
               <input
                 type="text"
                 placeholder="Bienvenidos a mi tienda"
-                className={`${inputBase} rhf-input-focus ${errors.titulo ? inputErrorCls : ''}`}
+                className={`${inputCls} ${errors.titulo ? inputErrorCls : ''}`}
                 {...register('titulo', { required: 'El título es requerido' })}
               />
-              {errors.titulo && <p className={errorMsg}>{errors.titulo.message}</p>}
+            </IconInput>
+            {errors.titulo && <p className="text-red-400 text-xs">{errors.titulo.message}</p>}
+          </div>
+
+          {/* Descripción */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">Descripción</label>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3 w-3.5 h-3.5 text-gray-300 pointer-events-none" />
+              <textarea
+                rows={3}
+                placeholder="Contá de qué trata tu tienda…"
+                className={`${inputCls} resize-none`}
+                style={{ paddingLeft: '2.25rem' }}
+                {...register('descripcion')}
+              />
             </div>
           </div>
-          {/*Input de descripción */}
-          <div>
-            <label className={labelBase}>Descripción</label>
-            <textarea
-              rows={3}
-              placeholder="Contá de qué trata tu tienda..."
-              className={`${inputBase} rhf-input-focus resize-none`}
-              {...register('descripcion')}
-            />
-          </div>
-          {/*Input de plantilla */}
-          <div className="sm:w-1/2">
-            <label className={labelBase}>
-              Plantilla <span style={{ color: accent }}>*</span>
+
+          {/* Plantilla */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              Plantilla <span className="text-red-400">*</span>
             </label>
-            <input
-              type="number"
-              placeholder="1"
-              className={`${inputBase} rhf-input-focus ${errors.plantillaId ? inputErrorCls : ''}`}
-              {...register('plantillaId', {
-                required: 'La plantilla es requerida',
-                valueAsNumber: true,
-                min: { value: 1, message: 'Debe ser un ID válido' },
-              })}
-            />
-            {errors.plantillaId && <p className={errorMsg}>{errors.plantillaId.message}</p>}
+            <IconInput icon={LayoutTemplate} error={!!errors.plantillaId}>
+              <input
+                type="number"
+                placeholder="1"
+                className={`${inputCls} ${errors.plantillaId ? inputErrorCls : ''}`}
+                {...register('plantillaId', {
+                  required: 'La plantilla es requerida',
+                  valueAsNumber: true,
+                  min: { value: 1, message: 'Debe ser un ID válido' },
+                })}
+              />
+            </IconInput>
+            {errors.plantillaId && (
+              <p className="text-red-400 text-xs">{errors.plantillaId.message}</p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ── Redes sociales ── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">
-          <SectionIcon icon="share" />
-          <span className="text-sm font-black text-slate-700">Redes sociales</span>
-          <span className="ml-auto text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+      {/* ══════════════════════════
+          SECCIÓN: REDES SOCIALES
+      ══════════════════════════ */}
+      <div>
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+              Redes sociales
+            </h2>
+            <p className="text-xs text-gray-400 mt-1">
+              Para que tus clientes te encuentren.
+            </p>
+          </div>
+          <span className="text-[11px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mt-0.5">
             Opcional
           </span>
         </div>
 
-        <div className="p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/*Input de WhatsApp */}
-            <div>
-              <label className={labelBase}>WhatsApp</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <span className="material-symbols-outlined !text-[18px]">chat</span>
-                </span>
-                <input
-                  type="tel"
-                  placeholder="+54 9 11 1234 5678"
-                  className={`${inputBase} rhf-input-focus pl-9`}
-                  {...register('whatsapp')}
-                />
-              </div>
-            </div>
-            {/*Input de Instagram */}
-            <div>
-              <label className={labelBase}>Instagram</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-black">
-                  @
-                </span>
-                <input
-                  type="text"
-                  placeholder="usuario"
-                  className={`${inputBase} rhf-input-focus pl-8`}
-                  {...register('instagram')}
-                />
-              </div>
-            </div>
-            {/*Input de Facebook */}
-            <div>
-              <label className={labelBase}>Facebook</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <span className="material-symbols-outlined !text-[18px]">language</span>
-                </span>
-                <input
-                  type="text"
-                  placeholder="usuario o URL"
-                  className={`${inputBase} rhf-input-focus pl-9`}
-                  {...register('facebook')}
-                />
-              </div>
-            </div>
+        <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+
+          {/* WhatsApp */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">WhatsApp</label>
+            <IconInput icon={Phone}>
+              <input
+                type="tel"
+                placeholder="+54 9 11 1234 5678"
+                className={inputCls}
+                {...register('whatsapp')}
+              />
+            </IconInput>
+          </div>
+
+          {/* Instagram */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">Instagram</label>
+            <IconInput icon={Instagram}>
+              <input
+                type="text"
+                placeholder="usuario"
+                className={inputCls}
+                {...register('instagram')}
+              />
+            </IconInput>
+          </div>
+
+          {/* Facebook */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">Facebook</label>
+            <IconInput icon={Globe}>
+              <input
+                type="text"
+                placeholder="usuario o URL"
+                className={inputCls}
+                {...register('facebook')}
+              />
+            </IconInput>
           </div>
         </div>
       </div>
 
-      {/* ── Ubicación ── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">
-          <SectionIcon icon="location_on" />
-          <span className="text-sm font-black text-slate-700">Ubicación</span>
+      {/* ══════════════════════════
+          SECCIÓN: UBICACIÓN
+      ══════════════════════════ */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+            Ubicación
+          </h2>
+          <p className="text-xs text-gray-400 mt-1">Dónde está tu tienda.</p>
         </div>
 
-        <div className="p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/*Input de país */}
-            <div>
-              <label className={labelBase}>
-                País <span style={{ color: accent }}>*</span>
-              </label>
+        <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+
+          {/* País */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              País <span className="text-red-400">*</span>
+            </label>
+            <IconInput icon={Globe} error={!!errors.pais}>
               <input
                 type="text"
                 placeholder="Argentina"
-                className={`${inputBase} rhf-input-focus ${errors.pais ? inputErrorCls : ''}`}
+                className={`${inputCls} ${errors.pais ? inputErrorCls : ''}`}
                 {...register('pais', { required: 'El país es requerido' })}
               />
-              {errors.pais && <p className={errorMsg}>{errors.pais.message}</p>}
-            </div>
-            {/*Input de provincia */}
-            <div>
-              <label className={labelBase}>
-                Provincia <span style={{ color: accent }}>*</span>
-              </label>
+            </IconInput>
+            {errors.pais && <p className="text-red-400 text-xs">{errors.pais.message}</p>}
+          </div>
+
+          {/* Provincia */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              Provincia <span className="text-red-400">*</span>
+            </label>
+            <IconInput icon={Map} error={!!errors.provincia}>
               <input
                 type="text"
                 placeholder="Tucumán"
-                className={`${inputBase} rhf-input-focus ${errors.provincia ? inputErrorCls : ''}`}
+                className={`${inputCls} ${errors.provincia ? inputErrorCls : ''}`}
                 {...register('provincia', { required: 'La provincia es requerida' })}
               />
-              {errors.provincia && <p className={errorMsg}>{errors.provincia.message}</p>}
-            </div>
-            {/*Input de ciudad */}
-            <div>
-              <label className={labelBase}>
-                Ciudad <span style={{ color: accent }}>*</span>
-              </label>
+            </IconInput>
+            {errors.provincia && <p className="text-red-400 text-xs">{errors.provincia.message}</p>}
+          </div>
+
+          {/* Ciudad */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              Ciudad <span className="text-red-400">*</span>
+            </label>
+            <IconInput icon={Building2} error={!!errors.ciudad}>
               <input
                 type="text"
                 placeholder="San Miguel de Tucumán"
-                className={`${inputBase} rhf-input-focus ${errors.ciudad ? inputErrorCls : ''}`}
+                className={`${inputCls} ${errors.ciudad ? inputErrorCls : ''}`}
                 {...register('ciudad', { required: 'La ciudad es requerida' })}
               />
-              {errors.ciudad && <p className={errorMsg}>{errors.ciudad.message}</p>}
-            </div>
+            </IconInput>
+            {errors.ciudad && <p className="text-red-400 text-xs">{errors.ciudad.message}</p>}
           </div>
         </div>
       </div>
@@ -247,16 +289,19 @@ const FormCreateShop = ({ accent = '#6344ee' }: { accent?: string }) => {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white text-sm font-black tracking-wide transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{
-          backgroundColor: accent,
-          boxShadow: `0 4px 16px ${accent}40`,
-        }}
+        className="w-full flex items-center justify-center gap-2 py-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-sm font-bold rounded-xl transition-all shadow-sm disabled:cursor-not-allowed"
       >
-        <span className="material-symbols-outlined !text-[18px]">
-          {isPending ? 'autorenew' : 'storefront'}
-        </span>
-        {isPending ? 'Creando tienda...' : 'Crear Tienda'}
+        {isPending ? (
+          <>
+            <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Creando tienda…
+          </>
+        ) : (
+          <>
+            <StoreIcon className="w-4 h-4" />
+            Crear Tienda
+          </>
+        )}
       </button>
     </form>
   );

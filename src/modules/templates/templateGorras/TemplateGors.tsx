@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useStorefrontNormales, useStorefrontDestacados, useStorefrontCategorias } from '../../storefront/hooks/useStorefrontProducts';
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
 
@@ -49,83 +50,6 @@ const SLIDES = [
     accent: '#e5973a',
   },
 ];
-
-const PRODUCTOS = [
-  {
-    id: 1,
-    nombre: 'Cap Clásica Negra',
-    cat: 'Snapback',
-    precio: 3500,
-    precioAnt: 4200,
-    badge: 'Sale',
-    img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 2,
-    nombre: 'Trucker Beige',
-    cat: 'Trucker',
-    precio: 4200,
-    precioAnt: null,
-    badge: 'Nuevo',
-    img: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 3,
-    nombre: '5 Panel Olive',
-    cat: '5 Panel',
-    precio: 3800,
-    precioAnt: null,
-    badge: null,
-    img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 4,
-    nombre: 'Snapback Camo',
-    cat: 'Snapback',
-    precio: 4500,
-    precioAnt: 5000,
-    badge: 'Limitado',
-    img: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 5,
-    nombre: 'Bucket Hat Blanco',
-    cat: 'Bucket',
-    precio: 3200,
-    precioAnt: null,
-    badge: 'Nuevo',
-    img: 'https://images.unsplash.com/photo-1534215754734-18e55d13e346?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 6,
-    nombre: 'Dad Hat Washed Blue',
-    cat: 'Dad Hat',
-    precio: 3600,
-    precioAnt: 4000,
-    badge: null,
-    img: 'https://images.unsplash.com/photo-1572307480813-ceb0e59d8325?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 7,
-    nombre: 'Trucker Negra Logo',
-    cat: 'Trucker',
-    precio: 4800,
-    precioAnt: null,
-    badge: 'Más vendido',
-    img: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&h=600&fit=crop&q=80',
-  },
-  {
-    id: 8,
-    nombre: 'Cap Bordada Custom',
-    cat: 'Snapback',
-    precio: 5200,
-    precioAnt: null,
-    badge: 'Limitado',
-    img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=600&fit=crop&q=80',
-  },
-];
-
-const CATS = ['Todo', 'Snapback', 'Trucker', '5 Panel', 'Bucket', 'Dad Hat'];
 
 // ── NAVBAR ────────────────────────────────────────────────────
 function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
@@ -675,67 +599,265 @@ function Marquee() {
   );
 }
 
-// ── TRUST BADGES ─────────────────────────────────────────────
-function TrustBadges() {
-  const items = [
-    { icon: '🚚', title: 'Envío gratis', sub: 'Pedidos desde $8.000' },
-    { icon: '↩', title: '30 días devolución', sub: 'Sin preguntas' },
-    { icon: '✦', title: 'Hecho en Tucumán', sub: 'Apoyá lo local' },
-    { icon: '🔒', title: 'Pago seguro', sub: 'Múltiples métodos' },
-  ];
+// ── STORE METHODS ─────────────────────────────────────────────
+function StoreMethods({ tienda }: { tienda: any }) {
+  if (!tienda) return null;
+  const pagos = tienda.metodosPago || [];
+  const envios = tienda.metodosEntrega || [];
+  if (pagos.length === 0 && envios.length === 0) return null;
+
   return (
-    <section style={{ background: SURFACE }}>
-      <div
-        style={{
-          maxWidth: '1060px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-          borderTop: `1px solid ${BORDER}`,
-          borderBottom: `1px solid ${BORDER}`,
-        }}
-      >
-        {items.map(({ icon, title, sub }) => (
-          <div
-            key={title}
-            style={{
-              padding: '1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              borderRight: `1px solid ${BORDER}`,
-            }}
-          >
-            <span style={{ fontSize: '20px', flexShrink: 0 }}>{icon}</span>
-            <div>
-              <p
-                style={{
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: '.78rem',
-                  fontWeight: 600,
-                  color: TXT,
-                  marginBottom: '2px',
-                }}
-              >
-                {title}
-              </p>
-              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.68rem', color: MUTED }}>
-                {sub}
-              </p>
+    <section style={{ background: SURFACE, padding: '3rem 1.5rem', borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center' }}>
+        
+        {pagos.length > 0 && (
+          <div style={{ flex: '1 1 300px' }}>
+            <h4 style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.4rem', fontWeight: 700, color: TXT, marginBottom: '1.5rem', textAlign: 'center' }}>Medios de Pago</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+              {pagos.map((mp: any) => (
+                <div key={mp.metodoPago.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: BG, padding: '10px 16px', borderRadius: '12px', border: `1px solid ${BORDER}` }}>
+                  <span style={{ fontSize: '1.4rem' }}>💳</span>
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.85rem', fontWeight: 600, color: TXT }}>{mp.metodoPago.nombre}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
+        )}
+
+        {envios.length > 0 && (
+          <div style={{ flex: '1 1 300px' }}>
+            <h4 style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.4rem', fontWeight: 700, color: TXT, marginBottom: '1.5rem', textAlign: 'center' }}>Métodos de Envío</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+              {envios.map((me: any) => (
+                <div key={me.metodoEntrega.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: BG, padding: '10px 16px', borderRadius: '12px', border: `1px solid ${BORDER}` }}>
+                  <span style={{ fontSize: '1.4rem' }}>📦</span>
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.85rem', fontWeight: 600, color: TXT }}>{me.metodoEntrega.nombre}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </section>
+  );
+}
+
+// ── PRODUCTOS DESTACADOS ──────────────────────────────────────
+function ProductosDestacados({ onSelect, tiendaId }: { onSelect: (p: any) => void; tiendaId: number }) {
+  const [hov, setHov] = useState<number | null>(null);
+
+  const { data: productosData, isLoading } = useStorefrontDestacados(tiendaId);
+
+  const productos = productosData?.datos || [];
+
+  if (isLoading) return null; // o un skeleton simple
+  if (productos.length === 0) return null;
+
+  return (
+    <section style={{ background: BG, padding: '4.5rem 1.5rem', borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display',serif",
+              fontSize: 'clamp(1.8rem,3.5vw,2.8rem)',
+              fontWeight: 700,
+              color: TXT,
+            }}
+          >
+            Productos <em style={{ fontStyle: 'italic', fontWeight: 400, color: ACENTO }}>Destacados</em>
+          </h2>
+        </div>
+
+        {/* Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))',
+            gap: '2.5rem 1.8rem',
+          }}
+        >
+          {productos.map((p: any) => (
+            <div
+              key={p.id}
+              onMouseEnter={() => setHov(p.id)}
+              onMouseLeave={() => setHov(null)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                background: SURFACE,
+                border: `1.5px solid ${hov === p.id ? ACENTO + '50' : BORDER}`,
+                transition: 'border-color .25s, transform .25s, box-shadow .25s',
+                transform: hov === p.id ? 'translateY(-4px)' : 'translateY(0)',
+                boxShadow: hov === p.id ? `0 12px 32px ${ACENTO}18` : 'none',
+                cursor: 'pointer',
+              }}
+            >
+              {/* Imagen */}
+              <div
+                style={{
+                  position: 'relative',
+                  aspectRatio: '1',
+                  overflow: 'hidden',
+                  background: SURFACE2,
+                }}
+              >
+                <img
+                  src={p.imagenPrincipalUrl || 'https://via.placeholder.com/600'}
+                  alt={p.nombre}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform .6s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                    transform: hov === p.id ? 'scale(1.08)' : 'scale(1)',
+                  }}
+                />
+
+                {/* Hover CTA */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '10px',
+                    opacity: hov === p.id ? 1 : 0,
+                    transition: 'opacity .3s',
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 50%)',
+                  }}
+                >
+                  <button
+                    onClick={() => onSelect(p)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      background: ACENTO,
+                      color: BTN_TXT,
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontFamily: "'DM Sans',sans-serif",
+                      fontSize: '.62rem',
+                      fontWeight: 700,
+                      letterSpacing: '.1em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Ver Producto
+                  </button>
+                </div>
+
+                {/* Badge */}
+                {p.destacado && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      left: '12px',
+                      background: ACENTO,
+                      color: BTN_TXT,
+                      fontSize: '.58rem',
+                      fontWeight: 700,
+                      padding: '4px 9px',
+                      borderRadius: '4px',
+                      letterSpacing: '.06em',
+                      textTransform: 'uppercase',
+                      boxShadow: '0 4px 12px rgba(0,0,0,.1)',
+                    }}
+                  >
+                    Destacado
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div style={{ padding: '12px 14px 16px' }}>
+                <p
+                  style={{
+                    fontFamily: "'DM Sans',sans-serif",
+                    fontSize: '.8rem',
+                    fontWeight: 500,
+                    color: TXT,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    marginBottom: '3px',
+                  }}
+                >
+                  {p.nombre}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  {p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio) ? (
+                    <>
+                      <p
+                        style={{
+                          fontFamily: "'DM Sans',sans-serif",
+                          fontSize: '.75rem',
+                          color: MUTED,
+                          textDecoration: 'line-through',
+                        }}
+                      >
+                        ${Number(p.precio).toLocaleString()}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "'DM Sans',sans-serif",
+                          fontSize: '.9rem',
+                          fontWeight: 700,
+                          color: ACENTO,
+                        }}
+                      >
+                        ${Number(p.precioOferta).toLocaleString()}
+                      </p>
+                    </>
+                  ) : (
+                    <p
+                      style={{
+                        fontFamily: "'DM Sans',sans-serif",
+                        fontSize: '.85rem',
+                        fontWeight: 700,
+                        color: ACENTO,
+                      }}
+                    >
+                      ${Number(p.precio).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
 // ── PRODUCTOS ─────────────────────────────────────────────────
-function Productos({ onCart }: { onCart: (p: any) => void }) {
-  const [cat, setCat] = useState('Todo');
+function Productos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tiendaId: number }) {
+  const [cat, setCat] = useState<number | 'Todo'>('Todo');
+  const [busqueda, setBusqueda] = useState('');
+  const [busquedaFiltro, setBusquedaFiltro] = useState('');
   const [hov, setHov] = useState<number | null>(null);
 
-  const filtered = cat === 'Todo' ? PRODUCTOS : PRODUCTOS.filter((p) => p.cat === cat);
+  const { data: categoriasData } = useStorefrontCategorias(tiendaId);
+  const categorias = categoriasData || [];
+
+  const { data: productosData, isLoading } = useStorefrontNormales(tiendaId, {
+    categoriaId: cat !== 'Todo' ? cat : undefined,
+    busqueda: busquedaFiltro.trim() !== '' ? busquedaFiltro : undefined,
+  });
+
+  const productos = productosData?.datos || [];
+
 
   return (
     <section style={{ background: BG, padding: '4.5rem 1.5rem' }}>
@@ -764,47 +886,119 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
               <em style={{ fontStyle: 'italic', fontWeight: 400, color: ACENTO }}>Colección</em>
             </h2>
           </div>
-          <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.72rem', color: SUBTLE }}>
-            {filtered.length} productos
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.72rem', color: SUBTLE }}>
+            {productos.length} productos
           </span>
         </div>
 
         {/* Filtros */}
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '2rem' }}>
-          {CATS.map((c) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+          
+          {/* Búsqueda */}
+          {/* Búsqueda */}
+          <form 
+            onSubmit={(e) => { e.preventDefault(); setBusquedaFiltro(busqueda); }}
+            style={{ position: 'relative', width: '100%', maxWidth: '400px', display: 'flex', gap: '8px' }}
+          >
+            <input
+              type="text"
+              placeholder="Buscar productos..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                borderRadius: '50px',
+                border: `1.5px solid ${BORDER}`,
+                background: SURFACE,
+                color: TXT,
+                fontFamily: "'DM Sans',sans-serif",
+                fontSize: '.85rem',
+                outline: 'none',
+                transition: 'border-color .3s',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = ACENTO)}
+              onBlur={(e) => (e.target.style.borderColor = BORDER)}
+            />
             <button
-              key={c}
-              onClick={() => setCat(c)}
+              type="submit"
+              style={{
+                padding: '0 20px',
+                borderRadius: '50px',
+                background: ACENTO,
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: "'DM Sans',sans-serif",
+                fontSize: '.85rem',
+                fontWeight: 600,
+                transition: 'opacity .2s'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+            >
+              Buscar
+            </button>
+          </form>
+
+          {/* Categorías */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setCat('Todo')}
               style={{
                 padding: '7px 18px',
                 borderRadius: '50px',
-                border: `1.5px solid ${c === cat ? ACENTO : BORDER}`,
-                background: c === cat ? `${ACENTO}14` : 'transparent',
-                color: c === cat ? ACENTO : MUTED,
+                border: `1.5px solid ${'Todo' === cat ? ACENTO : BORDER}`,
+                background: 'Todo' === cat ? `${ACENTO}14` : 'transparent',
+                color: 'Todo' === cat ? ACENTO : MUTED,
                 fontFamily: "'DM Sans',sans-serif",
                 fontSize: '.72rem',
-                fontWeight: c === cat ? 600 : 400,
+                fontWeight: 'Todo' === cat ? 600 : 400,
                 cursor: 'pointer',
                 transition: 'all .18s',
               }}
             >
-              {c}
+              Todo
             </button>
-          ))}
+
+            {categorias.map((c: any) => (
+              <button
+                key={c.id}
+                onClick={() => setCat(c.id)}
+                style={{
+                  padding: '7px 18px',
+                  borderRadius: '50px',
+                  border: `1.5px solid ${c.id === cat ? ACENTO : BORDER}`,
+                  background: c.id === cat ? `${ACENTO}14` : 'transparent',
+                  color: c.id === cat ? ACENTO : MUTED,
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: '.72rem',
+                  fontWeight: c.id === cat ? 600 : 400,
+                  cursor: 'pointer',
+                  transition: 'all .18s',
+                }}
+              >
+                {c.nombre}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))',
-            gap: '18px',
-          }}
-        >
-          {filtered.map((p, i) => (
+        {isLoading && !productos.length ? (
+          <div style={{ padding: '4rem', textAlign: 'center', color: MUTED }}>Cargando catálogo...</div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))',
+              gap: '2.5rem 1.8rem',
+            }}
+          >
+          {productos.map((p: any) => (
             <div
               key={p.id}
-              onMouseEnter={() => setHov(i)}
+              onMouseEnter={() => setHov(p.id)}
               onMouseLeave={() => setHov(null)}
               style={{
                 display: 'flex',
@@ -812,10 +1006,10 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                 borderRadius: '16px',
                 overflow: 'hidden',
                 background: SURFACE,
-                border: `1.5px solid ${hov === i ? ACENTO + '50' : BORDER}`,
+                border: `1.5px solid ${hov === p.id ? ACENTO + '50' : BORDER}`,
                 transition: 'border-color .25s, transform .25s, box-shadow .25s',
-                transform: hov === i ? 'translateY(-4px)' : 'translateY(0)',
-                boxShadow: hov === i ? `0 12px 32px ${ACENTO}18` : 'none',
+                transform: hov === p.id ? 'translateY(-4px)' : 'translateY(0)',
+                boxShadow: hov === p.id ? `0 12px 32px ${ACENTO}18` : 'none',
                 cursor: 'pointer',
               }}
             >
@@ -829,14 +1023,14 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                 }}
               >
                 <img
-                  src={p.img}
+                  src={p.imagenPrincipalUrl || 'https://via.placeholder.com/600'}
                   alt={p.nombre}
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    transform: hov === i ? 'scale(1.07)' : 'scale(1)',
-                    transition: 'transform .45s ease',
+                    transition: 'transform .6s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                    transform: hov === p.id ? 'scale(1.08)' : 'scale(1)',
                   }}
                 />
 
@@ -848,13 +1042,13 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                     display: 'flex',
                     alignItems: 'flex-end',
                     padding: '10px',
-                    opacity: hov === i ? 1 : 0,
+                    opacity: hov === p.id ? 1 : 0,
                     transition: 'opacity .3s',
                     background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 50%)',
                   }}
                 >
                   <button
-                    onClick={() => onCart(p)}
+                    onClick={() => onSelect(p)}
                     style={{
                       width: '100%',
                       padding: '10px',
@@ -870,29 +1064,30 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                       cursor: 'pointer',
                     }}
                   >
-                    + Agregar
+                    Ver Producto
                   </button>
                 </div>
 
                 {/* Badge */}
-                {p.badge && (
-                  <span
+                {p.destacado && (
+                  <div
                     style={{
                       position: 'absolute',
-                      top: '10px',
-                      left: '10px',
+                      top: '12px',
+                      left: '12px',
                       background: ACENTO,
                       color: BTN_TXT,
-                      fontSize: '.56rem',
+                      fontSize: '.58rem',
                       fontWeight: 700,
-                      padding: '3px 10px',
-                      borderRadius: '20px',
-                      letterSpacing: '.1em',
+                      padding: '4px 9px',
+                      borderRadius: '4px',
+                      letterSpacing: '.06em',
                       textTransform: 'uppercase',
+                      boxShadow: '0 4px 12px rgba(0,0,0,.1)',
                     }}
                   >
-                    {p.badge}
-                  </span>
+                    Destacado
+                  </div>
                 )}
               </div>
 
@@ -922,51 +1117,61 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                 >
                   {p.cat}
                 </p>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-                    {p.precioAnt && (
-                      <span
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  {p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio) ? (
+                    <>
+                      <p
                         style={{
-                          fontSize: '.68rem',
-                          color: SUBTLE,
+                          fontFamily: "'DM Sans',sans-serif",
+                          fontSize: '.75rem',
+                          color: MUTED,
                           textDecoration: 'line-through',
                         }}
                       >
-                        ${p.precioAnt.toLocaleString()}
+                        ${Number(p.precio).toLocaleString()}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "'DM Sans',sans-serif",
+                          fontSize: '.95rem',
+                          fontWeight: 700,
+                          color: ACENTO,
+                        }}
+                      >
+                        ${Number(p.precioOferta).toLocaleString()}
+                      </p>
+                      <span
+                        style={{
+                          background: `${ACENTO}14`,
+                          color: ACENTO,
+                          fontSize: '.58rem',
+                          fontWeight: 700,
+                          padding: '2px 7px',
+                          borderRadius: '20px',
+                          marginLeft: 'auto'
+                        }}
+                      >
+                        Oferta
                       </span>
-                    )}
-                    <span
+                    </>
+                  ) : (
+                    <p
                       style={{
-                        fontFamily: "'Playfair Display',serif",
-                        fontSize: '1.15rem',
+                        fontFamily: "'DM Sans',sans-serif",
+                        fontSize: '.95rem',
                         fontWeight: 700,
                         color: ACENTO,
                       }}
                     >
-                      ${p.precio.toLocaleString()}
-                    </span>
-                  </div>
-                  {p.precioAnt && (
-                    <span
-                      style={{
-                        background: `${ACENTO}14`,
-                        color: ACENTO,
-                        fontSize: '.58rem',
-                        fontWeight: 700,
-                        padding: '2px 7px',
-                        borderRadius: '20px',
-                      }}
-                    >
-                      -{Math.round((1 - p.precio / p.precioAnt) * 100)}%
-                    </span>
+                      ${Number(p.precio).toLocaleString()}
+                    </p>
                   )}
                 </div>
               </div>
             </div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );
@@ -1680,7 +1885,7 @@ function Toast({ msg, visible }: { msg: string; visible: boolean }) {
         fontFamily: "'DM Sans',sans-serif",
         fontSize: '.75rem',
         fontWeight: 500,
-        color: '#fff',
+        color: BG,
         zIndex: 60,
         opacity: visible ? 1 : 0,
         pointerEvents: 'none',
@@ -1690,6 +1895,201 @@ function Toast({ msg, visible }: { msg: string; visible: boolean }) {
     >
       <span style={{ color: ACENTO, marginRight: '6px', fontWeight: 700 }}>✓</span>
       {msg}
+    </div>
+  );
+}
+
+// ── PRODUCT DETAIL VIEW ───────────────────────────────────────
+function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; onBack: () => void; onCart: (p: any, qty: number) => void; tienda?: any }) {
+  const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    // Escrollear arriba al cambiar de vista
+    window.scrollTo(0, 0);
+  }, []);
+
+  if (!product) return null;
+
+  const hasOffer = product.precioOferta && Number(product.precioOferta) > 0 && Number(product.precioOferta) < Number(product.precio);
+  
+  return (
+    <div style={{ padding: '3rem 1.5rem', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '1060px', margin: '0 auto', width: '100%', flex: 1 }}>
+        
+        {/* Breadcrumb / Botón volver */}
+        <button
+          onClick={onBack}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: MUTED,
+            fontFamily: "'DM Sans',sans-serif",
+            fontSize: '.85rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '2rem',
+            padding: 0,
+            transition: 'color .2s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = TXT)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = MUTED)}
+        >
+          <span style={{ fontSize: '1.2rem' }}>←</span> Volver al catálogo
+        </button>
+
+        <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          
+          {/* Columna Izquierda: Imagen */}
+          <div
+            style={{
+              flex: '1 1 400px',
+              position: 'relative',
+              aspectRatio: '1',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              background: SURFACE2,
+              boxShadow: '0 12px 32px rgba(0,0,0,0.06)',
+            }}
+          >
+            <img 
+              src={product.imagenPrincipalUrl || 'https://via.placeholder.com/600'} 
+              alt={product.nombre}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+
+          {/* Columna Derecha: Detalles */}
+          <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.75rem', color: MUTED, marginBottom: '.75rem', textTransform: 'uppercase', letterSpacing: '.1em', fontWeight: 600 }}>
+              {product.categoria?.nombre || 'Producto'}
+            </span>
+            
+            <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(2rem, 3.5vw, 2.8rem)', fontWeight: 700, color: TXT, marginBottom: '1.2rem', lineHeight: 1.15 }}>
+              {product.nombre}
+            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
+              {hasOffer ? (
+                <>
+                  <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '1.2rem', color: MUTED, textDecoration: 'line-through' }}>
+                    ${Number(product.precio).toLocaleString()}
+                  </span>
+                  <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '2.4rem', fontWeight: 700, color: ACENTO }}>
+                    ${Number(product.precioOferta).toLocaleString()}
+                  </span>
+                  <span style={{ background: `${ACENTO}14`, color: ACENTO, padding: '6px 14px', borderRadius: '50px', fontSize: '.8rem', fontWeight: 700, marginLeft: '4px' }}>
+                    Oferta Especial
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '2.4rem', fontWeight: 700, color: ACENTO }}>
+                  ${Number(product.precio).toLocaleString()}
+                </span>
+              )}
+            </div>
+
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '1rem', color: SUBTLE, lineHeight: 1.7, marginBottom: '2.5rem' }}>
+              {product.descripcion ? product.descripcion : 'Diseño exclusivo pensado para vos. Calidad superior y detalles que marcan la diferencia en cada uso.'}
+            </p>
+
+            {/* Controles: Cantidad y Agregar */}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  border: `1.5px solid ${BORDER}`,
+                  borderRadius: '50px',
+                  overflow: 'hidden',
+                  width: '140px',
+                  background: SURFACE,
+                }}
+              >
+                <button 
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', color: TXT, fontSize: '1.2rem', paddingTop: '2px'}}
+                >−</button>
+                <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans',sans-serif", fontSize: '1rem', fontWeight: 600, color: TXT }}>
+                  {qty}
+                </span>
+                <button 
+                  onClick={() => setQty(qty + 1)}
+                  style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', color: TXT, fontSize: '1.2rem', paddingTop: '2px'}}
+                >+</button>
+              </div>
+              
+              <button
+                onClick={() => {
+                  onCart(product, qty);
+                }}
+                style={{
+                  flex: 1,
+                  background: ACENTO,
+                  color: BTN_TXT,
+                  border: 'none',
+                  borderRadius: '50px',
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: '.95rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '0 2rem',
+                  minHeight: '52px',
+                  transition: 'opacity .2s, transform .2s',
+                  boxShadow: `0 8px 20px ${ACENTO}30`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '.9';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Agregar al Carrito
+              </button>
+            </div>
+
+            {/* Espacio para Pagos y Envíos */}
+            <div style={{ marginTop: 'auto', borderTop: `1.5px solid ${BORDER}`, paddingTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              
+              {/* Envíos */}
+              {tienda?.metodosEntrega?.length > 0 && (
+                <div>
+                  <h4 style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.9rem', fontWeight: 700, color: TXT, marginBottom: '0.8rem' }}>Métodos de Envío</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {tienda.metodosEntrega.map((me: any) => (
+                      <div key={me.metodoEntrega.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: SURFACE2, padding: '6px 12px', borderRadius: '8px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>📦</span>
+                        <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.8rem', color: TXT }}>{me.metodoEntrega.nombre}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pagos */}
+              {tienda?.metodosPago?.length > 0 && (
+                <div>
+                  <h4 style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.9rem', fontWeight: 700, color: TXT, marginBottom: '0.8rem' }}>Medios de Pago</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {tienda.metodosPago.map((mp: any) => (
+                      <div key={mp.metodoPago.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: SURFACE2, padding: '6px 12px', borderRadius: '8px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>💳</span>
+                        <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.8rem', color: TXT }}>{mp.metodoPago.nombre}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+            </div>
+
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1769,13 +2169,14 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
-  const addToCart = (p: any) => {
+  const addToCart = (p: any, qty: number = 1) => {
     setCart((prev) => {
       const ex = prev.find((i) => i.id === p.id);
       return ex
-        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i))
-        : [...prev, { ...p, qty: 1 }];
+        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + qty } : i))
+        : [...prev, { ...p, qty: qty }];
     });
     setToast({ msg: `${p.nombre} agregado`, visible: true });
     setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
@@ -1799,11 +2200,25 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
       `}</style>
 
       <div className="cz-scroll" style={{ background: BG }}>
-        <Navbar {...navbarProps} />
-        <Hero {...heroProps} />
-        <Marquee />
-        <TrustBadges />
-        <Productos onCart={addToCart} />
+        <Navbar {...navbarProps} cartCount={cartCount} onCart={() => setCartOpen(true)} />
+        
+        {selectedProduct ? (
+          <ProductDetailView 
+            product={selectedProduct} 
+            onBack={() => setSelectedProduct(null)} 
+            onCart={addToCart} 
+            tienda={tienda} 
+          />
+        ) : (
+          <>
+            <Hero {...heroProps} />
+            <Marquee />
+            <StoreMethods tienda={tienda} />
+            <ProductosDestacados onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+            <Productos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+          </>
+        )}
+
         <Contacto />
         <Footer />
       </div>
