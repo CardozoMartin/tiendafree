@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ChangePassPage } from './modules/auth/pages/ChangePassPage';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './modules/dashboard/pages/Dashboard';
 import HomePage from './pages/HomePage';
 
 import PrivateRoutes from './routes/PrivateRoutes';
@@ -8,6 +8,8 @@ import PublicRoutes from './routes/PublicRoutes';
 import LoginPage from './modules/auth/pages/LoginPage';
 import RegisterPage from './modules/auth/pages/RegisterPage';
 import { RecoveryPassPage } from './modules/auth/pages/RecoveryPassPage';
+import PublicStorePage from './pages/PublicStorePage';
+import DemoStorePage from './pages/DemoStoragePage';
 
 function App() {
   return (
@@ -25,8 +27,9 @@ function App() {
         {/* Rutas Privadas - Sin Header */}
         <Route element={<PrivateRoutes />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/demo/:nombre" element={<DemoStorePage />} />
         </Route>
-
+        <Route path="/tienda/:slug" element={<PublicStorePage />} />
         {/* Rutas no encontradas */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
