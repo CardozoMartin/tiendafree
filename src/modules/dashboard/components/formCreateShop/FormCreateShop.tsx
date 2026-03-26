@@ -95,7 +95,7 @@ const FormCreateShop = () => {
             <label className="block text-xs font-medium text-gray-500">
               Nombre <span className="text-red-400">*</span>
             </label>
-            <IconInput icon={Store} error={!!errors.nombre}>
+            <IconInput icon={StoreIcon} error={!!errors.nombre}>
               <input
                 type="text"
                 placeholder="Mi Tienda"

@@ -7,9 +7,9 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
 };
 
 const TEMPLATE_ALIASES: Record<string, string> = {
-  '3': 'plantilla_ropa',
-  '4': 'plantilla_gorras',
-  '5': 'plantilla_accesorios',
+  '1': 'plantilla_ropa',
+  '2': 'plantilla_gorras',
+  '3': 'plantilla_accesorios',
   accesorios: 'plantilla_accesorios',
   joyeria: 'plantilla_accesorios',
   gorras: 'plantilla_gorras',

@@ -39,9 +39,9 @@ export const SectionRenderer = ({
       return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      return <Plantillas />;
+      return isActiveShop ? <Plantillas /> : <CreateShop accent={accent} />;
     case 'store-edit':
-      return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop />;
+      return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
     case 'store-methods':
       return <MethodsSection accent={accent} />;
     case 'store-website':

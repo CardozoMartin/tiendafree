@@ -4,7 +4,7 @@ import ropa from '../../../assets/img/plantillaRopa.png';
 
 export const PLANTILLAS = [
   {
-    id: 5,
+    id: 3,
     nombre: 'plantilla_accesorios',
     label: 'Accesorios',
     categoria: 'Joyería',
@@ -12,7 +12,7 @@ export const PLANTILLAS = [
     preview: joyas
   },
   {
-    id: 4,
+    id: 2,
     nombre: 'plantilla_gorras',
     label: 'Gorras',
     categoria: 'Streetwear',
@@ -21,7 +21,7 @@ export const PLANTILLAS = [
     activa: false,
   },
   {
-    id: 3,
+    id: 1,
     nombre: 'plantilla_ropa',
     label: 'Ropa',
     categoria: 'Moda',
