@@ -1,8 +1,13 @@
-import { DEMO_ROUTES } from '../../../../components/Templates';
 import { PLANTILLAS } from '../../constant/plantilla_constants';
 import { useMyShop, useUpdateShop } from '../../hooks/useShop';
 
-const Plantillas = () => {
+const DEMO_ROUTES: Record<string, string> = {
+  plantilla_accesorios: '/demo/accesorios',
+  plantilla_gorras: '/demo/gorras',
+  plantilla_ropa: '/demo/ropa',
+};
+
+const Templates = () => {
   const { data: shopData } = useMyShop();
   const { mutate: updateShop, isPending } = useUpdateShop();
 
@@ -24,13 +29,15 @@ const Plantillas = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {PLANTILLAS.map((p) => {
           const isActiva = currentPlantillaId === p.id;
-          
+
           return (
             <div key={p.id} className="cursor-pointer group">
               {/* Card imagen */}
               <div
                 className={`rounded-2xl border-2 overflow-hidden relative aspect-[3/4] bg-slate-100 transition-all ${
-                  isActiva ? 'border-emerald-400 shadow-lg shadow-emerald-100' : 'border-slate-100 hover:border-slate-200'
+                  isActiva
+                    ? 'border-emerald-400 shadow-lg shadow-emerald-100'
+                    : 'border-slate-100 hover:border-slate-200'
                 }`}
               >
                 {p.preview ? (
@@ -68,7 +75,7 @@ const Plantillas = () => {
                   >
                     Ver demo
                   </button>
-                  
+
                   {!isActiva && (
                     <button
                       disabled={isPending}
@@ -89,9 +96,13 @@ const Plantillas = () => {
                 <div className="flex items-baseline justify-between">
                   <div>
                     <span className="text-sm font-bold text-slate-900">{p.label}</span>
-                    <span className="text-[10px] text-slate-400 ml-1.5 uppercase tracking-wider">{p.categoria}</span>
+                    <span className="text-[10px] text-slate-400 ml-1.5 uppercase tracking-wider">
+                      {p.categoria}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-500 uppercase">{p.precio}</span>
+                  <span className="text-[10px] font-bold text-emerald-500 uppercase">
+                    {p.precio}
+                  </span>
                 </div>
 
                 {isActiva && (
@@ -111,4 +122,4 @@ const Plantillas = () => {
   );
 };
 
-export default Plantillas;
+export default Templates;

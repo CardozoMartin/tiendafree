@@ -1,12 +1,12 @@
+import { Plus, Upload, X } from 'lucide-react';
 import { useRef } from 'react';
-import { Plus, X, Upload } from 'lucide-react';
 
 interface CarruselItem {
   id?: number;
   url: string;
   src?: string;
   titulo?: string | null;
-  subtitulo?: string;
+  subtitulo?: string | null;
   linkUrl?: string | null;
   orden?: number;
   activa?: boolean;
@@ -78,7 +78,7 @@ export const HeroGallery = ({
   };
 
   return (
-    <section 
+    <section
       className="px-6 md:px-16 lg:px-24 xl:px-32 py-12 relative transition-colors duration-500"
       style={{ backgroundColor: 'var(--hero-bg)' }}
     >

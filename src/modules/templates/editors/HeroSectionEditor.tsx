@@ -1,5 +1,5 @@
 import type { TemplateSectionEditorProps } from '../editorRegistry';
-import HeroGallery from '../templateModer/HeroGallery';
+import HeroGallery from '../modern/HeroGallery';
 
 const HeroSectionEditor = ({
   data,

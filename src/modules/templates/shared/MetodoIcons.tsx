@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import andreaniImg from '../../../assets/metodos/andreani.jpg';
 import correoImg from '../../../assets/metodos/correo-argentino.png';
 import creditoImg from '../../../assets/metodos/credito.png';
@@ -56,13 +57,13 @@ interface MetodoChipProps {
   backgroundColor?: string;
 }
 
-export function MetodoChip({ 
-  nombre, 
-  style, 
-  iconSize = 22, 
+export function MetodoChip({
+  nombre,
+  style,
+  iconSize = 22,
   textColor = 'inherit',
   borderColor = 'rgba(0,0,0,0.08)',
-  backgroundColor = 'transparent'
+  backgroundColor = 'transparent',
 }: MetodoChipProps) {
   const imagenSrc = getImagenForMetodo(nombre);
 
@@ -76,7 +77,7 @@ export function MetodoChip({
         borderRadius: '8px',
         border: `0.5px solid ${borderColor}`,
         background: backgroundColor,
-        ...style
+        ...style,
       }}
     >
       <img

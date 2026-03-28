@@ -1,7 +1,7 @@
-import PlantillaAccesorios from './templateAccesorios/TemplateAccesorios';
-import PlantillaGorras from './templateGorras/TemplateGors';
-import PlantillaRopa from './templateRop/TemplateRop';
+import PlantillaAccesorios from './accesorios/TemplateAccesorios';
+import PlantillaGorras from './gorras/TemplateGorras';
 import { resolveTemplateIdFromShop } from './registry';
+import PlantillaRopa from './ropa/TemplateRopa';
 
 const TEMPLATES: Record<string, React.ComponentType<any>> = {
   plantilla_accesorios: PlantillaAccesorios,
@@ -17,7 +17,7 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
   const templateId = resolveTemplateIdFromShop(tienda);
   const Template = TEMPLATES[templateId] ?? PlantillaAccesorios;
   const tema = tienda.temaConfig;
-  
+
   const getDefaultDesign = (id: string) => {
     switch (id) {
       case 'plantilla_gorras':
@@ -75,13 +75,15 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
           hero_titulo: tema?.heroTitulo || tienda.titulo,
           hero_subtitulo: tema?.heroSubtitulo || tienda.descripcion,
         },
-        sections: Object.entries(tema?.seccionesVisibles ?? {
-          hero: true,
-          products: true,
-          contact: true,
-          footer: true,
-          navbar: true,
-        }).map(([key, enabled], i) => ({
+        sections: Object.entries(
+          tema?.seccionesVisibles ?? {
+            hero: true,
+            products: true,
+            contact: true,
+            footer: true,
+            navbar: true,
+          }
+        ).map(([key, enabled], i) => ({
           id: i + 1,
           key,
           enabled,

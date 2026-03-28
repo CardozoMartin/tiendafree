@@ -1,5 +1,5 @@
-import { VARIANT_CONFIG } from '../../config/variantConfig';
-import type { ConfirmOptions } from '../../types/ModalAlert.type';
+import type { ConfirmOptions } from '@/types/ModalAlert.type';
+import { VARIANT_CONFIG } from './variantConfig';
 
 interface ConfirmDialogProps {
   opciones: ConfirmOptions;

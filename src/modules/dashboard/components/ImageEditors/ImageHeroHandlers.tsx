@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
-import { useDeleteShopCarouselImage, useAddShopCarouselImage } from '../../hooks/useCarrusel';
-import { useConfirm } from '../../../../hooks/useConfirm';
+import { useConfirm } from '@components/ConfirmDialog/useConfirm';
+import { useRef, useState } from 'react';
+import { useAddShopCarouselImage, useDeleteShopCarouselImage } from '../../hooks/useCarrusel';
 
-const ImagenHeroHandlers = ({
+const ImageHeroHandlers = ({
   data,
   onChangeData,
 }: {
@@ -25,13 +25,13 @@ const ImagenHeroHandlers = ({
   const { confirm, ConfirmModal } = useConfirm();
 
   const handleDeleteCarouselImage = async (imageId: number) => {
-     const userConfirmed = await confirm({
-       titulo: '¿Estas seguro?',
-       descripcion: '¿Estás seguro de que deseas eliminar la imagen?',
-       textoCancelar: 'Cancelar',
-       textoConfirmar: 'Eliminar imagen',
-       variant: 'danger',
-     });
+    const userConfirmed = await confirm({
+      titulo: '¿Estas seguro?',
+      descripcion: '¿Estás seguro de que deseas eliminar la imagen?',
+      textoCancelar: 'Cancelar',
+      textoConfirmar: 'Eliminar imagen',
+      variant: 'danger',
+    });
 
     if (userConfirmed) {
       deleteCarouselImage(imageId);
@@ -75,7 +75,7 @@ const ImagenHeroHandlers = ({
       {ConfirmModal}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
         <div className="divide-y divide-gray-50">
-          {(data?.carrusel || []).map((item, idx) => (
+          {((data?.carrusel || []) as any[]).map((item: any, idx: number) => (
             <div key={idx} className="flex items-center gap-4 px-6 py-3.5 group">
               <img
                 src={item.url}
@@ -161,8 +161,19 @@ const ImagenHeroHandlers = ({
                   <span className="text-gray-400 truncate">
                     {newImage.file ? newImage.file.name : 'Seleccionar archivo...'}
                   </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3.5 h-3.5 text-gray-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    />
                   </svg>
                 </div>
                 <input
@@ -219,4 +230,4 @@ const ImagenHeroHandlers = ({
   );
 };
 
-export default ImagenHeroHandlers;
+export default ImageHeroHandlers;

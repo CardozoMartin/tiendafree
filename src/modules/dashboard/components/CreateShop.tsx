@@ -1,4 +1,4 @@
-import FormCreateShop from './formCreateShop/FormCreateShop';
+import FormCreateShop from './Forms/FormCreateShop';
 
 export interface IShopData {
   nombre: string;

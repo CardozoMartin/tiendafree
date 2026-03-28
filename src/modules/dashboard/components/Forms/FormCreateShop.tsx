@@ -1,10 +1,17 @@
-import { useForm } from 'react-hook-form';
 import {
-  Store as StoreIcon, Type, FileText, Phone, Instagram,
-  Globe, Map, Building2, LayoutTemplate,
+  Building2,
+  FileText,
+  Globe,
+  Instagram,
+  LayoutTemplate,
+  Map,
+  Phone,
+  Store as StoreIcon,
+  Type,
 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 
-import { useConfirm } from '../../../../hooks/useConfirm';
+import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 import { useCreateShop } from '../../hooks/useShop';
 
 export interface IShopData {
@@ -50,7 +57,11 @@ const IconInput = ({
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-const FormCreateShop = () => {
+interface FormCreateShopProps {
+  accent?: string;
+}
+
+const FormCreateShop = ({ accent }: FormCreateShopProps) => {
   const {
     register,
     handleSubmit: onSubmitRHF,
@@ -89,7 +100,6 @@ const FormCreateShop = () => {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-
           {/* Nombre */}
           <div className="px-5 py-4 space-y-1.5">
             <label className="block text-xs font-medium text-gray-500">
@@ -170,9 +180,7 @@ const FormCreateShop = () => {
             <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
               Redes sociales
             </h2>
-            <p className="text-xs text-gray-400 mt-1">
-              Para que tus clientes te encuentren.
-            </p>
+            <p className="text-xs text-gray-400 mt-1">Para que tus clientes te encuentren.</p>
           </div>
           <span className="text-[11px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mt-0.5">
             Opcional
@@ -180,7 +188,6 @@ const FormCreateShop = () => {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-
           {/* WhatsApp */}
           <div className="px-5 py-4 space-y-1.5">
             <label className="block text-xs font-medium text-gray-500">WhatsApp</label>
@@ -234,7 +241,6 @@ const FormCreateShop = () => {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-
           {/* País */}
           <div className="px-5 py-4 space-y-1.5">
             <label className="block text-xs font-medium text-gray-500">
@@ -289,7 +295,8 @@ const FormCreateShop = () => {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-sm font-bold rounded-xl transition-all shadow-sm disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 py-3 hover:bg-gray-800 disabled:bg-gray-300 text-white text-sm font-bold rounded-xl transition-all shadow-sm disabled:cursor-not-allowed"
+        style={{ backgroundColor: accent ?? '#111827' }}
       >
         {isPending ? (
           <>

@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { resolveTemplateIdFromShop } from '../../../templates/registry';
 import type { TiendaData } from '../../../templates/types';
-import { useDeleteShopCarouselImage } from '../../hooks/useCarrusel';
 import { useUpdateShop, useUpdateShopVisual } from '../../hooks/useShop';
-import ImagenHeroHandlers from '../EditingComponentes/ImagenHeroHandlers';
+import ImageHeroHandlers from '../ImageEditors/ImageHeroHandlers';
 
 interface EditingSiteProps {
   tienda?: any;
@@ -16,7 +15,6 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
   // Mutations
   const updateShop = useUpdateShop();
   const updateShopVisual = useUpdateShopVisual();
- 
 
   // react-hook-form para el diseño global
   const { register, handleSubmit, watch, setValue, reset } = useForm({
@@ -129,8 +127,6 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
       carrusel: tienda?.carrusel ?? [],
     });
   };
-
-
 
   const isSaving = updateShop.isPending || updateShopVisual.isPending;
 
@@ -392,7 +388,7 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
         {/* ══════════════════════════
             SECCIÓN: IMÁGENES
         ══════════════════════════ */}
-        <ImagenHeroHandlers data={data} onChangeData={handleChange} />
+        <ImageHeroHandlers data={data} onChangeData={handleChange} />
 
         {/* Spacer */}
         <div className="h-6" />

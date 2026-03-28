@@ -4,9 +4,9 @@ import OrdersSection from '../components/OrdersSection';
 import ProductsSection from '../components/ProductsSection';
 import CreateShop from './CreateShop';
 import EditingSite from './myShop/EditingSite';
-import Plantillas from './myShop/Plantillas';
-import SettingsSection from './SettingsSection';
 import MethodsSection from './myShop/MethodsSection';
+import Templates from './myShop/Templates';
+import SettingsSection from './SettingsSection';
 
 interface SectionRendererProps {
   active: string;
@@ -39,7 +39,7 @@ export const SectionRenderer = ({
       return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      return isActiveShop ? <Plantillas /> : <CreateShop accent={accent} />;
+      return isActiveShop ? <Templates /> : <CreateShop accent={accent} />;
     case 'store-edit':
       return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
     case 'store-methods':

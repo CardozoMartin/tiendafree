@@ -1,7 +1,6 @@
+import { usePublicShop } from '@modules/dashboard/hooks/useShop';
+import StoreRenderer from '@modules/templates/StoreRenderer';
 import { useParams } from 'react-router-dom';
-import { usePublicShop } from '../modules/dashboard/hooks/useShop';
-import StoreRenderer from '../modules/templates/StoreRenderer';
-
 
 const PublicStorePage = () => {
   const { slug } = useParams<{ slug: string }>();

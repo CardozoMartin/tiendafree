@@ -1,7 +1,7 @@
+import type { ConfirmOptions } from '@/types/ModalAlert.type';
 import { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import ConfirmDialog from '../components/ConfirmDialog/ConfirmDialog';
-import type { ConfirmOptions } from '../types/ModalAlert.type';
+import ConfirmDialog from './ConfirmDialog';
 
 export function useConfirm() {
   const [visible, setVisible] = useState(false);

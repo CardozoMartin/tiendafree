@@ -1,143 +1,127 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');`;
 
 // ── COLORES FIJOS ─────────────────────────────────────────────
-let ACENTO = '#f97316'; // naranja vibrante
-const BG = '#ffffff';
-const SURFACE = '#fafafa';
-const SURFACE2 = '#f3f4f6';
-const TXT = '#111827';
-const MUTED = '#6b7280';
-const SUBTLE = '#9ca3af';
-const BORDER = 'rgba(0,0,0,0.08)';
+let ACENTO = '#b5835a'; // bronce cálido
+const BG = '#f5f1eb'; // crema
+const SURFACE = '#ffffff';
+const SURFACE2 = '#ede9e2';
+const TXT = '#2a1f14';
+const MUTED = '#7a6e62';
+const SUBTLE = '#a89e94';
+const BORDER = 'rgba(42,31,20,0.1)';
 const BTN_TXT = '#ffffff';
+let ACENTO_BG = `${ACENTO}18`;
+let ACENTO_BDR = `${ACENTO}40`;
 
 let TIENDA = {
-  nombre: 'CapZone',
-  descripcion: 'Gorras y accesorios urbanos para los que marcan tendencia en Tucumán.',
+  nombre: 'Alma Dorada',
+  descripcion:
+    'Joyería y accesorios artesanales hechos a mano en Tucumán. Cada pieza cuenta una historia.',
   whatsapp: '5493812345678',
-  instagram: 'capzone.tuc',
-  facebook: 'capzonetucuman',
+  instagram: 'almadorada.tuc',
+  facebook: 'almadoradatucuman',
   ciudad: 'Tucumán',
   pais: 'Argentina',
 };
 
-const SLIDES = [
-  {
-    img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=700&h=700&fit=crop&q=80',
-    label: 'Nueva temporada',
-    bg: `${ACENTO}18`,
-    accent: ACENTO,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=700&h=700&fit=crop&q=80',
-    label: 'Edición limitada',
-    bg: '#f0f7ff',
-    accent: '#4a90d9',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=700&h=700&fit=crop&q=80',
-    label: 'Streetwear local',
-    bg: '#f0fff4',
-    accent: '#3aab6d',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=700&h=700&fit=crop&q=80',
-    label: 'Últimos modelos',
-    bg: '#fff8f0',
-    accent: '#e5973a',
-  },
+let HERO_IMGS = [
+  'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900&h=900&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=900&h=900&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573408301185-9519f94815b0?w=900&h=900&fit=crop&q=80',
 ];
 
 const PRODUCTOS = [
   {
     id: 1,
-    nombre: 'Cap Clásica Negra',
-    cat: 'Snapback',
-    precio: 3500,
-    precioAnt: 4200,
+    nombre: 'Collar Bronce Luna',
+    cat: 'Collares',
+    precio: 2800,
+    precioAnt: 3500,
     badge: 'Sale',
-    img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&h=600&fit=crop&q=80',
+    img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 2,
-    nombre: 'Trucker Beige',
-    cat: 'Trucker',
-    precio: 4200,
+    nombre: 'Aros Macramé Dorado',
+    cat: 'Aros',
+    precio: 1800,
     precioAnt: null,
     badge: 'Nuevo',
-    img: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=600&h=600&fit=crop&q=80',
+    img: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 3,
-    nombre: '5 Panel Olive',
-    cat: '5 Panel',
-    precio: 3800,
+    nombre: 'Pulsera Hilo Trenzado',
+    cat: 'Pulseras',
+    precio: 1200,
     precioAnt: null,
     badge: null,
-    img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=600&h=600&fit=crop&q=80',
+    img: 'https://images.unsplash.com/photo-1573408301185-9519f94815b0?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 4,
-    nombre: 'Snapback Camo',
-    cat: 'Snapback',
-    precio: 4500,
-    precioAnt: 5000,
+    nombre: 'Anillo Piedra Natural',
+    cat: 'Anillos',
+    precio: 2200,
+    precioAnt: 2800,
     badge: 'Limitado',
-    img: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=600&h=600&fit=crop&q=80',
+    img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 5,
-    nombre: 'Bucket Hat Blanco',
-    cat: 'Bucket',
-    precio: 3200,
+    nombre: 'Set Collar y Aros',
+    cat: 'Sets',
+    precio: 4500,
     precioAnt: null,
-    badge: 'Nuevo',
-    img: 'https://images.unsplash.com/photo-1534215754734-18e55d13e346?w=600&h=600&fit=crop&q=80',
+    badge: 'Más vendido',
+    img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 6,
-    nombre: 'Dad Hat Washed Blue',
-    cat: 'Dad Hat',
-    precio: 3600,
-    precioAnt: 4000,
-    badge: null,
-    img: 'https://images.unsplash.com/photo-1572307480813-ceb0e59d8325?w=600&h=600&fit=crop&q=80',
+    nombre: 'Tobillera Plata 925',
+    cat: 'Pulseras',
+    precio: 1600,
+    precioAnt: 2000,
+    badge: 'Sale',
+    img: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 7,
-    nombre: 'Trucker Negra Logo',
-    cat: 'Trucker',
-    precio: 4800,
+    nombre: 'Collar Cuero Rústico',
+    cat: 'Collares',
+    precio: 2400,
     precioAnt: null,
-    badge: 'Más vendido',
-    img: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&h=600&fit=crop&q=80',
+    badge: null,
+    img: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&h=600&fit=crop&q=80',
   },
   {
     id: 8,
-    nombre: 'Cap Bordada Custom',
-    cat: 'Snapback',
-    precio: 5200,
+    nombre: 'Aros Hoja Bordada',
+    cat: 'Aros',
+    precio: 1500,
     precioAnt: null,
-    badge: 'Limitado',
-    img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=600&fit=crop&q=80',
+    badge: 'Artesanal',
+    img: 'https://images.unsplash.com/photo-1561828995-aa79a2db86dd?w=600&h=600&fit=crop&q=80',
   },
 ];
 
-const CATS = ['Todo', 'Snapback', 'Trucker', '5 Panel', 'Bucket', 'Dad Hat'];
+const CATS = ['Todo', 'Collares', 'Aros', 'Pulseras', 'Anillos', 'Sets'];
 
 // ── NAVBAR ────────────────────────────────────────────────────
-function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
-  const [open, setOpen] = useState(false);
+function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }) {
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const el = document.querySelector('.cz-scroll');
-    const fn = () => setScrolled((el?.scrollTop ?? 0) > 50);
+    const el = document.querySelector('.ac-scroll');
+    const fn = () => setScrolled((el?.scrollTop ?? 0) > 60);
     el?.addEventListener('scroll', fn, { passive: true });
     return () => el?.removeEventListener('scroll', fn);
   }, []);
+
+  const navBg = scrolled ? 'rgba(245,241,235,0.97)' : 'transparent';
 
   return (
     <nav
@@ -145,115 +129,62 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        background: scrolled ? 'rgba(255,255,255,0.97)' : BG,
-        borderBottom: `1px solid ${scrolled ? BORDER : 'transparent'}`,
-        backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        background: navBg,
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? `0.5px solid ${BORDER}` : 'none',
         padding: '0 2rem',
         height: '64px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        transition: 'all .3s ease',
+        transition: 'all .35s ease',
       }}
     >
       {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
         <span
           style={{
-            fontFamily: "'Playfair Display',serif",
-            fontSize: '1.5rem',
-            fontWeight: 700,
+            fontFamily: "'Cormorant Garamond',serif",
+            fontSize: '1.4rem',
+            fontWeight: 400,
             color: TXT,
+            letterSpacing: '.04em',
           }}
         >
-          {logo ? (
-            <img
-              src={logo}
-              alt={titulo || 'Logo'}
-              style={{ height: '32px', objectFit: 'contain' }}
-            />
-          ) : (
-            titulo || 'CapZone'
-          )}
+          {TIENDA.nombre}
         </span>
         <span
           style={{
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
             background: ACENTO,
-            color: BTN_TXT,
-            fontSize: '.52rem',
-            fontWeight: 700,
-            padding: '3px 8px',
-            borderRadius: '20px',
-            letterSpacing: '.12em',
-            textTransform: 'uppercase',
+            display: 'inline-block',
+            marginBottom: '3px',
           }}
-        >
-          NEW
-        </span>
+        />
       </div>
 
-      {/* Desktop links */}
-      <div className="cz-hide-mob" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-        {['Inicio', 'Gorras', 'Novedades', 'Contacto'].map((l) => (
+      {/* Desktop */}
+      <div className="ac-hide-mob" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        {['Inicio', 'Colección', 'Nosotros', 'Contacto'].map((l) => (
           <a
             key={l}
             href="#"
             style={{
-              fontFamily: "'DM Sans',sans-serif",
-              fontSize: '.78rem',
-              fontWeight: 500,
-              color: MUTED,
+              fontFamily: "'Jost',sans-serif",
+              fontSize: '.75rem',
+              color: `${TXT}88`,
               textDecoration: 'none',
-              letterSpacing: '.04em',
+              letterSpacing: '.08em',
               transition: 'color .2s',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = ACENTO)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = MUTED)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = `${TXT}88`)}
           >
             {l}
           </a>
         ))}
-
-        {/* Search */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            border: `1px solid ${BORDER}`,
-            borderRadius: '20px',
-            padding: '6px 14px',
-            background: SURFACE,
-          }}
-        >
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M10.836 10.615 15 14.695"
-              stroke={MUTED}
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-            <path
-              clipRule="evenodd"
-              d="M9.141 11.738c2.729-1.136 4.001-4.224 2.841-6.898S7.67.921 4.942 2.057C2.211 3.193.94 6.281 2.1 8.955s4.312 3.92 7.041 2.783"
-              stroke={MUTED}
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-          </svg>
-          <input
-            placeholder="Buscar gorras..."
-            style={{
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              fontSize: '.72rem',
-              color: TXT,
-              width: '120px',
-              fontFamily: "'DM Sans',sans-serif",
-            }}
-          />
-        </div>
 
         {/* Cart */}
         <button
@@ -266,13 +197,12 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
             padding: '4px',
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
+          <svg width="18" height="18" viewBox="0 0 14 14" fill="none">
             <path
               d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
               stroke={ACENTO}
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="0.9"
             />
           </svg>
           {cartCount > 0 && (
@@ -285,8 +215,8 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
                 color: BTN_TXT,
                 fontSize: '.52rem',
                 fontWeight: 700,
-                width: '16px',
-                height: '16px',
+                width: '15px',
+                height: '15px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -301,19 +231,26 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
         {/* CTA */}
         <button
           style={{
-            padding: '9px 22px',
-            background: ACENTO,
-            color: BTN_TXT,
-            border: 'none',
-            borderRadius: '50px',
-            fontFamily: "'DM Sans',sans-serif",
-            fontSize: '.72rem',
-            fontWeight: 600,
+            padding: '8px 20px',
+            background: 'transparent',
+            border: `0.5px solid ${ACENTO}`,
+            borderRadius: '20px',
+            color: ACENTO,
+            fontFamily: "'Jost',sans-serif",
+            fontSize: '.68rem',
+            fontWeight: 500,
+            letterSpacing: '.1em',
             cursor: 'pointer',
-            transition: 'opacity .2s',
+            transition: 'all .2s',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = ACENTO;
+            (e.currentTarget as HTMLButtonElement).style.color = BTN_TXT;
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            (e.currentTarget as HTMLButtonElement).style.color = ACENTO;
+          }}
         >
           Ingresar
         </button>
@@ -321,14 +258,14 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
 
       {/* Hamburger */}
       <button
-        className="cz-show-mob"
+        className="ac-show-mob"
         onClick={() => setOpen(!open)}
         style={{ background: 'none', border: 'none', cursor: 'pointer' }}
       >
-        <svg width="22" height="15" viewBox="0 0 22 15" fill="none">
-          <rect width="22" height="1.5" rx=".75" fill={TXT} />
-          <rect x="6" y="6.5" width="16" height="1.5" rx=".75" fill={TXT} />
-          <rect x="3" y="13" width="19" height="1.5" rx=".75" fill={TXT} />
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+          <rect width="20" height="1.5" rx=".75" fill={TXT} />
+          <rect x="5" y="6" width="15" height="1.5" rx=".75" fill={TXT} />
+          <rect x="2" y="12" width="18" height="1.5" rx=".75" fill={TXT} />
         </svg>
       </button>
 
@@ -339,24 +276,23 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
             top: '64px',
             left: 0,
             right: 0,
-            background: BG,
-            borderBottom: `1px solid ${BORDER}`,
+            background: SURFACE,
+            borderBottom: `0.5px solid ${BORDER}`,
             padding: '1.5rem 2rem',
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
             zIndex: 50,
-            boxShadow: '0 8px 24px rgba(0,0,0,.06)',
+            boxShadow: '0 8px 24px rgba(42,31,20,.06)',
           }}
         >
-          {['Inicio', 'Gorras', 'Novedades', 'Contacto'].map((l) => (
+          {['Inicio', 'Colección', 'Nosotros', 'Contacto'].map((l) => (
             <a
               key={l}
               href="#"
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.85rem',
-                fontWeight: 500,
                 color: MUTED,
                 textDecoration: 'none',
               }}
@@ -364,272 +300,292 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
               {l}
             </a>
           ))}
-          <button
-            style={{
-              alignSelf: 'flex-start',
-              padding: '10px 24px',
-              background: ACENTO,
-              color: BTN_TXT,
-              border: 'none',
-              borderRadius: '50px',
-              fontFamily: "'DM Sans',sans-serif",
-              fontSize: '.75rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              marginTop: '.5rem',
-            }}
-          >
-            Ingresar
-          </button>
         </div>
       )}
     </nav>
   );
 }
 
-// ── HERO CAROUSEL ─────────────────────────────────────────────
-function Hero({ titulo, descripcion, imagenCarrusel, tituloDos }: IHeroProps) {
-  const [active, setActive] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const slides = imagenCarrusel && imagenCarrusel.length > 0 ? imagenCarrusel : SLIDES;
-
-  // Paleta de colores y fondos para ciclar
-  const colorPalette = [
-    { accent: ACENTO, bg: `${ACENTO}18` },
-    { accent: '#4a90d9', bg: '#f0f7ff' },
-    { accent: '#3aab6d', bg: '#f0fff4' },
-    { accent: '#e5973a', bg: '#fff8f0' },
-  ];
-
-  const currentColorScheme = colorPalette[active % colorPalette.length];
-
-  const go = useCallback(
-    (i: number) => {
-      setActive(i);
-      clearInterval(timerRef.current!);
-      timerRef.current = setInterval(() => setActive((a) => (a + 1) % slides.length), 4500);
-    },
-    [slides.length]
-  );
+// ── HERO PARALLAX ─────────────────────────────────────────────
+function Hero({ titulo, descripcion }: IHeroProps) {
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
-    timerRef.current = setInterval(() => setActive((a) => (a + 1) % slides.length), 4500);
-    return () => clearInterval(timerRef.current!);
-  }, [slides.length]);
-
-  const cur = slides[active];
+    const el = document.querySelector('.ac-scroll');
+    const fn = () => setScrollY(el?.scrollTop ?? 0);
+    el?.addEventListener('scroll', fn, { passive: true });
+    return () => el?.removeEventListener('scroll', fn);
+  }, []);
 
   return (
     <section
       style={{
-        background: currentColorScheme.bg,
-        transition: 'background .65s ease',
-        padding: '3.5rem 1.5rem 4rem',
+        background: BG,
+        overflow: 'hidden',
+        padding: '4rem 2rem 5rem',
+        position: 'relative',
       }}
     >
+      {/* Dot grid decorativo */}
+      <div
+        style={{
+          position: 'absolute',
+          right: '4%',
+          top: '10%',
+          opacity: 0.1,
+          pointerEvents: 'none',
+        }}
+      >
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          {[0, 1, 2, 3, 4].flatMap((r) =>
+            [0, 1, 2, 3, 4].map((c) => (
+              <circle key={`${r}-${c}`} cx={8 + c * 20} cy={8 + r * 20} r="2.8" fill={ACENTO} />
+            ))
+          )}
+        </svg>
+      </div>
+      {/* Círculo decorativo fondo */}
+      <div
+        style={{
+          position: 'absolute',
+          right: '-5%',
+          top: '-10%',
+          width: '500px',
+          height: '500px',
+          borderRadius: '50%',
+          background: `${ACENTO}08`,
+          pointerEvents: 'none',
+        }}
+      />
+
       <div
         style={{
           maxWidth: '1060px',
           margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))',
           gap: '3rem',
           alignItems: 'center',
         }}
       >
         {/* Text */}
-        <div>
-          <div
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <span
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '7px',
-              background: `${currentColorScheme.accent}22`,
-              borderRadius: '20px',
-              padding: '5px 14px',
-              marginBottom: '1.1rem',
+              display: 'inline-block',
+              fontFamily: "'Jost',sans-serif",
+              fontSize: '.6rem',
+              letterSpacing: '.26em',
+              textTransform: 'uppercase',
+              color: ACENTO,
+              fontWeight: 500,
+              marginBottom: '1.2rem',
+              paddingBottom: '.5rem',
+              borderBottom: `1px solid ${ACENTO_BDR}`,
             }}
           >
-            <span
-              style={{
-                fontSize: '.62rem',
-                fontWeight: 700,
-                letterSpacing: '.16em',
-                textTransform: 'uppercase',
-                color: currentColorScheme.accent,
-                fontFamily: "'DM Sans',sans-serif",
-              }}
-            >
-              {cur.subtitulo || cur.label || 'Colección'}
-            </span>
-          </div>
+            {TIENDA.ciudad} · Artesanal
+          </span>
 
           <h1
             style={{
-              fontFamily: "'Playfair Display',serif",
-              fontSize: 'clamp(2.6rem,5vw,4.2rem)',
-              fontWeight: 700,
+              fontFamily: "'Cormorant Garamond',serif",
+              fontSize: 'clamp(2.8rem,5.5vw,4.5rem)',
+              fontWeight: 300,
               color: TXT,
-              lineHeight: 1.05,
-              marginBottom: '.9rem',
+              lineHeight: 1.02,
+              marginBottom: '1.1rem',
             }}
           >
-            {tituloDos?.primera || titulo}
+            {titulo || TIENDA.nombre}
             <br />
-            <span
-              style={{ fontStyle: 'italic', fontWeight: 400, color: currentColorScheme.accent }}
-            >
-              {tituloDos?.segunda || descripcion}
-            </span>
           </h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <p
+            style={{
+              fontFamily: "'Jost',sans-serif",
+              fontSize: '.84rem',
+              fontWeight: 300,
+              color: MUTED,
+              lineHeight: 1.85,
+              maxWidth: '360px',
+              marginBottom: '1.75rem',
+            }}
+          >
+            {descripcion || TIENDA.descripcion}
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button
               style={{
-                padding: '13px 30px',
+                padding: '12px 30px',
                 background: ACENTO,
                 color: BTN_TXT,
                 border: 'none',
-                borderRadius: '50px',
-                fontFamily: "'DM Sans',sans-serif",
-                fontSize: '.75rem',
+                borderRadius: '6px',
+                fontFamily: "'Jost',sans-serif",
+                fontSize: '.68rem',
                 fontWeight: 600,
-                letterSpacing: '.06em',
+                letterSpacing: '.14em',
+                textTransform: 'uppercase',
                 cursor: 'pointer',
                 transition: 'opacity .2s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
-              Ver colección →
+              Ver colección
             </button>
-
             <a
               href={`https://wa.me/${TIENDA.whatsapp}`}
               target="_blank"
               rel="noreferrer"
               style={{
-                padding: '13px 22px',
-                background: '#25d366',
-                color: '#fff',
-                borderRadius: '50px',
+                padding: '12px 22px',
+                background: 'transparent',
+                border: `0.5px solid ${ACENTO_BDR}`,
+                borderRadius: '6px',
+                color: ACENTO,
+                fontFamily: "'Jost',sans-serif",
+                fontSize: '.68rem',
+                fontWeight: 500,
+                letterSpacing: '.1em',
                 textDecoration: 'none',
-                fontFamily: "'DM Sans',sans-serif",
-                fontSize: '.72rem',
-                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all .2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = ACENTO;
+                e.currentTarget.style.color = BTN_TXT;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = ACENTO;
               }}
             >
               WhatsApp
             </a>
+          </div>
 
-            {/* Dots */}
-            <div style={{ display: 'flex', gap: '6px', marginLeft: '.5rem' }}>
-              {slides.map((_, i) => (
+          {/* Stats */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '2rem',
+              marginTop: '2.5rem',
+              paddingTop: '1.5rem',
+              borderTop: `0.5px solid ${BORDER}`,
+            }}
+          >
+            {[
+              { n: '+200', l: 'piezas vendidas' },
+              { n: '100%', l: 'artesanal' },
+              { n: '5★', l: 'calificación' },
+            ].map(({ n, l }) => (
+              <div key={l}>
                 <div
-                  key={i}
-                  onClick={() => go(i)}
                   style={{
-                    width: i === active ? '22px' : '7px',
-                    height: '7px',
-                    borderRadius: '4px',
-                    background:
-                      i === active ? currentColorScheme.accent : `${currentColorScheme.accent}40`,
-                    transition: 'all .35s ease',
-                    cursor: 'pointer',
+                    fontFamily: "'Cormorant Garamond',serif",
+                    fontSize: '1.5rem',
+                    fontWeight: 400,
+                    color: ACENTO,
+                    lineHeight: 1,
                   }}
-                />
-              ))}
-            </div>
+                >
+                  {n}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Jost',sans-serif",
+                    fontSize: '.62rem',
+                    color: MUTED,
+                    marginTop: '3px',
+                    letterSpacing: '.06em',
+                  }}
+                >
+                  {l}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Image circular */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              width: '88%',
-              aspectRatio: '1',
-              borderRadius: '50%',
-              background: `${currentColorScheme.accent}12`,
-              transition: 'background .65s',
-            }}
-          />
-          <div
-            style={{
-              position: 'relative',
-              width: '78%',
-              aspectRatio: '1',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: `4px solid ${currentColorScheme.accent}30`,
-              transition: 'border-color .65s',
-              zIndex: 1,
-            }}
-          >
-            <img
-              src={cur.url || cur.img}
-              alt={cur.titulo || ''}
+        {/* Parallax image stack */}
+        <div style={{ position: 'relative', height: '480px' }}>
+          {[
+            { src: HERO_IMGS[0], w: '72%', h: '76%', top: '0', left: '0', z: 1, factor: 0.9 },
+            { src: HERO_IMGS[1], w: '58%', h: '58%', top: '30%', left: '33%', z: 2, factor: 2.0 },
+            { src: HERO_IMGS[2], w: '40%', h: '40%', top: '5%', left: '53%', z: 3, factor: 3.2 },
+          ].map((l, i) => (
+            <div
+              key={i}
               style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transition: 'opacity .4s ease',
+                position: 'absolute',
+                width: l.w,
+                height: l.h,
+                top: l.top,
+                left: l.left,
+                zIndex: l.z,
+                borderRadius: '14px',
+                overflow: 'hidden',
+                boxShadow: `0 12px 40px ${ACENTO}20`,
+                transform: `translateY(${scrollY * l.factor * 0.04}px)`,
+                transition: 'transform .06s linear',
               }}
-            />
-          </div>
-          {/* Floating badge */}
+            >
+              <img
+                src={l.src}
+                alt=""
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          ))}
+          {/* Label flotante */}
           <div
             style={{
               position: 'absolute',
-              bottom: '8%',
-              right: '3%',
-              background: BG,
-              borderRadius: '14px',
-              padding: '10px 14px',
-              boxShadow: `0 4px 20px ${cur.accent}22`,
-              zIndex: 2,
-              minWidth: '110px',
+              bottom: '4%',
+              left: '2%',
+              zIndex: 4,
+              background: SURFACE,
+              borderRadius: '12px',
+              padding: '10px 16px',
+              boxShadow: `0 4px 20px ${ACENTO}18`,
             }}
           >
             <div
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.58rem',
                 color: MUTED,
                 marginBottom: '2px',
+                letterSpacing: '.08em',
               }}
             >
-              Más vendido
+              Pieza destacada
             </div>
             <div
               style={{
-                fontFamily: "'Playfair Display',serif",
-                fontSize: '.92rem',
-                fontWeight: 700,
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: '1rem',
+                fontWeight: 400,
                 color: TXT,
               }}
             >
-              Edición {new Date().getFullYear()}
+              Ver Coleccion
             </div>
             <div
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.75rem',
-                color: cur.accent,
-                fontWeight: 600,
+                color: ACENTO,
+                fontWeight: 500,
                 marginTop: '2px',
               }}
             >
-              Ver →
+              Click Aqui →
             </div>
           </div>
         </div>
@@ -641,33 +597,34 @@ function Hero({ titulo, descripcion, imagenCarrusel, tituloDos }: IHeroProps) {
 // ── MARQUEE ───────────────────────────────────────────────────
 function Marquee() {
   const words = [
-    'Nueva Colección',
-    'Envío a todo Tucumán',
-    'Hecho Local',
-    'Edición Limitada',
-    'CapZone 2025',
-    'Streetwear',
+    'Alma Dorada',
+    'Hecho a mano',
+    'Tucumán',
+    'Bijouterie',
+    'Artesanal',
+    'Con amor',
+    'Piezas únicas',
   ];
   const items = [...words, ...words, ...words];
   return (
     <div style={{ background: ACENTO, overflow: 'hidden', padding: '9px 0' }}>
-      <style>{`@keyframes czmq{from{transform:translateX(0)}to{transform:translateX(-33.33%)}} .cz-track{display:flex;width:max-content;animation:czmq 20s linear infinite} .cz-track:hover{animation-play-state:paused}`}</style>
-      <div className="cz-track">
+      <style>{`@keyframes acmq{from{transform:translateX(0)}to{transform:translateX(-33.33%)}} .ac-track{display:flex;width:max-content;animation:acmq 24s linear infinite} .ac-track:hover{animation-play-state:paused}`}</style>
+      <div className="ac-track">
         {items.map((w, i) => (
           <span
             key={i}
             style={{
-              fontFamily: "'DM Sans',sans-serif",
-              fontSize: '.65rem',
-              fontWeight: 700,
-              letterSpacing: '.2em',
+              fontFamily: "'Jost',sans-serif",
+              fontSize: '.62rem',
+              fontWeight: 500,
+              letterSpacing: '.22em',
               textTransform: 'uppercase',
-              color: BTN_TXT,
+              color: 'rgba(255,255,255,0.9)',
               padding: '0 1.8rem',
               whiteSpace: 'nowrap',
             }}
           >
-            {w} <span style={{ opacity: 0.45 }}>◆</span>
+            {w} <span style={{ opacity: 0.45 }}>✦</span>
           </span>
         ))}
       </div>
@@ -675,14 +632,8 @@ function Marquee() {
   );
 }
 
-// ── TRUST BADGES ─────────────────────────────────────────────
+// ── TRUST BADGES ──────────────────────────────────────────────
 function TrustBadges() {
-  const items = [
-    { icon: '🚚', title: 'Envío gratis', sub: 'Pedidos desde $8.000' },
-    { icon: '↩', title: '30 días devolución', sub: 'Sin preguntas' },
-    { icon: '✦', title: 'Hecho en Tucumán', sub: 'Apoyá lo local' },
-    { icon: '🔒', title: 'Pago seguro', sub: 'Múltiples métodos' },
-  ];
   return (
     <section style={{ background: SURFACE }}>
       <div
@@ -690,36 +641,41 @@ function TrustBadges() {
           maxWidth: '1060px',
           margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-          borderTop: `1px solid ${BORDER}`,
-          borderBottom: `1px solid ${BORDER}`,
+          gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))',
+          borderTop: `0.5px solid ${BORDER}`,
+          borderBottom: `0.5px solid ${BORDER}`,
         }}
       >
-        {items.map(({ icon, title, sub }) => (
+        {[
+          { icon: '✦', title: '100% artesanal', sub: 'Cada pieza, única' },
+          { icon: '🚚', title: 'Envío a domicilio', sub: 'Tucumán y alrededores' },
+          { icon: '↩', title: 'Devolución fácil', sub: '15 días garantizados' },
+          { icon: '💛', title: 'Hecho con amor', sub: 'Desde Tucumán al mundo' },
+        ].map(({ icon, title, sub }) => (
           <div
             key={title}
             style={{
-              padding: '1.5rem',
+              padding: '1.4rem 1.25rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
-              borderRight: `1px solid ${BORDER}`,
+              gap: '.85rem',
+              borderRight: `0.5px solid ${BORDER}`,
             }}
           >
-            <span style={{ fontSize: '20px', flexShrink: 0 }}>{icon}</span>
+            <span style={{ fontSize: '18px', color: ACENTO, flexShrink: 0 }}>{icon}</span>
             <div>
               <p
                 style={{
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: '.78rem',
-                  fontWeight: 600,
+                  fontFamily: "'Jost',sans-serif",
+                  fontSize: '.75rem',
+                  fontWeight: 500,
                   color: TXT,
                   marginBottom: '2px',
                 }}
               >
                 {title}
               </p>
-              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.68rem', color: MUTED }}>
+              <p style={{ fontFamily: "'Jost',sans-serif", fontSize: '.65rem', color: MUTED }}>
                 {sub}
               </p>
             </div>
@@ -734,11 +690,10 @@ function TrustBadges() {
 function Productos({ onCart }: { onCart: (p: any) => void }) {
   const [cat, setCat] = useState('Todo');
   const [hov, setHov] = useState<number | null>(null);
-
   const filtered = cat === 'Todo' ? PRODUCTOS : PRODUCTOS.filter((p) => p.cat === cat);
 
   return (
-    <section style={{ background: BG, padding: '4.5rem 1.5rem' }}>
+    <section style={{ background: BG, padding: '4.5rem 2rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
         {/* Header */}
         <div
@@ -752,19 +707,41 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
           }}
         >
           <div>
-            <h2
+            <div
               style={{
-                fontFamily: "'Playfair Display',serif",
-                fontSize: 'clamp(1.8rem,3.5vw,2.8rem)',
-                fontWeight: 700,
-                color: TXT,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '.75rem',
+                marginBottom: '.6rem',
               }}
             >
-              Toda la{' '}
-              <em style={{ fontStyle: 'italic', fontWeight: 400, color: ACENTO }}>Colección</em>
+              <div style={{ width: '1.6rem', height: '1px', background: ACENTO }} />
+              <span
+                style={{
+                  fontFamily: "'Jost',sans-serif",
+                  fontSize: '.58rem',
+                  letterSpacing: '.26em',
+                  textTransform: 'uppercase',
+                  color: ACENTO,
+                  fontWeight: 500,
+                }}
+              >
+                Catálogo
+              </span>
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond',serif",
+                fontSize: 'clamp(1.8rem,3.5vw,3rem)',
+                fontWeight: 300,
+                color: TXT,
+                lineHeight: 1,
+              }}
+            >
+              Nuestras <em style={{ fontStyle: 'italic', color: ACENTO }}>Piezas</em>
             </h2>
           </div>
-          <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.72rem', color: SUBTLE }}>
+          <span style={{ fontFamily: "'Jost',sans-serif", fontSize: '.7rem', color: SUBTLE }}>
             {filtered.length} productos
           </span>
         </div>
@@ -776,14 +753,14 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
               key={c}
               onClick={() => setCat(c)}
               style={{
-                padding: '7px 18px',
-                borderRadius: '50px',
-                border: `1.5px solid ${c === cat ? ACENTO : BORDER}`,
-                background: c === cat ? `${ACENTO}14` : 'transparent',
+                padding: '6px 16px',
+                borderRadius: '20px',
+                border: `0.5px solid ${c === cat ? ACENTO : BORDER}`,
+                background: c === cat ? ACENTO_BG : 'transparent',
                 color: c === cat ? ACENTO : MUTED,
-                fontFamily: "'DM Sans',sans-serif",
-                fontSize: '.72rem',
-                fontWeight: c === cat ? 600 : 400,
+                fontFamily: "'Jost',sans-serif",
+                fontSize: '.7rem',
+                fontWeight: c === cat ? 500 : 300,
                 cursor: 'pointer',
                 transition: 'all .18s',
               }}
@@ -798,7 +775,7 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))',
-            gap: '18px',
+            gap: '20px',
           }}
         >
           {filtered.map((p, i) => (
@@ -806,26 +783,17 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
               key={p.id}
               onMouseEnter={() => setHov(i)}
               onMouseLeave={() => setHov(null)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                background: SURFACE,
-                border: `1.5px solid ${hov === i ? ACENTO + '50' : BORDER}`,
-                transition: 'border-color .25s, transform .25s, box-shadow .25s',
-                transform: hov === i ? 'translateY(-4px)' : 'translateY(0)',
-                boxShadow: hov === i ? `0 12px 32px ${ACENTO}18` : 'none',
-                cursor: 'pointer',
-              }}
+              style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
             >
-              {/* Imagen */}
               <div
                 style={{
                   position: 'relative',
-                  aspectRatio: '1',
+                  borderRadius: '12px',
                   overflow: 'hidden',
-                  background: SURFACE2,
+                  aspectRatio: '1',
+                  background: SURFACE,
+                  boxShadow: hov === i ? `0 8px 32px ${ACENTO}22` : `0 2px 8px ${ACENTO}08`,
+                  transition: 'box-shadow .3s',
                 }}
               >
                 <img
@@ -835,12 +803,12 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    transform: hov === i ? 'scale(1.07)' : 'scale(1)',
-                    transition: 'transform .45s ease',
+                    transform: hov === i ? 'scale(1.06)' : 'scale(1)',
+                    transition: 'transform .5s ease',
                   }}
                 />
 
-                {/* Hover CTA */}
+                {/* Hover overlay */}
                 <div
                   style={{
                     position: 'absolute',
@@ -848,113 +816,112 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
                     display: 'flex',
                     alignItems: 'flex-end',
                     padding: '10px',
+                    background: `linear-gradient(to top, ${BG}cc 0%, transparent 55%)`,
                     opacity: hov === i ? 1 : 0,
                     transition: 'opacity .3s',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 50%)',
                   }}
                 >
                   <button
                     onClick={() => onCart(p)}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '9px',
                       background: ACENTO,
                       color: BTN_TXT,
                       border: 'none',
                       borderRadius: '8px',
-                      fontFamily: "'DM Sans',sans-serif",
+                      fontFamily: "'Jost',sans-serif",
                       fontSize: '.62rem',
-                      fontWeight: 700,
+                      fontWeight: 600,
                       letterSpacing: '.1em',
                       textTransform: 'uppercase',
                       cursor: 'pointer',
                     }}
                   >
-                    + Agregar
+                    Agregar al carrito
                   </button>
                 </div>
 
                 {/* Badge */}
                 {p.badge && (
-                  <span
+                  <div
                     style={{
                       position: 'absolute',
                       top: '10px',
                       left: '10px',
-                      background: ACENTO,
-                      color: BTN_TXT,
-                      fontSize: '.56rem',
-                      fontWeight: 700,
-                      padding: '3px 10px',
+                      background: ACENTO_BG,
+                      border: `0.5px solid ${ACENTO}`,
                       borderRadius: '20px',
-                      letterSpacing: '.1em',
-                      textTransform: 'uppercase',
+                      padding: '3px 10px',
+                      backdropFilter: 'blur(6px)',
                     }}
                   >
-                    {p.badge}
-                  </span>
+                    <span
+                      style={{
+                        fontSize: '.56rem',
+                        color: ACENTO,
+                        letterSpacing: '.12em',
+                        textTransform: 'uppercase',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {p.badge}
+                    </span>
+                  </div>
                 )}
               </div>
 
               {/* Info */}
-              <div style={{ padding: '12px 14px 16px' }}>
+              <div style={{ marginTop: '10px', padding: '0 3px' }}>
                 <p
                   style={{
-                    fontFamily: "'DM Sans',sans-serif",
-                    fontSize: '.8rem',
-                    fontWeight: 500,
-                    color: TXT,
+                    fontFamily: "'Jost',sans-serif",
+                    fontSize: '.78rem',
+                    fontWeight: 300,
+                    color: MUTED,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
-                    marginBottom: '3px',
+                    marginBottom: '2px',
                   }}
                 >
                   {p.nombre}
                 </p>
                 <p
                   style={{
-                    fontFamily: "'DM Sans',sans-serif",
-                    fontSize: '.65rem',
-                    color: MUTED,
-                    marginBottom: '8px',
+                    fontFamily: "'Jost',sans-serif",
+                    fontSize: '.62rem',
+                    color: SUBTLE,
+                    marginBottom: '4px',
                   }}
                 >
                   {p.cat}
                 </p>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-                    {p.precioAnt && (
-                      <span
-                        style={{
-                          fontSize: '.68rem',
-                          color: SUBTLE,
-                          textDecoration: 'line-through',
-                        }}
-                      >
-                        ${p.precioAnt.toLocaleString()}
-                      </span>
-                    )}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  {p.precioAnt && (
                     <span
-                      style={{
-                        fontFamily: "'Playfair Display',serif",
-                        fontSize: '1.15rem',
-                        fontWeight: 700,
-                        color: ACENTO,
-                      }}
+                      style={{ fontSize: '.68rem', color: SUBTLE, textDecoration: 'line-through' }}
                     >
-                      ${p.precio.toLocaleString()}
+                      ${p.precioAnt.toLocaleString()}
                     </span>
-                  </div>
+                  )}
+                  <span
+                    style={{
+                      fontFamily: "'Cormorant Garamond',serif",
+                      fontSize: '1.2rem',
+                      fontWeight: 300,
+                      color: ACENTO,
+                    }}
+                  >
+                    ${p.precio.toLocaleString()}
+                  </span>
                   {p.precioAnt && (
                     <span
                       style={{
-                        background: `${ACENTO}14`,
+                        background: ACENTO_BG,
                         color: ACENTO,
-                        fontSize: '.58rem',
-                        fontWeight: 700,
+                        fontSize: '.56rem',
+                        fontWeight: 600,
                         padding: '2px 7px',
                         borderRadius: '20px',
                       }}
@@ -972,80 +939,83 @@ function Productos({ onCart }: { onCart: (p: any) => void }) {
   );
 }
 
-// ── CONTACTO ─────────────────────────────────────────────────
-function Contacto() {
+// ── SECCIÓN SOBRE NOSOTROS ────────────────────────────────────
+function SobreNosotros() {
   return (
     <section
-      style={{ background: SURFACE, padding: '4rem 1.5rem', borderTop: `1px solid ${BORDER}` }}
+      style={{ background: SURFACE, padding: '4rem 2rem', borderTop: `0.5px solid ${BORDER}` }}
     >
-      <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-        <h3
+      <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <div
           style={{
-            fontFamily: "'Playfair Display',serif",
-            fontSize: 'clamp(1.6rem,3vw,2.4rem)',
-            fontWeight: 700,
-            color: TXT,
-            marginBottom: '.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '.75rem',
+            marginBottom: '1.2rem',
           }}
         >
-          ¿Querés hacer un
+          <div style={{ width: '2rem', height: '1px', background: ACENTO_BDR }} />
+          <span
+            style={{
+              fontFamily: "'Jost',sans-serif",
+              fontSize: '.58rem',
+              letterSpacing: '.24em',
+              textTransform: 'uppercase',
+              color: ACENTO,
+            }}
+          >
+            {' '}
+            Nuestra historia
+          </span>
+          <div style={{ width: '2rem', height: '1px', background: ACENTO_BDR }} />
+        </div>
+        <h3
+          style={{
+            fontFamily: "'Cormorant Garamond',serif",
+            fontSize: 'clamp(1.8rem,3vw,2.8rem)',
+            fontWeight: 300,
+            color: TXT,
+            marginBottom: '1rem',
+            lineHeight: 1.1,
+          }}
+        >
+          Cada pieza nace de
           <br />
-          <em style={{ color: ACENTO, fontWeight: 400 }}>pedido especial?</em>
+          <em style={{ color: ACENTO }}>manos tucumanas.</em>
         </h3>
         <p
           style={{
-            fontFamily: "'DM Sans',sans-serif",
-            fontSize: '.85rem',
+            fontFamily: "'Jost',sans-serif",
+            fontSize: '.82rem',
+            fontWeight: 300,
             color: MUTED,
-            lineHeight: 1.8,
-            marginBottom: '2rem',
-            maxWidth: '420px',
+            lineHeight: 1.9,
+            maxWidth: '520px',
             margin: '0 auto 2rem',
           }}
         >
-          Personalizamos gorras con logos, bordados y diseños exclusivos. Escribinos por WhatsApp o
-          redes.
+          Somos un emprendimiento familiar del norte argentino. Diseñamos y fabricamos cada
+          accesorio a mano, con materiales naturales y mucho amor. Creemos que la joyería artesanal
+          cuenta historias que la industria no puede.
         </p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a
-            href={`https://wa.me/${TIENDA.whatsapp}`}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              padding: '12px 28px',
-              background: '#25d366',
-              color: '#fff',
-              borderRadius: '50px',
-              textDecoration: 'none',
-              fontFamily: "'DM Sans',sans-serif",
-              fontSize: '.78rem',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            WhatsApp
-          </a>
-          <a
-            href={`https://instagram.com/${TIENDA.instagram}`}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              padding: '12px 28px',
-              background: `${ACENTO}14`,
-              border: `1.5px solid ${ACENTO}`,
-              color: ACENTO,
-              borderRadius: '50px',
-              textDecoration: 'none',
-              fontFamily: "'DM Sans',sans-serif",
-              fontSize: '.78rem',
-              fontWeight: 600,
-            }}
-          >
-            @{TIENDA.instagram}
-          </a>
-        </div>
+        <a
+          href={`https://instagram.com/${TIENDA.instagram}`}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            fontFamily: "'Jost',sans-serif",
+            fontSize: '.7rem',
+            letterSpacing: '.18em',
+            textTransform: 'uppercase',
+            color: ACENTO,
+            textDecoration: 'none',
+            borderBottom: `0.5px solid ${ACENTO_BDR}`,
+            paddingBottom: '2px',
+          }}
+        >
+          Seguinos en Instagram →
+        </a>
       </div>
     </section>
   );
@@ -1064,7 +1034,7 @@ function CartDrawer({
   onRemove: (id: number) => void;
 }) {
   const subtotal = items.reduce((a, i) => a + i.precio * i.qty, 0);
-  const ship = subtotal > 8000 ? 0 : 800;
+  const ship = subtotal > 5000 ? 0 : 500;
   const total = subtotal + ship;
 
   return (
@@ -1074,7 +1044,7 @@ function CartDrawer({
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,.4)',
+          background: 'rgba(42,31,20,.35)',
           backdropFilter: 'blur(4px)',
           zIndex: 40,
         }}
@@ -1085,13 +1055,13 @@ function CartDrawer({
           right: 0,
           top: 0,
           height: '100%',
-          width: 'min(400px,100vw)',
-          background: BG,
-          borderLeft: `1px solid ${BORDER}`,
+          width: 'min(390px,100vw)',
+          background: SURFACE,
+          borderLeft: `0.5px solid ${BORDER}`,
           zIndex: 50,
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '-16px 0 48px rgba(0,0,0,.08)',
+          boxShadow: '-16px 0 48px rgba(42,31,20,.08)',
         }}
       >
         {/* Header */}
@@ -1101,27 +1071,20 @@ function CartDrawer({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '1.25rem 1.5rem',
-            borderBottom: `1px solid ${BORDER}`,
+            borderBottom: `0.5px solid ${BORDER}`,
           }}
         >
           <span
             style={{
-              fontFamily: "'Playfair Display',serif",
-              fontSize: '1.2rem',
-              fontWeight: 700,
+              fontFamily: "'Cormorant Garamond',serif",
+              fontSize: '1.25rem',
+              fontWeight: 300,
               color: TXT,
             }}
           >
             Carrito{' '}
             {items.length > 0 && (
-              <span
-                style={{
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: '.72rem',
-                  fontWeight: 400,
-                  color: ACENTO,
-                }}
-              >
+              <span style={{ fontFamily: "'Jost',sans-serif", fontSize: '.72rem', color: ACENTO }}>
                 {items.length} {items.length === 1 ? 'ítem' : 'ítems'}
               </span>
             )}
@@ -1153,19 +1116,20 @@ function CartDrawer({
                 gap: '1rem',
               }}
             >
-              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.85rem', color: MUTED }}>
+              <p style={{ fontFamily: "'Jost',sans-serif", fontSize: '.82rem', color: MUTED }}>
                 Tu carrito está vacío
               </p>
               <button
                 onClick={onClose}
                 style={{
-                  fontFamily: "'DM Sans',sans-serif",
-                  fontSize: '.78rem',
+                  fontFamily: "'Jost',sans-serif",
+                  fontSize: '.75rem',
                   color: ACENTO,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   textDecoration: 'underline',
+                  textUnderlineOffset: '3px',
                 }}
               >
                 Seguir comprando
@@ -1179,7 +1143,7 @@ function CartDrawer({
                   display: 'flex',
                   gap: '12px',
                   padding: '14px 0',
-                  borderBottom: `1px solid ${BORDER}`,
+                  borderBottom: `0.5px solid ${BORDER}`,
                 }}
               >
                 <div
@@ -1201,9 +1165,9 @@ function CartDrawer({
                 <div style={{ flex: 1 }}>
                   <p
                     style={{
-                      fontFamily: "'DM Sans',sans-serif",
-                      fontSize: '.8rem',
-                      fontWeight: 500,
+                      fontFamily: "'Jost',sans-serif",
+                      fontSize: '.78rem',
+                      fontWeight: 300,
                       color: TXT,
                     }}
                   >
@@ -1211,8 +1175,8 @@ function CartDrawer({
                   </p>
                   <p
                     style={{
-                      fontFamily: "'DM Sans',sans-serif",
-                      fontSize: '.68rem',
+                      fontFamily: "'Jost',sans-serif",
+                      fontSize: '.65rem',
                       color: MUTED,
                       marginTop: '2px',
                     }}
@@ -1230,8 +1194,8 @@ function CartDrawer({
                     <div
                       style={{
                         display: 'flex',
-                        border: `1px solid ${BORDER}`,
-                        borderRadius: '8px',
+                        border: `0.5px solid ${BORDER}`,
+                        borderRadius: '6px',
                         overflow: 'hidden',
                       }}
                     >
@@ -1248,18 +1212,16 @@ function CartDrawer({
                           key={i}
                           onClick={a ?? undefined}
                           style={{
-                            width: '30px',
-                            height: '30px',
+                            width: '28px',
+                            height: '28px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: a ? 'pointer' : 'default',
                             color: i === 1 ? TXT : MUTED,
-                            fontFamily: "'DM Sans',sans-serif",
-                            fontSize: '.85rem',
-                            fontWeight: i === 1 ? 600 : 400,
-                            borderLeft: i > 0 ? `1px solid ${BORDER}` : 'none',
-                            background: i === 1 ? SURFACE : 'transparent',
+                            fontSize: '.82rem',
+                            borderLeft: i > 0 ? `0.5px solid ${BORDER}` : 'none',
+                            background: i === 1 ? BG : 'transparent',
                           }}
                         >
                           {l}
@@ -1268,9 +1230,9 @@ function CartDrawer({
                     </div>
                     <span
                       style={{
-                        fontFamily: "'Playfair Display',serif",
+                        fontFamily: "'Cormorant Garamond',serif",
                         fontSize: '1.1rem',
-                        fontWeight: 700,
+                        fontWeight: 300,
                         color: ACENTO,
                       }}
                     >
@@ -1284,13 +1246,13 @@ function CartDrawer({
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontFamily: "'DM Sans',sans-serif",
+                      fontFamily: "'Jost',sans-serif",
                       fontSize: '.62rem',
                       color: SUBTLE,
                       padding: 0,
                       transition: 'color .2s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = SUBTLE)}
                   >
                     Eliminar
@@ -1306,8 +1268,8 @@ function CartDrawer({
           <div
             style={{
               padding: '1.25rem 1.5rem',
-              borderTop: `1px solid ${BORDER}`,
-              background: SURFACE,
+              borderTop: `0.5px solid ${BORDER}`,
+              background: BG,
             }}
           >
             {[
@@ -1322,14 +1284,12 @@ function CartDrawer({
                 key={l}
                 style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '7px' }}
               >
-                <span
-                  style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '.75rem', color: MUTED }}
-                >
+                <span style={{ fontFamily: "'Jost',sans-serif", fontSize: '.75rem', color: MUTED }}>
                   {l}
                 </span>
                 <span
                   style={{
-                    fontFamily: "'DM Sans',sans-serif",
+                    fontFamily: "'Jost',sans-serif",
                     fontSize: '.75rem',
                     color: green ? '#16a34a' : SUBTLE,
                   }}
@@ -1341,13 +1301,13 @@ function CartDrawer({
             {ship > 0 && (
               <p
                 style={{
-                  fontFamily: "'DM Sans',sans-serif",
+                  fontFamily: "'Jost',sans-serif",
                   fontSize: '.62rem',
                   color: SUBTLE,
                   marginBottom: '8px',
                 }}
               >
-                Envío gratis en pedidos desde $8.000
+                Envío gratis en pedidos desde $5.000
               </p>
             )}
             <div
@@ -1355,15 +1315,15 @@ function CartDrawer({
                 display: 'flex',
                 justifyContent: 'space-between',
                 paddingTop: '10px',
-                borderTop: `1px solid ${BORDER}`,
+                borderTop: `0.5px solid ${BORDER}`,
                 marginBottom: '1.1rem',
               }}
             >
               <span
                 style={{
-                  fontFamily: "'DM Sans',sans-serif",
+                  fontFamily: "'Jost',sans-serif",
                   fontSize: '.85rem',
-                  fontWeight: 600,
+                  fontWeight: 400,
                   color: TXT,
                 }}
               >
@@ -1371,9 +1331,9 @@ function CartDrawer({
               </span>
               <span
                 style={{
-                  fontFamily: "'Playfair Display',serif",
-                  fontSize: '1.3rem',
-                  fontWeight: 700,
+                  fontFamily: "'Cormorant Garamond',serif",
+                  fontSize: '1.35rem',
+                  fontWeight: 300,
                   color: ACENTO,
                 }}
               >
@@ -1383,15 +1343,15 @@ function CartDrawer({
             <button
               style={{
                 width: '100%',
-                padding: '14px',
+                padding: '13px',
                 background: ACENTO,
                 color: BTN_TXT,
                 border: 'none',
-                borderRadius: '50px',
-                fontFamily: "'DM Sans',sans-serif",
-                fontSize: '.75rem',
-                fontWeight: 700,
-                letterSpacing: '.1em',
+                borderRadius: '8px',
+                fontFamily: "'Jost',sans-serif",
+                fontSize: '.7rem',
+                fontWeight: 600,
+                letterSpacing: '.14em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
                 marginBottom: '8px',
@@ -1406,13 +1366,13 @@ function CartDrawer({
               onClick={onClose}
               style={{
                 width: '100%',
-                padding: '11px',
+                padding: '10px',
                 background: 'transparent',
-                border: `1px solid ${BORDER}`,
-                borderRadius: '50px',
+                border: `0.5px solid ${BORDER}`,
+                borderRadius: '8px',
                 color: MUTED,
-                fontFamily: "'DM Sans',sans-serif",
-                fontSize: '.72rem',
+                fontFamily: "'Jost',sans-serif",
+                fontSize: '.7rem',
                 cursor: 'pointer',
               }}
             >
@@ -1448,23 +1408,6 @@ function Footer() {
       ),
     },
     {
-      label: 'FB',
-      href: `https://facebook.com/${TIENDA.facebook}`,
-      icon: (
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        >
-          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-        </svg>
-      ),
-    },
-    {
       label: 'WA',
       href: `https://wa.me/${TIENDA.whatsapp}`,
       icon: (
@@ -1481,10 +1424,27 @@ function Footer() {
         </svg>
       ),
     },
+    {
+      label: 'FB',
+      href: `https://facebook.com/${TIENDA.facebook}`,
+      icon: (
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        >
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+        </svg>
+      ),
+    },
   ];
 
   return (
-    <footer style={{ background: TXT, padding: '0 1.5rem' }}>
+    <footer style={{ background: TXT, padding: '0 2rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
         <div
           style={{
@@ -1493,27 +1453,41 @@ function Footer() {
             gap: '2.5rem',
             justifyContent: 'space-between',
             padding: '3rem 0 2.5rem',
-            borderBottom: '0.5px solid rgba(255,255,255,0.1)',
+            borderBottom: '0.5px solid rgba(245,241,235,0.1)',
           }}
         >
           {/* Brand */}
           <div style={{ minWidth: '160px' }}>
             <div
               style={{
-                fontFamily: "'Playfair Display',serif",
+                fontFamily: "'Cormorant Garamond',serif",
                 fontSize: '1.4rem',
-                fontWeight: 700,
-                color: '#fff',
+                fontWeight: 400,
+                color: '#f5f1eb',
                 marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '4px',
               }}
             >
-              Cap<span style={{ color: ACENTO }}>Zone</span>
+              {TIENDA.nombre}
+              <span
+                style={{
+                  width: '5px',
+                  height: '5px',
+                  borderRadius: '50%',
+                  background: ACENTO,
+                  display: 'inline-block',
+                  marginBottom: '3px',
+                }}
+              />
             </div>
             <p
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.72rem',
-                color: 'rgba(255,255,255,0.45)',
+                fontWeight: 300,
+                color: 'rgba(245,241,235,0.45)',
                 lineHeight: 1.8,
                 maxWidth: '200px',
               }}
@@ -1526,13 +1500,12 @@ function Footer() {
           <div>
             <p
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.58rem',
-                letterSpacing: '.2em',
+                letterSpacing: '.22em',
                 textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.3)',
+                color: 'rgba(245,241,235,0.3)',
                 marginBottom: '.9rem',
-                fontWeight: 600,
               }}
             >
               Contacto
@@ -1543,9 +1516,9 @@ function Footer() {
               rel="noreferrer"
               style={{
                 display: 'block',
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.72rem',
-                color: 'rgba(255,255,255,0.55)',
+                color: 'rgba(245,241,235,0.55)',
                 textDecoration: 'none',
                 marginBottom: '6px',
               }}
@@ -1558,9 +1531,9 @@ function Footer() {
               rel="noreferrer"
               style={{
                 display: 'block',
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.72rem',
-                color: 'rgba(255,255,255,0.55)',
+                color: 'rgba(245,241,235,0.55)',
                 textDecoration: 'none',
               }}
             >
@@ -1572,22 +1545,21 @@ function Footer() {
           <div>
             <p
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.58rem',
-                letterSpacing: '.2em',
+                letterSpacing: '.22em',
                 textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.3)',
+                color: 'rgba(245,241,235,0.3)',
                 marginBottom: '.9rem',
-                fontWeight: 600,
               }}
             >
               Ubicación
             </p>
             <p
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.72rem',
-                color: 'rgba(255,255,255,0.55)',
+                color: 'rgba(245,241,235,0.55)',
                 lineHeight: 1.75,
               }}
             >
@@ -1601,13 +1573,12 @@ function Footer() {
           <div>
             <p
               style={{
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Jost',sans-serif",
                 fontSize: '.58rem',
-                letterSpacing: '.2em',
+                letterSpacing: '.22em',
                 textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.3)',
+                color: 'rgba(245,241,235,0.3)',
                 marginBottom: '.9rem',
-                fontWeight: 600,
               }}
             >
               Seguinos
@@ -1623,11 +1594,11 @@ function Footer() {
                     width: '34px',
                     height: '34px',
                     borderRadius: '8px',
-                    border: '0.5px solid rgba(255,255,255,0.12)',
+                    border: '0.5px solid rgba(245,241,235,0.12)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'rgba(255,255,255,0.4)',
+                    color: 'rgba(245,241,235,0.4)',
                     textDecoration: 'none',
                     transition: 'all .2s',
                   }}
@@ -1636,8 +1607,8 @@ function Footer() {
                     e.currentTarget.style.color = ACENTO;
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
-                    e.currentTarget.style.color = 'rgba(255,255,255,0.4)';
+                    e.currentTarget.style.borderColor = 'rgba(245,241,235,0.12)';
+                    e.currentTarget.style.color = 'rgba(245,241,235,0.4)';
                   }}
                 >
                   {icon}
@@ -1649,15 +1620,16 @@ function Footer() {
 
         <p
           style={{
-            fontFamily: "'DM Sans',sans-serif",
+            fontFamily: "'Jost',sans-serif",
             fontSize: '.62rem',
-            color: 'rgba(255,255,255,0.2)',
+            color: 'rgba(245,241,235,0.2)',
             textAlign: 'center',
             padding: '.9rem 0',
           }}
         >
-          © {new Date().getFullYear()} <span style={{ color: ACENTO, opacity: 0.8 }}>CapZone</span>{' '}
-          — Todos los derechos reservados.
+          © {new Date().getFullYear()}{' '}
+          <span style={{ color: ACENTO, opacity: 0.75 }}>{TIENDA.nombre}</span> — Todos los derechos
+          reservados.
         </p>
       </div>
     </footer>
@@ -1673,29 +1645,29 @@ function Toast({ msg, visible }: { msg: string; visible: boolean }) {
         bottom: '1.5rem',
         left: '50%',
         transform: `translateX(-50%) translateY(${visible ? '0' : '12px'})`,
-        background: TXT,
-        border: `1.5px solid ${ACENTO}`,
-        borderRadius: '50px',
-        padding: '10px 22px',
-        fontFamily: "'DM Sans',sans-serif",
-        fontSize: '.75rem',
-        fontWeight: 500,
-        color: '#fff',
+        background: SURFACE,
+        border: `0.5px solid ${ACENTO}`,
+        borderRadius: '10px',
+        padding: '10px 20px',
+        fontFamily: "'Jost',sans-serif",
+        fontSize: '.74rem',
+        color: TXT,
         zIndex: 60,
         opacity: visible ? 1 : 0,
         pointerEvents: 'none',
         transition: 'all .3s ease',
         whiteSpace: 'nowrap',
+        boxShadow: `0 4px 20px ${ACENTO}20`,
       }}
     >
-      <span style={{ color: ACENTO, marginRight: '6px', fontWeight: 700 }}>✓</span>
+      <span style={{ color: ACENTO, marginRight: '6px' }}>✓</span>
       {msg}
     </div>
   );
 }
 
 // ── ROOT ──────────────────────────────────────────────────────
-export interface PlantillaGorrasProps {
+export interface PlantillaAccesoriosProps {
   tienda?: any;
   tema?: any;
   accent?: string;
@@ -1704,56 +1676,45 @@ export interface PlantillaGorrasProps {
 interface IHeroProps {
   titulo?: string;
   descripcion?: string;
-  imagenCarrusel?: any[];
-  tituloDos?: { primera: string; segunda: string };
+  imgagenes?: string[];
 }
 
-interface INavProps {
-  cartCount: number;
-  onCart: () => void;
-  logo?: string;
-  titulo?: string;
-}
+export default function TemplateAccesoriosDemo({
+  tienda,
+  accent,
+  themeConfig,
+}: PlantillaAccesoriosProps) {
+  // Override hardcoded data with real store data if provided
+  if (tienda?.nombre) TIENDA.nombre = tienda.nombre;
+  if (tienda?.descripcion) TIENDA.descripcion = tienda.descripcion;
+  if (tienda?.whatsapp) TIENDA.whatsapp = tienda.whatsapp;
+  if (tienda?.instagram) TIENDA.instagram = tienda.instagram;
+  if (tienda?.facebook) TIENDA.facebook = tienda.facebook;
+  if (tienda?.ciudad) TIENDA.ciudad = tienda.ciudad;
 
-export default function TemplateGorrasDemo({ tienda, accent, themeConfig }: PlantillaGorrasProps) {
-  const resolvedAccent = accent || themeConfig?.primary || '#f97316';
+  // Override carrusel hero images if provided
+  if (tienda?.carrusel?.length) {
+    for (let i = 0; i < Math.min(tienda.carrusel.length, HERO_IMGS.length); i++) {
+      HERO_IMGS[i] = tienda.carrusel[i]?.url ?? HERO_IMGS[i];
+    }
+  }
 
-  const resolvedTienda = useMemo(
-    () => ({
-      ...TIENDA,
-      nombre: tienda?.titulo ?? TIENDA.nombre,
-      descripcion: tienda?.descripcion ?? TIENDA.descripcion,
-      whatsapp: tienda?.whatsapp ?? TIENDA.whatsapp,
-      instagram: tienda?.instagram ?? TIENDA.instagram,
-      ciudad: tienda?.ciudad ?? TIENDA.ciudad,
-    }),
-    [tienda]
-  );
-  //props para el Hero
-
-  const heroProps: IHeroProps = {
-    titulo: tienda?.titulo,
-    descripcion: tienda?.descripcion,
-    imagenCarrusel: tienda?.carrusel || [],
-    tituloDos: tienda?.tituloDos,
-  };
-
-  //props para el navbar
-  const navbarProps: INavProps = {
-    cartCount: 0,
-    onCart: () => {},
-    logo: tienda?.logoUrl,
-    titulo: tienda?.nombre,
-  };
-
-  useEffect(() => {
-    ACENTO = resolvedAccent;
-    TIENDA = { ...resolvedTienda };
-  }, [resolvedAccent, resolvedTienda]);
+  // Override accent color if provided
+  const resolvedAccent = accent || themeConfig?.primary || '#b5835a';
+  (ACENTO as any) = resolvedAccent;
+  (ACENTO_BG as any) = `${resolvedAccent}18`;
+  (ACENTO_BDR as any) = `${resolvedAccent}40`;
 
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
+
+  //props para Hero
+  const heroProps: IHeroProps = {
+    titulo: tienda?.titulo || TIENDA.nombre,
+    descripcion: tienda?.descripcion || TIENDA.descripcion,
+    imgagenes: tienda?.carrusel?.length ? tienda.carrusel.map((img: any) => img.url) : HERO_IMGS,
+  };
 
   const addToCart = (p: any) => {
     setCart((prev) => {
@@ -1774,22 +1735,22 @@ export default function TemplateGorrasDemo({ tienda, accent, themeConfig }: Plan
         ${FONTS}
         * { box-sizing: border-box; margin: 0; padding: 0; }
         img { display: block; }
-        .cz-scroll { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }
-        .cz-hide-mob { display: flex !important; }
-        .cz-show-mob { display: none !important; }
+        .ac-scroll { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }
+        .ac-hide-mob { display: flex !important; }
+        .ac-show-mob { display: none !important; }
         @media(max-width: 640px) {
-          .cz-hide-mob { display: none !important; }
-          .cz-show-mob { display: flex !important; }
+          .ac-hide-mob { display: none !important; }
+          .ac-show-mob { display: flex !important; }
         }
       `}</style>
 
-      <div className="cz-scroll" style={{ background: BG }}>
-        <Navbar {...navbarProps} />
+      <div className="ac-scroll" style={{ background: BG }}>
+        <Navbar cartCount={cartCount} onCart={() => setCartOpen(true)} />
         <Hero {...heroProps} />
         <Marquee />
         <TrustBadges />
         <Productos onCart={addToCart} />
-        <Contacto />
+        <SobreNosotros />
         <Footer />
       </div>
 

@@ -1,6 +1,6 @@
 import { LogOut, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
-import { useConfirm } from '../../../hooks/useConfirm';
+import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 import { useAuthSessionStore } from '../../auth/store/useAuthSession';
 import { NAV_ITEMS } from '../constant/constants';
 import MI from './MaterialIcon';

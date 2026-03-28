@@ -1,8 +1,26 @@
-import { useState, useEffect } from 'react';
-import { Package, Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Star, X, ChevronUp, Download, Upload } from 'lucide-react';
-import { useMisProductos, useEliminarProducto, useExportarProductos, useImportarProductos } from '../hooks/useProduct';
-import FormProduct from './formProduct/FormProduct';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Download,
+  Package,
+  Pencil,
+  Plus,
+  Search,
+  Star,
+  Trash2,
+  Upload,
+  X,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  useEliminarProducto,
+  useExportarProductos,
+  useImportarProductos,
+  useMisProductos,
+} from '../hooks/useProduct';
 import type { IProduct, IProductFilters } from '../types/product.type';
+import FormProduct from './Forms/FormProduct';
 
 const formatPrice = (price: number, moneda: string) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
@@ -14,11 +32,18 @@ const ProductsSection = () => {
   const LIMITE = 12;
 
   useEffect(() => {
-    const t = setTimeout(() => { setDebouncedBusqueda(busqueda); setPagina(1); }, 400);
+    const t = setTimeout(() => {
+      setDebouncedBusqueda(busqueda);
+      setPagina(1);
+    }, 400);
     return () => clearTimeout(t);
   }, [busqueda]);
 
-  const filtros: IProductFilters = { pagina, limite: LIMITE, busqueda: debouncedBusqueda || undefined };
+  const filtros: IProductFilters = {
+    pagina,
+    limite: LIMITE,
+    busqueda: debouncedBusqueda || undefined,
+  };
   const { data: productosPaginados, isLoading } = useMisProductos(filtros);
   const eliminar = useEliminarProducto();
   const exportar = useExportarProductos();
@@ -37,11 +62,9 @@ const ProductsSection = () => {
     }
   };
 
-  const toggleCreate = () =>
-    setExpandedId((prev) => (prev === 'create' ? null : 'create'));
+  const toggleCreate = () => setExpandedId((prev) => (prev === 'create' ? null : 'create'));
 
-  const toggleEdit = (id: number) =>
-    setExpandedId((prev) => (prev === id ? null : id));
+  const toggleEdit = (id: number) => setExpandedId((prev) => (prev === id ? null : id));
 
   if (isLoading) {
     return (
@@ -53,13 +76,14 @@ const ProductsSection = () => {
 
   return (
     <div className="space-y-6 pb-20">
-
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Productos</h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {total > 0 ? `${total} producto${total !== 1 ? 's' : ''} en tu tienda` : 'Gestioná tu catálogo'}
+            {total > 0
+              ? `${total} producto${total !== 1 ? 's' : ''} en tu tienda`
+              : 'Gestioná tu catálogo'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -75,7 +99,9 @@ const ProductsSection = () => {
           </button>
 
           {/* Importar */}
-          <label className={`flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm cursor-pointer ${importar.isPending ? 'opacity-50 pointer-events-none' : ''}`}>
+          <label
+            className={`flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm cursor-pointer ${importar.isPending ? 'opacity-50 pointer-events-none' : ''}`}
+          >
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">Importar</span>
             <input
@@ -174,10 +200,8 @@ const ProductsSection = () => {
 
               return (
                 <div key={producto.id} className="flex flex-col">
-
                   {/* ── Fila principal ── */}
                   <div className="flex items-center gap-4 px-6 py-5">
-
                     {/* Thumbnail */}
                     <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100/50 overflow-hidden shrink-0 flex items-center justify-center">
                       {producto.imagenPrincipalUrl ? (
@@ -194,7 +218,9 @@ const ProductsSection = () => {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-medium text-gray-800 truncate">{producto.nombre}</p>
+                        <p className="text-sm font-medium text-gray-800 truncate">
+                          {producto.nombre}
+                        </p>
                         {producto.destacado && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
                             <Star className="w-2.5 h-2.5 fill-amber-500 stroke-none" /> Destacado
@@ -219,7 +245,10 @@ const ProductsSection = () => {
                           <>
                             <span className="text-gray-200">·</span>
                             <p className="text-xs text-gray-400 truncate">
-                              {producto.tags.slice(0, 2).map((t) => `#${t.nombre}`).join(' ')}
+                              {producto.tags
+                                .slice(0, 2)
+                                .map((t) => `#${t.nombre}`)
+                                .join(' ')}
                               {producto.tags.length > 2 && ' ...'}
                             </p>
                           </>
@@ -238,7 +267,11 @@ const ProductsSection = () => {
                         }`}
                         title={isEditing ? 'Cerrar' : 'Editar'}
                       >
-                        {isEditing ? <ChevronUp className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                        {isEditing ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <Pencil className="w-4 h-4" />
+                        )}
                       </button>
                       <button
                         onClick={() => handleDelete(producto)}
@@ -255,10 +288,7 @@ const ProductsSection = () => {
                   {isEditing && (
                     <div className="px-6 pb-6 pt-2 border-t border-gray-50">
                       <div className="bg-gray-50 border border-gray-100 rounded-xl p-5">
-                        <FormProduct
-                          producto={producto}
-                          onSuccess={() => setExpandedId(null)}
-                        />
+                        <FormProduct producto={producto} onSuccess={() => setExpandedId(null)} />
                       </div>
                     </div>
                   )}

@@ -1,8 +1,9 @@
 // src/test/utils.tsx
-import { render, type RenderOptions } from '@testing-library/react';
+/* eslint-disable react-refresh/only-export-components */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { render, type RenderOptions } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 
 const crearQueryClient = () =>
   new QueryClient({

@@ -1032,7 +1032,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
       >
         <style>{`.vt-scroll::-webkit-scrollbar{display:none}`}</style>
 
-        {PRODUCTOS.map((p, i) => (
+        {items.map((p, i) => (
           <div
             key={p.id}
             onMouseEnter={() => setHov(i)}
@@ -1082,7 +1082,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
                 }}
               >
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                  {p.talla.split(' ').map((t) => (
+                  {p.talla.split(' ').map((t: string) => (
                     <span
                       key={t}
                       style={{
@@ -2178,12 +2178,12 @@ export default function TemplateRopaDemo({ tienda, accent, themeConfig }: Planti
   const carruselItems = useMemo(() => {
     if (tienda?.carrusel?.length) return tienda.carrusel;
     // Fallback para demo
-    return SLIDES.map(s => ({
+    return SLIDES.map((s) => ({
       url: s.img,
       subtitulo: s.label,
       titulo: s.title,
       sub: s.sub,
-      cta: s.cta
+      cta: s.cta,
     }));
   }, [tienda?.carrusel]);
 

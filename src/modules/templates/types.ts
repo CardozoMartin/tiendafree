@@ -5,7 +5,7 @@ export interface CarruselItem {
   url: string;
   src?: string;
   titulo?: string | null;
-  subtitulo?: string;
+  subtitulo?: string | null;
   linkUrl?: string | null;
   orden?: number;
   activa?: boolean;
