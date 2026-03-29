@@ -2,11 +2,13 @@ import PlantillaAccesorios from './accesorios/TemplateAccesorios';
 import PlantillaGorras from './gorras/TemplateGorras';
 import { resolveTemplateIdFromShop } from './registry';
 import PlantillaRopa from './ropa/TemplateRopa';
+import UrbanTiendzi from './urban/UrbanTiendzi';
 
 const TEMPLATES: Record<string, React.ComponentType<any>> = {
   plantilla_accesorios: PlantillaAccesorios,
   plantilla_gorras: PlantillaGorras,
   plantilla_ropa: PlantillaRopa,
+  plantilla_urban: UrbanTiendzi,
 };
 
 interface StoreRendererProps {
@@ -24,6 +26,8 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         return { accent: '#f97316', font: 'Playfair Display' };
       case 'plantilla_ropa':
         return { accent: '#e63946', font: 'Bebas Neue' };
+      case 'plantilla_urban':
+        return { accent: '#ef4444', font: 'Bebas Neue' };
       default:
         return { accent: '#b5835a', font: 'Cormorant Garamond' };
     }

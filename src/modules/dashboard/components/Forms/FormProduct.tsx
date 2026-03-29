@@ -3,9 +3,16 @@ import { useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import {
   ImagePlus, Tag, DollarSign, FileText, Hash,
-  SquarePen, ArrowDownUp, BadgePercent, LayoutGrid
+  SquarePen, ArrowDownUp, BadgePercent, LayoutGrid, Trash2, Plus, Image as ImageIcon
 } from 'lucide-react';
-import { useCrearProducto, useActualizarProducto } from '../../hooks/useProduct';
+import {
+  useCrearProducto,
+  useActualizarProducto,
+  useAgregarImagen,
+  useEliminarImagen,
+  useCrearVariante,
+  useEliminarVariante
+} from '../../hooks/useProduct';
 import { getCategoriasFn } from '../../api/product.api';
 import type { IProduct } from '../../types/product.type';
 
@@ -19,6 +26,13 @@ interface FormProductValues {
   destacado: boolean;
   tags: string;
   categoriaId: number | '';
+}
+
+interface VariantePendiente {
+  nombre: string;
+  sku: string;
+  precioExtra: number;
+  disponible: boolean;
 }
 
 interface FormProductProps {
@@ -75,6 +89,15 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   const isEditing = !!producto;
   const [imagePreview, setImagePreview] = useState(producto?.imagenPrincipalUrl || '');
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  // Variantes pendientes (solo en modo crear)
+  const [variantesPendientes, setVariantesPendientes] = useState<VariantePendiente[]>([]);
+  const [nuevaVariante, setNuevaVariante] = useState<VariantePendiente>({
+    nombre: '',
+    sku: '',
+    precioExtra: 0,
+    disponible: true,
+  });
 
   const { data: categorias = [] } = useQuery({
     queryKey: ['categorias'],
@@ -134,6 +157,38 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   const { mutateAsync: actualizarProducto, isPending: actualizando } = useActualizarProducto();
   const isPending = creando || actualizando;
 
+  // ── Hooks extra para imágenes y variantes (solo editar) ──
+  const { mutateAsync: agregarImagen, isPending: subiendoImagen } = useAgregarImagen();
+  const { mutateAsync: eliminarImagen } = useEliminarImagen();
+  const { mutateAsync: crearVariante, isPending: creandoVariante } = useCrearVariante();
+  const { mutateAsync: eliminarVariante } = useEliminarVariante();
+
+  const handleSubirImagenExtra = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && producto) {
+      await agregarImagen({ productoId: producto.id, file });
+    }
+    e.target.value = '';
+  };
+
+  // Agregar variante pendiente (crear) o al vuelo (editar)
+  const handleAgregarVariante = async () => {
+    if (!nuevaVariante.nombre) return;
+    if (isEditing && producto) {
+      // Modo edición: guardamos directo en la API
+      await crearVariante({ productoId: producto.id, payload: nuevaVariante });
+    } else {
+      // Modo crear: la acumulamos localmente, se envía con el producto
+      setVariantesPendientes((prev) => [...prev, { ...nuevaVariante }]);
+    }
+    setNuevaVariante({ nombre: '', sku: '', precioExtra: 0, disponible: true });
+  };
+
+  const handleEliminarVariantePendiente = (idx: number) => {
+    setVariantesPendientes((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+
   const handleSubmit = async (data: FormProductValues) => {
     const tagsArray = data.tags
       ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
@@ -157,10 +212,12 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
         } as any,
       });
     } else {
+      // Al crear: pasamos las variantes pendientes acumuladas
       await crearProducto({
         ...payload,
-        variantes: [],
+        variantes: variantesPendientes,
       } as any);
+      setVariantesPendientes([]);
     }
     onSuccess?.();
   };
@@ -417,6 +474,159 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
           </div>
         </div>
       </div>
+
+      {/* ══════════════════════════
+          SECCIÓN: VARIANTES (visible siempre)
+      ══════════════════════════ */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">Variantes</h2>
+          <p className="text-xs text-gray-400 mt-1">
+            {isEditing ? 'Talles, colores u otras opciones del producto.' : 'Podés agregar variantes ahora o después de crear el producto.'}
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
+          <ul className="divide-y divide-gray-50">
+            {/* Variantes existentes (modo editar) */}
+            {isEditing && producto?.variantes?.map(v => (
+              <li key={v.id} className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {v.sku && `SKU: ${v.sku} · `}
+                    Extra: ${v.precioExtra} · {' '}
+                    {v.disponible ? <span className="text-green-600 font-medium">Disponible</span> : <span className="text-red-500 font-medium">Oculta</span>}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => eliminarVariante({ productoId: producto!.id, varianteId: v.id })}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Eliminar variante"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </li>
+            ))}
+
+            {/* Variantes pendientes (modo crear) */}
+            {!isEditing && variantesPendientes.map((v, idx) => (
+              <li key={idx} className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {v.sku && `SKU: ${v.sku} · `}
+                    Extra: ${v.precioExtra} · {' '}
+                    {v.disponible ? <span className="text-green-600 font-medium">Disponible</span> : <span className="text-red-500 font-medium">Oculta</span>}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleEliminarVariantePendiente(idx)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Quitar variante"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </li>
+            ))}
+
+            {/* Estado vacío */}
+            {isEditing && (!producto?.variantes || producto.variantes.length === 0) && (
+              <li className="px-5 py-5 text-center text-sm text-gray-400 italic">No hay variantes cargadas</li>
+            )}
+            {!isEditing && variantesPendientes.length === 0 && (
+              <li className="px-5 py-5 text-center text-sm text-gray-400 italic">Sin variantes — se creará sin opciones</li>
+            )}
+          </ul>
+
+          {/* Mini-form para agregar */}
+          <div className="bg-gray-50 p-5 border-t border-gray-100">
+            <p className="text-xs font-semibold uppercase text-gray-500 tracking-wider mb-3">Agregar variante</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              <input
+                type="text"
+                placeholder="Nombre (ej. Talle L, Color Rojo)"
+                className={`${inputCls} py-2`}
+                value={nuevaVariante.nombre}
+                onChange={e => setNuevaVariante({...nuevaVariante, nombre: e.target.value})}
+              />
+              <input
+                type="text"
+                placeholder="SKU (opcional)"
+                className={`${inputCls} py-2`}
+                value={nuevaVariante.sku}
+                onChange={e => setNuevaVariante({...nuevaVariante, sku: e.target.value})}
+              />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 whitespace-nowrap">Extra $</span>
+                <input
+                  type="number"
+                  placeholder="0"
+                  className={`${inputCls} py-2 w-full`}
+                  value={nuevaVariante.precioExtra || ''}
+                  onChange={e => setNuevaVariante({...nuevaVariante, precioExtra: Number(e.target.value)})}
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={nuevaVariante.disponible}
+                  onChange={e => setNuevaVariante({...nuevaVariante, disponible: e.target.checked})}
+                  className="rounded text-gray-900 focus:ring-gray-900/10 cursor-pointer"
+                />
+                Disponible
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={handleAgregarVariante}
+              disabled={!nuevaVariante.nombre || (isEditing ? creandoVariante : false)}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-xs font-bold rounded-lg transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              {isEditing ? 'Guardar variante' : 'Agregar variante'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════
+          IMÁGENES EXTRA (solo en edición)
+      ══════════════════════════ */}
+      {isEditing && producto && (
+        <div>
+          <div className="mb-4">
+            <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">Imágenes extra</h2>
+            <p className="text-xs text-gray-400 mt-1">Podés subir fotos adicionales de este producto.</p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {producto.imagenes?.map((img) => (
+                <div key={img.id} className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-gray-200 group">
+                  <img src={img.url} alt="Extra" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => eliminarImagen({ productoId: producto.id, imagenId: img.id })}
+                    className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Eliminar imagen"
+                  >
+                    <Trash2 className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              ))}
+
+              <label className={`w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 hover:bg-gray-50 flex flex-col items-center justify-center cursor-pointer shrink-0 transition-all ${subiendoImagen ? 'opacity-50 pointer-events-none' : ''}`}>
+                <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
+                <span className="text-[10px] text-gray-500 font-medium">Agregar</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleSubirImagenExtra} />
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Submit ── */}
       <button
