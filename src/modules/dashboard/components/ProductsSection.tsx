@@ -112,6 +112,11 @@ const ProductsSection = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  console.debug('[ProductsSection] archivo elegido para importación', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                  });
                   importar.mutate(file);
                   e.target.value = ''; // Reset para poder subir el mismo archivo
                 }

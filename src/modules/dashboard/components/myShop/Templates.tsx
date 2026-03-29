@@ -5,6 +5,7 @@ const DEMO_ROUTES: Record<string, string> = {
   plantilla_accesorios: '/demo/accesorios',
   plantilla_gorras: '/demo/gorras',
   plantilla_ropa: '/demo/ropa',
+  plantilla_urban: '/demo/urban',
 };
 
 const Templates = () => {

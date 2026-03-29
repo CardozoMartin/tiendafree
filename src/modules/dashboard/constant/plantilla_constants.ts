@@ -29,4 +29,13 @@ export const PLANTILLAS = [
     preview: ropa,
     activa: false,
   },
+  {
+    id: 4,
+    nombre: 'plantilla_urban',
+    label: 'Urban Tiendzi',
+    categoria: 'Streetwear',
+    precio: 'Gratis',
+    preview: undefined,
+    activa: false,
+  },
 ];

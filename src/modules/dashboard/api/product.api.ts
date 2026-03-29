@@ -143,7 +143,8 @@ export const getExportarProductosFn = async () => {
 /** Importar productos desde Excel */
 export const postImportarProductosFn = async (file: File) => {
   const formData = new FormData();
-  formData.append('file', file);
+  // El backend espera que el archivo venga en el campo 'photo', no 'file'.
+  formData.append('photo', file);
   const { data } = await api.post<IApiResponse<{ creados: number; actualizados: number }>>(
     '/mis-productos/importar',
     formData,
@@ -187,5 +188,22 @@ export const deleteEliminarImagenFn = async ({
   imagenId: number;
 }) => {
   const { data } = await api.delete(`/mis-productos/${productoId}/imagenes/${imagenId}`);
+  return data;
+};
+
+// ── VARIANTES ──
+
+export const postCrearVarianteFn = async (productoId: number, payload: any): Promise<any> => {
+  const { data } = await api.post(`/mis-productos/${productoId}/variantes`, payload);
+  return data;
+};
+
+export const putActualizarVarianteFn = async (productoId: number, varianteId: number, payload: any): Promise<any> => {
+  const { data } = await api.put(`/mis-productos/${productoId}/variantes/${varianteId}`, payload);
+  return data;
+};
+
+export const deleteEliminarVarianteFn = async (productoId: number, varianteId: number): Promise<any> => {
+  const { data } = await api.delete(`/mis-productos/${productoId}/variantes/${varianteId}`);
   return data;
 };

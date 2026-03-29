@@ -13,6 +13,9 @@ import {
   deleteEliminarImagenFn,
   getExportarProductosFn,
   postImportarProductosFn,
+  postCrearVarianteFn,
+  putActualizarVarianteFn,
+  deleteEliminarVarianteFn
 } from '../api/product.api';
 
 // ─── Helper para extraer el mensaje de error ──────────────────────────────────
@@ -106,14 +109,67 @@ export const useAgregarImagen = () => {
 /** Eliminar imagen de un producto */
 export const useEliminarImagen = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: deleteEliminarImagenFn,
-    onSuccess: () => {
+    mutationFn: (data: { productoId: number; imagenId: number }) => {
+      return deleteEliminarImagenFn(data);
+    },
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
+      toast.success('Imagen eliminada');
     },
-    onError: (error: AxiosError<IErrorResponse>) => {
-      toast.error(getErrorMessage(error));
+    onError: () => toast.error('Error al eliminar imagen'),
+  });
+};
+
+// ── VARIANTE HOOKS ──
+
+export const useCrearVariante = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { productoId: number; payload: any }) => {
+      return postCrearVarianteFn(data.productoId, data.payload);
     },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
+      toast.success('Variante agregada');
+    },
+    onError: () => toast.error('Error al agregar variante'),
+  });
+};
+
+export const useActualizarVariante = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { productoId: number; varianteId: number; payload: any }) => {
+      return putActualizarVarianteFn(data.productoId, data.varianteId, data.payload);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
+      toast.success('Variante actualizada');
+    },
+    onError: () => toast.error('Error al actualizar variante'),
+  });
+};
+
+export const useEliminarVariante = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { productoId: number; varianteId: number }) => {
+      return deleteEliminarVarianteFn(data.productoId, data.varianteId);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
+      toast.success('Variante eliminada');
+    },
+    onError: () => toast.error('Error al eliminar variante'),
   });
 };
 
@@ -141,14 +197,27 @@ export const useExportarProductos = () => {
 export const useImportarProductos = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => postImportarProductosFn(file),
+    mutationFn: (file: File) => {
+      console.debug('[Products] Importar Excel - inicio', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+      });
+      return postImportarProductosFn(file);
+    },
     onSuccess: (response: ISuccessResponse<{ creados: number; actualizados: number }>) => {
       const { creados, actualizados } = response.datos;
+      console.debug('[Products] Importar Excel - éxito', { creados, actualizados });
       toast.success(`Importación completa: ${creados} creados, ${actualizados} actualizados.`);
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
     onError: (error: AxiosError<IErrorResponse>) => {
-      toast.error(getErrorMessage(error));
+      console.error('[Products] Importar Excel - error', error);
+      const errorDetails =
+        error.response?.data?.errores?.length
+          ? error.response?.data?.errores.join(' · ')
+          : error.response?.data?.mensaje ?? error?.message ?? 'Error inesperado';
+      toast.error(`Fallo al importar Excel: ${errorDetails}`);
     },
   });
 };

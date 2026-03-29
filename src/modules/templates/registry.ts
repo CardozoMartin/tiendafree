@@ -4,12 +4,14 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
   plantilla_accesorios: { id: 'plantilla_accesorios', nombre: 'Accesorios', descripcion: 'Joyería y accesorios artesanales', secciones: [] },
   plantilla_gorras: { id: 'plantilla_gorras', nombre: 'Gorras', descripcion: 'Gorras y streetwear', secciones: [] },
   plantilla_ropa: { id: 'plantilla_ropa', nombre: 'Ropa', descripcion: 'Moda y ropa de autor', secciones: [] },
+  plantilla_urban: { id: 'plantilla_urban', nombre: 'Urban Tiendzi', descripcion: 'Estilo urbano dark / streetwear', secciones: [] },
 };
 
 const TEMPLATE_ALIASES: Record<string, string> = {
   '1': 'plantilla_ropa',
   '2': 'plantilla_gorras',
   '3': 'plantilla_accesorios',
+  '4': 'plantilla_urban',
   accesorios: 'plantilla_accesorios',
   joyeria: 'plantilla_accesorios',
   gorras: 'plantilla_gorras',
@@ -17,6 +19,8 @@ const TEMPLATE_ALIASES: Record<string, string> = {
   ropa: 'plantilla_ropa',
   moda: 'plantilla_ropa',
   veste: 'plantilla_ropa',
+  urban: 'plantilla_urban',
+  urbano: 'plantilla_urban',
 };
 
 export const normalizeTemplateId = (value: unknown): string | null => {
