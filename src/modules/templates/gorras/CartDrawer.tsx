@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/ConfirmDialog/useConfirm';
 import type { Carrito, CarritoItem, ThemeProps, Tienda } from './Types';
 
 interface CartDrawerProps {
@@ -13,7 +14,6 @@ interface CartDrawerProps {
 
 const CartDrawer = ({
   carrito,
-  tienda,
   isVaciando,
   onClose,
   onQty,
@@ -37,26 +37,26 @@ const CartDrawer = ({
   const subtotal = Number(carrito?.total || 0);
   const ship = subtotal > 8000 ? 0 : 800;
   const total = subtotal + ship;
-
-  const handleConfirmar = () => {
-    if (!items.length) return;
-    let msj = `¡Hola! Quiero confirmar mi pedido:\n\n`;
-    items.forEach((item: CarritoItem) => {
-      msj += `- ${item.cantidad}x ${item.producto?.nombre} ($${(Number(item.precioUnit) * item.cantidad).toLocaleString()})\n`;
+  const { confirm, ConfirmModal } = useConfirm();
+  const handleConfirmar = async () => {
+    const userConfirmed = await confirm({
+      titulo: '¿Estas seguro?',
+      descripcion: '¿Estás seguro de que deseas confirmar el pedido?',
+      textoCancelar: 'Cancelar',
+      textoConfirmar: 'Confirmar pedido',
+      variant: 'info',
     });
-    msj += `\nSubtotal: $${subtotal.toLocaleString()}`;
-    msj += `\nEnvío: $${ship === 0 ? 'Gratis' : ship.toLocaleString()}`;
-    msj += `\n*TOTAL: $${total.toLocaleString()}*\n\n`;
-    msj += `Espero confirmación. ¡Muchas gracias!`;
-    const numeroStr = tienda?.whatsapp?.toString().replace(/\D/g, '') || '5493812345678';
-    window.open(`https://wa.me/${numeroStr}?text=${encodeURIComponent(msj)}`, '_blank');
-    onConfirmar();
+
+    if (userConfirmed) {
+      onConfirmar();
+    }
   };
 
   const isDisabled = isVaciando || items.length === 0;
 
   return (
     <>
+      {ConfirmModal}
       {/* Overlay */}
       <div onClick={onClose} className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
 

@@ -13,6 +13,7 @@ import { Footer } from './Footer';
 import Hero from './Hero';
 import Marquee from './Marquee';
 import { Navbar } from './Navbar';
+import OrderData from './OrderData';
 import ProductDetailView from './ProductDetailView';
 import Productos from './Productos';
 import ProductosDestacados from './ProductosDestacados';
@@ -29,7 +30,7 @@ export interface PlantillaGorrasProps {
   };
 }
 
-type View = 'home' | 'auth' | 'account' | 'about';
+type View = 'home' | 'auth' | 'account' | 'about' | 'order';
 type NavTarget = 'inicio' | 'producto' | 'contacto' | 'sobrenosotros';
 
 // ── Constantes ────────────────────────────────────────────────
@@ -119,28 +120,57 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   }>({ msg: '', visible: false });
 
   // ── Carrito ───────────────────────────────────────────────
-  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem, vaciarCarrito, isVaciando } =
+  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem, isVaciando, getCarrito } =
     useCarrito(tienda?.id || 0);
 
-  const cartCount = carrito?.cantidad || 0;
+  // Cargar carrito al montar o cambiar tienda
+  useEffect(() => {
+    if (tienda?.id) {
+      getCarrito();
+    }
+  }, [tienda?.id, getCarrito]);
 
-  const addToCart = async (p: Producto, qty = 1) => {
+  // Calcular cantidad total de items
+  const cartCount = useMemo(() => {
+    if (!carrito?.items || carrito.items.length === 0) return 0;
+    return carrito.items.reduce((acc, item) => acc + item.cantidad, 0);
+  }, [carrito?.items]);
+
+  const addToCart = async (p: Producto, qty = 1, variante?: any) => {
     if (!tienda?.id) return;
     try {
-      await agregarAlCarrito({ productoId: p.id, cantidad: qty, varianteId: null });
+      const precioUnit =
+        p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio)
+          ? p.precioOferta
+          : p.precio;
+
+      await agregarAlCarrito({
+        productoId: p.id,
+        cantidad: qty,
+        varianteId: variante?.id ?? null,
+        precioUnit: Number(precioUnit),
+        producto: p,
+      });
       setToast({
         visible: true,
         msg: `${p.nombre} agregado al carrito`,
         imagen: p.imagenPrincipalUrl || p.imagen || 'https://via.placeholder.com/80',
         nombre: p.nombre || 'Producto',
-        precio:
-          p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio)
-            ? p.precioOferta
-            : p.precio,
+        precio: precioUnit,
       });
       setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+      // Abrir el carrito automáticamente
+      setCartOpen(true);
     } catch (err) {
-      console.error(err);
+      console.error('Error al agregar al carrito:', err);
+      setToast({
+        visible: true,
+        msg: 'Error al agregar al carrito',
+        imagen: undefined,
+        nombre: undefined,
+        precio: undefined,
+      });
+      setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
     }
   };
 
@@ -290,6 +320,9 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
             }}
           />
         )}
+
+        {/* ── ORDER DATA ── */}
+        {view === 'order' && <OrderData carrito={carrito} tienda={mergedTienda} />}
       </div>
 
       {/* ── Cart Drawer ── */}
@@ -301,9 +334,9 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
           onClose={() => setCartOpen(false)}
           onQty={(id, q) => actualizarCantidad({ itemId: id, cantidad: q })}
           onRemove={(id) => eliminarItem(id)}
-          onConfirmar={async () => {
-            await vaciarCarrito();
+          onConfirmar={() => {
             setCartOpen(false);
+            setView('order');
           }}
           theme={THEME}
         />
