@@ -207,3 +207,12 @@ export const deleteEliminarVarianteFn = async (productoId: number, varianteId: n
   const { data } = await api.delete(`/mis-productos/${productoId}/variantes/${varianteId}`);
   return data;
 };
+
+export const postSubirImagenVarianteFn = async ({ productoId, varianteId, file }: { productoId: number; varianteId: number; file: File }): Promise<any> => {
+  const formData = new FormData();
+  formData.append('photo', file);
+  const { data } = await api.post(`/mis-productos/${productoId}/variantes/${varianteId}/imagen`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+};

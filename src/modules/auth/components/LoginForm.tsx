@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { ROUTES } from "../../../constants/routes";
 import { useAuthLogin } from "../hooks/useAuth";
 import type { IErrorResponse } from "../../../types/api.type";
 import type { AxiosError } from "axios";
@@ -105,7 +106,7 @@ const LoginForm = () => {
                 Contraseña
               </label>
               <Link
-                to="/recover-password"
+                to={ROUTES.FORGOT_PASSWORD}
                 className="text-xs font-medium text-[#6344ee] hover:underline"
               >
                 Olvidé mi contraseña

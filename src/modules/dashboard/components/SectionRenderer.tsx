@@ -7,6 +7,9 @@ import EditingSite from './myShop/EditingSite';
 import MethodsSection from './myShop/MethodsSection';
 import Templates from './myShop/Templates';
 import SettingsSection from './SettingsSection';
+import CmAiSection from './CmAiSection';
+import BannerCreatorSection from './BannerCreatorSection';
+import ReviewsSection from './ReviewsSection';
 
 interface SectionRendererProps {
   active: string;
@@ -46,6 +49,12 @@ export const SectionRenderer = ({
       return <MethodsSection accent={accent} />;
     case 'store-website':
       return null; // Solo abre nueva pestaña, no renderiza nada
+    case 'cm-ai':
+      return <CmAiSection accent={accent} tienda={myShop} />;
+    case 'banner-creator':
+      return <BannerCreatorSection accent={accent} tienda={myShop} />;
+    case 'reviews':
+      return <ReviewsSection accent={accent} tienda={myShop} />;
     case 'settings':
       return <SettingsSection accent={accent} />;
     default:

@@ -4,6 +4,14 @@ import MI from './MaterialIcon';
 import { useOrders, useUpdateOrderStatus } from '../hooks/useOrders';
 import { useMyShop } from '../hooks/useShop';
 
+// Correos postales con URL base de seguimiento
+const CORREOS = [
+  { label: 'Correo Argentino', urlBase: 'https://www.correoargentino.com.ar/formularios/omnicanal?id=' },
+  { label: 'OCA', urlBase: 'https://www.oca.com.ar/seguimiento/?numero_envio=' },
+  { label: 'Andreani', urlBase: 'https://www.andreani.com/#!/informacionEnvio/' },
+  { label: 'Otro (solo número)', urlBase: '' },
+];
+
 // ── Badge Component ────────────────────────────────────────────────────────
 const Badge = ({ status }: { status: string }) => {
   const m = STATUS_META[status] || { label: status, bg: 'bg-slate-100', text: 'text-slate-700' };
@@ -20,6 +28,10 @@ const OrdersSection = ({ accent }: { accent: string }) => {
   const { data: myShop } = useMyShop();
   const [filter, setFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  // Modal de seguimiento postal
+  const [trackingModal, setTrackingModal] = useState<{ orderId: number } | null>(null);
+  const [nroSeguimiento, setNroSeguimiento] = useState('');
+  const [correoSeleccionado, setCorreoSeleccionado] = useState(CORREOS[0]);
 
   const { data: ordersRes, isLoading } = useOrders({
     tiendaId: myShop?.id,
@@ -95,7 +107,7 @@ const OrdersSection = ({ accent }: { accent: string }) => {
                     <div>
                       <p className="text-[.95rem] font-bold text-slate-900 flex items-center gap-2">
                         {o.compradorNombre}
-                        {o.notasCliente && <MI name="bubble" className="!text-[12px] text-amber-500" title="Tiene notas" />}
+                        {o.notasCliente && <MI name="bubble" className="!text-[12px] text-amber-500" />}
                       </p>
                       <p className="text-xs text-slate-400 mt-0.5">{o._count?.items || 0} productos · {new Date(o.creadoEn).toLocaleDateString()}</p>
                     </div>
@@ -221,9 +233,19 @@ const OrdersSection = ({ accent }: { accent: string }) => {
                                   </div>
                               ))}
                           </div>
-                          <div className="mt-6 pt-4 border-t border-dashed border-slate-100 flex justify-between items-center">
-                              <span className="text-[.85rem] font-black text-slate-900 uppercase">Total Pedido</span>
-                              <span className="text-xl font-black text-slate-900">${Number(selectedOrder.total).toLocaleString()}</span>
+                          <div className="mt-6 pt-4 border-t border-dashed border-slate-100 flex flex-col gap-2">
+                              <div className="flex justify-between items-center text-[.85rem] text-slate-500 font-medium">
+                                  <span>Subtotal</span>
+                                  <span>${(Number(selectedOrder.total) - Number(selectedOrder.costoEnvio || 0)).toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-[.85rem] text-slate-500 font-medium">
+                                  <span>Envío</span>
+                                  <span>${Number(selectedOrder.costoEnvio || 0).toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center pt-3 mt-1 border-t border-slate-50">
+                                  <span className="text-[.85rem] font-black text-slate-900 uppercase">Total Final</span>
+                                  <span className="text-xl font-black text-slate-900">${Number(selectedOrder.total).toLocaleString()}</span>
+                              </div>
                           </div>
                       </div>
                   </div>
@@ -240,7 +262,12 @@ const OrdersSection = ({ accent }: { accent: string }) => {
                       )}
                       {selectedOrder.estado === 'CONFIRMADO' && (
                            <button 
-                            onClick={() => updateStatus({ id: selectedOrder.id, estado: 'EN_CAMINO' })}
+                            onClick={() => {
+                              // Abrir modal de tracking en vez de actualizar directo
+                              setTrackingModal({ orderId: selectedOrder.id });
+                              setNroSeguimiento('');
+                              setCorreoSeleccionado(CORREOS[0]);
+                            }}
                             className="col-span-2 py-4 rounded-2xl bg-violet-600 border-none text-white font-black text-sm uppercase tracking-widest cursor-pointer hover:bg-violet-700 transition-colors"
                            >
                                Marcar en Camino
@@ -289,6 +316,85 @@ const OrdersSection = ({ accent }: { accent: string }) => {
               display: none;
           }
       `}</style>
+
+      {/* ── Modal Seguimiento Postal ── */}
+      {trackingModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setTrackingModal(null)} />
+          <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-violet-50 flex items-center justify-center">
+                <MI name="local_shipping" className="!text-[20px] text-violet-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">Marcar en Camino</h3>
+                <p className="text-xs text-slate-400">Opcional: agregá datos de seguimiento postal</p>
+              </div>
+            </div>
+
+            {/* Selector de correo */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+                Servicio de envío
+              </label>
+              <select
+                className="w-full text-sm p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 outline-none"
+                value={correoSeleccionado.label}
+                onChange={(e) => {
+                  const c = CORREOS.find(c => c.label === e.target.value) || CORREOS[0];
+                  setCorreoSeleccionado(c);
+                }}
+              >
+                {CORREOS.map(c => <option key={c.label} value={c.label}>{c.label}</option>)}
+              </select>
+            </div>
+
+            {/* Número de seguimiento */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+                N° de seguimiento
+              </label>
+              <input
+                type="text"
+                value={nroSeguimiento}
+                onChange={(e) => setNroSeguimiento(e.target.value)}
+                placeholder="Ej: CA123456789AR"
+                className="w-full text-sm p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 outline-none font-mono tracking-wider"
+              />
+              <p className="text-xs text-slate-400 mt-1">Dejalo vacío si no usás envío postal.</p>
+            </div>
+
+            {/* Botones */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setTrackingModal(null)}
+                className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold cursor-pointer hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  const urlSeguimiento = nroSeguimiento && correoSeleccionado.urlBase
+                    ? `${correoSeleccionado.urlBase}${nroSeguimiento}`
+                    : undefined;
+                  updateStatus({
+                    id: trackingModal.orderId,
+                    estado: 'EN_CAMINO',
+                    nroSeguimiento: nroSeguimiento || undefined,
+                    urlSeguimiento,
+                  });
+                  setTrackingModal(null);
+                  setSelectedOrder(null);
+                }}
+                className="flex-1 py-3 rounded-xl bg-violet-600 text-white text-sm font-black cursor-pointer hover:bg-violet-700 transition-colors"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

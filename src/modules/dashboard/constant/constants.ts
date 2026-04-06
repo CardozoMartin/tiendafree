@@ -14,6 +14,9 @@ export const NAV_ITEMS = [
   { id: 'home', icon: 'home', label: 'Inicio' },
   { id: 'products', icon: 'inventory_2', label: 'Productos' },
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos' },
+  { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },
+  { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' },
+  { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
   { id: 'settings', icon: 'settings', label: 'Config' },
 ];
 

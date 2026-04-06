@@ -65,5 +65,35 @@ export const deleteEliminarMetodoEntregaFn = async (id: number) => {
   const response = await api.delete(`/tiendas/mi-tienda/metodos-entrega/${id}`);
   return response.data;
 };
+// ── About Us ──
 
+export const getAboutUsFn = async () => {
+  const response = await api.get('/tiendas/mi-tienda/about-us');
+  return response.data.datos;
+};
 
+export const putUpdateAboutUsFn = async (data: { titulo?: string; descripcion?: string; direccion?: string }) => {
+  const response = await api.put('/tiendas/mi-tienda/about-us', data);
+  return response.data;
+};
+
+export const postUploadAboutUsImageFn = async (file: File) => {
+  const formData = new FormData();
+  formData.append('imagen', file);
+  const response = await api.post('/tiendas/mi-tienda/about-us/imagen', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
+// ── Marquee ──
+
+export const getMarqueeFn = async () => {
+  const response = await api.get('/tiendas/mi-tienda/marquee');
+  return response.data.datos;
+};
+
+export const putUpdateMarqueeFn = async (items: Array<{ texto: string; orden: number }>) => {
+  const response = await api.put('/tiendas/mi-tienda/marquee', { items });
+  return response.data;
+};

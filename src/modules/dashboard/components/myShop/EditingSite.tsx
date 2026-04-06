@@ -4,6 +4,8 @@ import { resolveTemplateIdFromShop } from '../../../templates/registry';
 import type { TiendaData } from '../../../templates/types';
 import { useUpdateShop, useUpdateShopVisual } from '../../hooks/useShop';
 import ImageHeroHandlers from '../ImageEditors/ImageHeroHandlers';
+import AboutUsEditor from './AboutUsEditor';
+import MarqueeEditor from './MarqueeEditor';
 
 interface EditingSiteProps {
   tienda?: any;
@@ -384,6 +386,13 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
             </div>
           </div>
         </div>
+
+
+        {/* ── About Us Editor ── */}
+        <AboutUsEditor />
+
+        {/* ── Marquee Editor ── */}
+        <MarqueeEditor />
 
         {/* ══════════════════════════
             SECCIÓN: IMÁGENES

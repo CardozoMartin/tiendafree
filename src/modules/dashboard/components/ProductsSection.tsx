@@ -1,4 +1,5 @@
 import {
+  AlertCircle,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -8,13 +9,12 @@ import {
   Plus,
   Search,
   Star,
-  Trash2,
   Upload,
   X,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
-  useEliminarProducto,
+  useActualizarProducto,
   useExportarProductos,
   useImportarProductos,
   useMisProductos,
@@ -29,6 +29,9 @@ const ProductsSection = () => {
   const [busqueda, setBusqueda] = useState('');
   const [debouncedBusqueda, setDebouncedBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
+  const [filtroActivo, setFiltroActivo] = useState<
+    'todos' | 'activos' | 'ocultos' | 'destacados' | 'bajo_stock'
+  >('todos');
   const LIMITE = 12;
 
   useEffect(() => {
@@ -43,9 +46,12 @@ const ProductsSection = () => {
     pagina,
     limite: LIMITE,
     busqueda: debouncedBusqueda || undefined,
+    disponible: filtroActivo === 'activos' ? true : filtroActivo === 'ocultos' ? false : undefined,
+    destacado: filtroActivo === 'destacados' ? true : undefined,
+    bajoStock: filtroActivo === 'bajo_stock' ? true : undefined,
   };
   const { data: productosPaginados, isLoading } = useMisProductos(filtros);
-  const eliminar = useEliminarProducto();
+  const actualizar = useActualizarProducto();
   const exportar = useExportarProductos();
   const importar = useImportarProductos();
 
@@ -55,12 +61,6 @@ const ProductsSection = () => {
 
   // Estado del formulario inline (null = cerrado, 'create' = nuevo, number = editar id)
   const [expandedId, setExpandedId] = useState<'create' | number | null>(null);
-
-  const handleDelete = (producto: IProduct) => {
-    if (window.confirm(`¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`)) {
-      eliminar.mutate(producto.id);
-    }
-  };
 
   const toggleCreate = () => setExpandedId((prev) => (prev === 'create' ? null : 'create'));
 
@@ -75,9 +75,9 @@ const ProductsSection = () => {
   }
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="min-h-0 space-y-6 pb-6">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Productos</h1>
           <p className="text-sm text-slate-500 mt-0.5">
@@ -86,7 +86,7 @@ const ProductsSection = () => {
               : 'Gestioná tu catálogo'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start flex-wrap">
           {/* Exportar */}
           <button
             onClick={() => exportar.mutate()}
@@ -150,6 +150,32 @@ const ProductsSection = () => {
         </div>
       )}
 
+      {/* ── Tabs de Filtros ── */}
+      <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hide">
+        {[
+          { id: 'todos', label: 'Todos' },
+          { id: 'activos', label: 'Activos' },
+          { id: 'ocultos', label: 'Ocultos' },
+          { id: 'destacados', label: 'Destacados' },
+          { id: 'bajo_stock', label: 'Bajo Stock' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setFiltroActivo(tab.id as any);
+              setPagina(1);
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
+              filtroActivo === tab.id
+                ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+                : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {/* ══════════════════════════
           BUSCADOR
       ══════════════════════════ */}
@@ -206,86 +232,170 @@ const ProductsSection = () => {
               return (
                 <div key={producto.id} className="flex flex-col">
                   {/* ── Fila principal ── */}
-                  <div className="flex items-center gap-4 px-6 py-5">
-                    {/* Thumbnail */}
-                    <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100/50 overflow-hidden shrink-0 flex items-center justify-center">
-                      {producto.imagenPrincipalUrl ? (
-                        <img
-                          src={producto.imagenPrincipalUrl}
-                          alt={producto.nombre}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Package className="w-5 h-5 text-gray-300" />
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-medium text-gray-800 truncate">
-                          {producto.nombre}
-                        </p>
-                        {producto.destacado && (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
-                            <Star className="w-2.5 h-2.5 fill-amber-500 stroke-none" /> Destacado
-                          </span>
-                        )}
-                        {!producto.disponible && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500 border border-gray-200">
-                            Oculto
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs text-gray-400 font-medium">
-                          {formatPrice(producto.precio, producto.moneda)}
-                        </p>
-                        {producto.precioOferta && (
-                          <p className="text-xs text-gray-400 line-through">
-                            {formatPrice(producto.precioOferta, producto.moneda)}
-                          </p>
-                        )}
-                        {producto.tags?.length > 0 && (
-                          <>
-                            <span className="text-gray-200">·</span>
-                            <p className="text-xs text-gray-400 truncate">
-                              {producto.tags
-                                .slice(0, 2)
-                                .map((t) => `#${t.nombre}`)
-                                .join(' ')}
-                              {producto.tags.length > 2 && ' ...'}
-                            </p>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Acciones */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => toggleEdit(producto.id)}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          isEditing
-                            ? 'text-gray-700 bg-gray-100'
-                            : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
-                        }`}
-                        title={isEditing ? 'Cerrar' : 'Editar'}
-                      >
-                        {isEditing ? (
-                          <ChevronUp className="w-4 h-4" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-5">
+                    {/* Grupo de Identificación */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      {/* Thumbnail */}
+                      <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100/50 overflow-hidden shrink-0 flex items-center justify-center">
+                        {producto.imagenPrincipalUrl ? (
+                          <img
+                            src={producto.imagenPrincipalUrl}
+                            alt={producto.nombre}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          <Pencil className="w-4 h-4" />
+                          <Package className="w-5 h-5 text-gray-300" />
                         )}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(producto)}
-                        disabled={eliminar.isPending}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-gray-800 truncate">
+                            {producto.nombre}
+                          </p>
+                          {producto.destacado && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
+                              <Star className="w-2.5 h-2.5 fill-amber-500 stroke-none" /> Destacado
+                            </span>
+                          )}
+                          {!producto.disponible && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500 border border-gray-200">
+                              Oculto
+                            </span>
+                          )}
+                          {/* Stock Badges */}
+                          {producto.stock <= 0 && (
+                            <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-red-50 text-red-600 border border-red-100">
+                              <AlertCircle className="w-2.5 h-2.5" /> Sin Stock
+                            </span>
+                          )}
+                          {producto.stock > 0 && producto.stock <= 5 && (
+                            <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
+                              Bajo Stock: {producto.stock}
+                            </span>
+                          )}
+                          {producto.stock > 5 && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">
+                              Stock: {producto.stock}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-xs text-gray-400 font-medium">
+                            {formatPrice(producto.precio, producto.moneda)}
+                          </p>
+                          {producto.precioOferta && (
+                            <p className="text-xs text-gray-400 line-through">
+                              {formatPrice(producto.precioOferta, producto.moneda)}
+                            </p>
+                          )}
+                          {producto.tags?.length > 0 && (
+                            <>
+                              <span className="text-gray-200">·</span>
+                              <p className="text-xs text-gray-400 truncate hidden sm:block">
+                                {producto.tags
+                                  .slice(0, 2)
+                                  .map((t) => `#${t.nombre}`)
+                                  .join(' ')}
+                                {producto.tags.length > 2 && ' ...'}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Acciones Rápidas */}
+                    {/* Acciones Rápidas */}
+                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 sm:pr-2 border-t border-gray-50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
+                      {/* Destacado Toggle */}
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${producto.destacado ? 'text-amber-600' : 'text-slate-500'}`}>
+                          Destacado
+                        </span>
+                        <button
+                          onClick={() =>
+                            actualizar.mutate({
+                              id: producto.id,
+                              payload: { destacado: !producto.destacado },
+                            })
+                          }
+                          disabled={actualizar.isPending}
+                          className={`relative w-11 h-6 rounded-full border transition-all duration-200 disabled:opacity-50 ${
+                            producto.destacado ? 'bg-amber-50 border-amber-200' : 'bg-slate-100 border-slate-300'
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white border shadow-sm transition-all duration-200 flex items-center justify-center ${
+                              producto.destacado
+                                ? 'left-[calc(100%-1.375rem)] border-amber-300'
+                                : 'left-0.5 border-slate-300'
+                            }`}
+                          >
+                            <Star
+                              className={`w-2.5 h-2.5 transition-colors ${
+                                producto.destacado ? 'stroke-amber-600 fill-none' : 'stroke-slate-400 fill-none'
+                              }`}
+                            />
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* Divisor */}
+                      <div className="w-px h-8 bg-gray-100" />
+
+                      {/* Visible Toggle */}
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${producto.disponible ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          Visible
+                        </span>
+                        <button
+                          onClick={() =>
+                            actualizar.mutate({
+                              id: producto.id,
+                              payload: { disponible: !producto.disponible },
+                            })
+                          }
+                          disabled={actualizar.isPending}
+                          className={`relative w-11 h-6 rounded-full border transition-all duration-200 disabled:opacity-50 ${
+                            producto.disponible ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-100 border-slate-300'
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white border shadow-sm transition-all duration-200 flex items-center justify-center ${
+                              producto.disponible
+                                ? 'left-[calc(100%-1.375rem)] border-emerald-300'
+                                : 'left-0.5 border-slate-300'
+                            }`}
+                          >
+                            <Package className={`w-2.5 h-2.5 transition-colors ${producto.disponible ? 'stroke-emerald-600' : 'stroke-slate-400'}`} />
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* Botón editar */}
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          {isEditing ? 'Cerrar' : 'Editar'}
+                        </span>
+                        <button
+                          onClick={() => toggleEdit(producto.id)}
+                          className={`p-2 rounded-xl transition-all border ${
+                            isEditing
+                              ? 'text-gray-900 bg-gray-100 border-gray-200 shadow-inner'
+                              : 'text-gray-600 bg-white border-gray-200 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm'
+                          }`}
+                          title={isEditing ? 'Cerrar edición' : 'Editar producto'}
+                        >
+                          {isEditing ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <Pencil className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
 

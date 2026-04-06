@@ -10,7 +10,10 @@ export const getOrderByIdFn = async (id: number) => {
   return response.data.datos;
 };
 
-export const patchUpdateOrderStatusFn = async (id: number, data: { estado: string; notasOwner?: string }) => {
+export const patchUpdateOrderStatusFn = async (
+  id: number,
+  data: { estado: string; notasOwner?: string; nroSeguimiento?: string; urlSeguimiento?: string }
+) => {
   const response = await api.patch(`/pedidos/${id}/estado`, data);
   return response.data;
 };

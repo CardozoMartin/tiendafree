@@ -16,6 +16,9 @@ const RecoveryPassPage = lazy(() =>
 const ChangePassPage = lazy(() =>
   import('@modules/auth/pages/ChangePassPage').then((m) => ({ default: m.ChangePassPage }))
 );
+const VerifyEmailPage = lazy(() =>
+  import('@modules/auth/pages/VerifyEmailPage')
+);
 const Dashboard = lazy(() => import('@modules/dashboard/pages/Dashboard'));
 
 function App() {
@@ -33,9 +36,10 @@ function App() {
           <Route element={<PublicRoutes />}>
             <Route path={ROUTES.HOME} element={<HomePage />} />
             <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-            <Route path={ROUTES.REGISTER} element={<RegisterPage></RegisterPage>} />
-            <Route path={ROUTES.RECOVER_PASSWORD} element={<RecoveryPassPage />} />
-            <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePassPage />} />
+            <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+            <Route path={ROUTES.FORGOT_PASSWORD} element={<RecoveryPassPage />} />
+            <Route path={ROUTES.RESET_PASSWORD} element={<ChangePassPage />} />
+            <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmailPage />} />
           </Route>
 
           {/* Rutas Privadas - Sin Header */}

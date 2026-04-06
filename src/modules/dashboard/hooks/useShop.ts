@@ -9,6 +9,11 @@ import { getMyShopFn, getPublicShopFn, postCreateShopFn,
   deleteEliminarMetodoPagoFn,
   postAgregarMetodoEntregaFn,
   deleteEliminarMetodoEntregaFn,
+  getAboutUsFn,
+  putUpdateAboutUsFn,
+  postUploadAboutUsImageFn,
+  getMarqueeFn,
+  putUpdateMarqueeFn,
 } from '../api/shop.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -149,6 +154,69 @@ export const useEliminarMetodoEntrega = () => {
     mutationFn: deleteEliminarMetodoEntregaFn,
     onSuccess: (data: ISuccessResponse<any>) => {
       toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+// ── About Us ──
+
+export const useAboutUs = () => {
+  return useQuery({
+    queryKey: ['aboutUs'],
+    queryFn: getAboutUsFn,
+  });
+};
+
+export const useUpdateAboutUs = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: putUpdateAboutUsFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['aboutUs'] });
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useUploadAboutUsImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postUploadAboutUsImageFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['aboutUs'] });
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+// ── Marquee ──
+
+export const useMarquee = () => {
+  return useQuery({
+    queryKey: ['marquee'],
+    queryFn: getMarqueeFn,
+  });
+};
+
+export const useUpdateMarquee = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: putUpdateMarqueeFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje);
+      queryClient.invalidateQueries({ queryKey: ['marquee'] });
       queryClient.invalidateQueries({ queryKey: ['myShop'] });
     },
     onError: (error: AxiosError<IErrorResponse>) => {

@@ -13,6 +13,7 @@ interface DashboardSidebarProps {
   setSidebarCollapsed: (collapsed: boolean) => void;
   isActiveShop?: boolean;
   myShop?: any;
+  pendingOrders?: number;
   user?: {
     name: string;
     email: string;
@@ -95,6 +96,7 @@ export const DashboardSidebar = ({
   sidebarCollapsed,
   setSidebarCollapsed,
   isActiveShop,
+  pendingOrders = 0,
   user = { name: 'Usuario', email: 'usuario@vitrina.app' },
 }: DashboardSidebarProps) => {
   const [expandedMenu, setExpandedMenu] = useState<string | null>('store');
@@ -183,6 +185,15 @@ export const DashboardSidebar = ({
                 >
                   <MI name={item.icon} className="!text-[17px]" />
                 </span>
+                {/* Badge de pedidos pendientes */}
+                {item.id === 'orders' && pendingOrders > 0 && !sidebarCollapsed && (
+                  <span className="ml-auto mr-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-black px-1">
+                    {pendingOrders > 99 ? '99+' : pendingOrders}
+                  </span>
+                )}
+                {item.id === 'orders' && pendingOrders > 0 && sidebarCollapsed && (
+                  <span className="absolute top-1 right-1 size-2 rounded-full bg-red-500" />
+                )}
 
                 {!sidebarCollapsed && (
                   <>

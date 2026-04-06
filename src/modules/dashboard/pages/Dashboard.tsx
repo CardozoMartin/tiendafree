@@ -5,7 +5,7 @@ import DashboardMobileHeader from '../components/DashboardMobileHeader';
 import SectionRenderer from '../components/SectionRenderer';
 import DashboardBottomNav from '../components/DashboardBottomNav';
 import { useMyShop } from '../hooks/useShop';
-
+import { useOrders } from '../hooks/useOrders';
 
 
 export default function Dashboard() {
@@ -29,6 +29,16 @@ export default function Dashboard() {
   // const isActiveShop = checkUserStoreData?.data.hasActiveStore ?? false;
 
   const isActiveShop = !!myShop;
+
+  // Pedidos pendientes (para badge en el menú)
+  const { data: pendientesRes } = useOrders({
+    tiendaId: myShop?.id,
+    estado: 'PENDIENTE',
+    limite: 50,
+    pagina: 1,
+  });
+  const pendingOrders: number = pendientesRes?.datos?.length ?? 0;
+
   // Cuando no tiene tienda activa, forzar a 'store' (Crear Tienda)
    const currentActive = !isActiveShop ? 'store' : active;
   return (
@@ -43,6 +53,7 @@ export default function Dashboard() {
       />
       <style>{`
         * { box-sizing: border-box; }
+        html, body, #root { height: 100%; overflow: hidden; }
         body { margin: 0; background: #f6f6f8; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -63,10 +74,11 @@ export default function Dashboard() {
           sidebarCollapsed={sidebarCollapsed}
           setSidebarCollapsed={setSidebarCollapsed}
           isActiveShop={isActiveShop}
+          pendingOrders={pendingOrders}
         />
 
         {/* ── MAIN CONTENT ── */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
           {/* ── Desktop Header ── */}
           <DashboardHeader active={currentActive} accent={accent} />
 
@@ -74,8 +86,8 @@ export default function Dashboard() {
           <DashboardMobileHeader accent={accent} />
 
           {/* ── Scrollable Content ── */}
-          <main className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">
-            <div className="max-w-5xl mx-auto w-full">
+          <main className="flex-1 min-h-0 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">
+            <div className="max-w-5xl mx-auto w-full min-h-0">
               <SectionRenderer
 
                 active={currentActive}
@@ -94,6 +106,7 @@ export default function Dashboard() {
           setActive={setActive}
           accent={accent}
           isActiveShop={isActiveShop}
+          pendingOrders={pendingOrders}
         />
       </div>
     </>

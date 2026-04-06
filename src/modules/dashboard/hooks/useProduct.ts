@@ -15,7 +15,8 @@ import {
   postImportarProductosFn,
   postCrearVarianteFn,
   putActualizarVarianteFn,
-  deleteEliminarVarianteFn
+  deleteEliminarVarianteFn,
+  postSubirImagenVarianteFn
 } from '../api/product.api';
 
 // ─── Helper para extraer el mensaje de error ──────────────────────────────────
@@ -170,6 +171,22 @@ export const useEliminarVariante = () => {
       toast.success('Variante eliminada');
     },
     onError: () => toast.error('Error al eliminar variante'),
+  });
+};
+
+export const useSubirImagenVariante = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { productoId: number; varianteId: number; file: File }) => {
+      return postSubirImagenVarianteFn(data);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
+      toast.success('Imagen de variante subida con éxito');
+    },
+    onError: () => toast.error('Error al subir la imagen de variante'),
   });
 };
 

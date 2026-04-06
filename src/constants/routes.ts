@@ -2,8 +2,9 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
-  RECOVER_PASSWORD: '/recover-password',
-  CHANGE_PASSWORD: '/change-password',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  VERIFY_EMAIL: '/verify-email',
 
   DASHBOARD: '/dashboard',
   DEMO_STORE: (nombre: string) => `/demo/${nombre}`,

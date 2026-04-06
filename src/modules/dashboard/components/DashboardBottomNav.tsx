@@ -8,6 +8,7 @@ interface DashboardBottomNavProps {
   setActive: (id: string) => void;
   accent: string;
   isActiveShop?: boolean;
+  pendingOrders?: number;
 }
 
 // Ítems que van fijos en el tab bar (los más usados)
@@ -18,6 +19,7 @@ export const DashboardBottomNav = ({
   setActive,
   accent,
   isActiveShop,
+  pendingOrders = 0,
 }: DashboardBottomNavProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [storeDrawerOpen, setStoreDrawerOpen] = useState(false);
@@ -87,6 +89,12 @@ export const DashboardBottomNav = ({
                     className="!text-[22px] transition-colors"
                     style={isActive && !isDisabled ? { color: accent } : { color: '#a1a1aa' }}
                   />
+                  {/* Badge pedidos pendientes */}
+                  {item.id === 'orders' && pendingOrders > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-black px-0.5">
+                      {pendingOrders > 9 ? '9+' : pendingOrders}
+                    </span>
+                  )}
                   {/* Chevron badge para submenu */}
                   {hasSubmenu && (
                     <span className="absolute -top-1 -right-2 text-[8px] text-zinc-300">▾</span>

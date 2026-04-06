@@ -23,8 +23,19 @@ export const useOrder = (id: number | null) => {
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { id: number; estado: string; notasOwner?: string }) => 
-      patchUpdateOrderStatusFn(data.id, { estado: data.estado, notasOwner: data.notasOwner }),
+    mutationFn: (data: {
+      id: number;
+      estado: string;
+      notasOwner?: string;
+      nroSeguimiento?: string;
+      urlSeguimiento?: string;
+    }) =>
+      patchUpdateOrderStatusFn(data.id, {
+        estado: data.estado,
+        notasOwner: data.notasOwner,
+        nroSeguimiento: data.nroSeguimiento,
+        urlSeguimiento: data.urlSeguimiento,
+      }),
     onSuccess: () => {
       toast.success('Estado del pedido actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
