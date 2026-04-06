@@ -15,7 +15,7 @@ interface Props {
 
 export default function ProductosDestacados({ onSelect, tiendaId }: Props) {
   const { data: productosData, isLoading } = useStorefrontDestacados(tiendaId ?? 0);
-  const productos = productosData?.datos || [];
+  const productos = productosData || [];
 
   if (isLoading || productos.length === 0) return null;
 

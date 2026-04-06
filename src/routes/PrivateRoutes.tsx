@@ -11,14 +11,30 @@ const RoutesPrivate = () => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const check = checkSession();
+    const valid = checkSession();
     setIsChecking(false);
-    if (check) startSessionCheck();
-  }, []); // sin dependencias — solo al montar
+    if (valid) startSessionCheck();
+  }, [checkSession, startSessionCheck]);
 
   useEffect(() => {
-    if (!isChecking) checkSession();
-  }, [location.pathname]);
+    if (!isChecking) {
+      checkSession();
+    }
+  }, [location.pathname, checkSession, isChecking]);
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setIsChecking(true);
+      const valid = checkSession();
+      setIsChecking(false);
+      if (!valid) {
+        return;
+      }
+    };
+
+    window.addEventListener('app:auth-expired', handleAuthExpired);
+    return () => window.removeEventListener('app:auth-expired', handleAuthExpired);
+  }, [checkSession]);
 
   if (isChecking) {
     return (

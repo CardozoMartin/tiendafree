@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { useAuthSessionStore } from '../modules/auth/store/useAuthSession';
 
+const isAuthRequest = (url?: string): boolean => {
+  if (!url) return false;
+  return url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/confirmar-reset');
+};
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1',
   headers: {
@@ -12,7 +17,7 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const { token } = useAuthSessionStore.getState();
 
-  if (token) {
+  if (token && config.headers) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
 
@@ -24,13 +29,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const requestUrl = error.config?.url ?? '';
-    const isAuthLoginRequest = typeof requestUrl === 'string' && requestUrl.includes('/auth/login');
+    const authRequest = isAuthRequest(requestUrl);
+    const status = error.response?.status;
 
-    if (error.response?.status === 401 && !isAuthLoginRequest) {
-      // Token expirado o inválido
+    if ((status === 401 || status === 403) && !authRequest) {
       const { logout } = useAuthSessionStore.getState();
       logout();
-      window.location.href = '/login';
+      window.dispatchEvent(new Event('app:auth-expired'));
     }
 
     return Promise.reject(error);

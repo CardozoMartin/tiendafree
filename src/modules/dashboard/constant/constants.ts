@@ -1,5 +1,18 @@
 // ── Navigation Items ──────────────────────────────────────────────────────
-export const NAV_ITEMS = [
+export interface NavSubItem {
+  id: string;
+  icon: string;
+  label: string;
+}
+
+export interface NavItem {
+  id: string;
+  icon: string;
+  label: string;
+  submenu?: NavSubItem[];
+}
+
+export const NAV_ITEMS: NavItem[] = [
   {
     id: 'store',
     icon: 'palette',

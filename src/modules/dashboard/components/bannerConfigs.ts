@@ -10,6 +10,7 @@ export interface ElementPosition {
   textAlign?: 'left' | 'center' | 'right';
   maxWidth?: string; // límite de ancho
   color?: string; // color del texto
+  backgroundColor?: string; // color de fondo opcional
 }
 
 export interface BannerLayout {

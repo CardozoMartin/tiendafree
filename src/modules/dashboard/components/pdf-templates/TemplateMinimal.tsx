@@ -10,7 +10,7 @@ export interface TemplateProps {
   grupos: Record<string, IProduct[]>;
 }
 
-export const TemplateMinimal: React.FC<TemplateProps> = ({ productos, tienda, grupos }) => {
+export const TemplateMinimal: React.FC<TemplateProps> = ({ tienda, grupos }: TemplateProps) => {
   return (
     <div
       style={{

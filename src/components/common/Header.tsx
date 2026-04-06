@@ -1,6 +1,7 @@
-import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import IconTZ from '../../assets/Gemini_Generated_Image_u6qpyu6qpyu6qpyu-removebg-preview.png'
+import { ArrowRight } from 'lucide-react';
 
 interface HeaderProps {
   isAuthenticated?: boolean;
@@ -37,19 +38,21 @@ const Header = ({
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        scrolled
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled
           ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100'
           : 'bg-transparent'
-      }`}
+        }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1 lg:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <div className="size-8 rounded-lg bg-[#6344ee] flex items-center justify-center text-white">
-            <ArrowRight />
+        <Link to="/" className="flex items-center justify-center hover:opacity-80 transition-opacity h-14 w-14 shrink-0 overflow-visible">
+          <div className="flex items-center justify-center w-0 h-0">
+            <img
+              src={IconTZ}
+              alt="Logo Tiendzi"
+              className="w-[160px] h-[160px] max-w-none object-contain drop-shadow-md"
+            />
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">Vitrina</h2>
         </Link>
 
         {/* Nav - Solo en rutas públicas */}

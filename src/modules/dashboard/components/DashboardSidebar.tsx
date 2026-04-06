@@ -223,7 +223,7 @@ export const DashboardSidebar = ({
                 {/* Submenu */}
                 {hasSubmenu && isActiveShop && isExpanded && !sidebarCollapsed && (
                   <div className="mt-0.5 ml-4 pl-3.5 border-l border-zinc-200/60 space-y-0.5 py-1">
-                    {item.submenu.map((sub) => {
+                    {item.submenu?.map((sub) => {
                       const isSubActive = active === sub.id;
                       return (
                         <button

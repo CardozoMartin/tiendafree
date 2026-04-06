@@ -3,6 +3,7 @@ import { STATUS_META } from '../constant/constants';
 import MI from './MaterialIcon';
 import { useOrders, useUpdateOrderStatus } from '../hooks/useOrders';
 import { useMyShop } from '../hooks/useShop';
+import type { IOrder, IOrderItem } from '../types/order.type';
 
 // Correos postales con URL base de seguimiento
 const CORREOS = [
@@ -24,10 +25,12 @@ const Badge = ({ status }: { status: string }) => {
   );
 };
 
+type OrderStatusFilter = 'all' | 'PENDIENTE' | 'CONFIRMADO' | 'EN_CAMINO' | 'ENTREGADO';
+
 const OrdersSection = ({ accent }: { accent: string }) => {
   const { data: myShop } = useMyShop();
-  const [filter, setFilter] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [filter, setFilter] = useState<OrderStatusFilter>('all');
+  const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   // Modal de seguimiento postal
   const [trackingModal, setTrackingModal] = useState<{ orderId: number } | null>(null);
   const [nroSeguimiento, setNroSeguimiento] = useState('');
@@ -42,9 +45,9 @@ const OrdersSection = ({ accent }: { accent: string }) => {
 
   const { mutate: updateStatus } = useUpdateOrderStatus();
 
-  const orders = ordersRes?.datos || [];
+  const orders: IOrder[] = ordersRes?.datos || [];
 
-  const filters = [
+  const filters: Array<{ id: OrderStatusFilter; label: string }> = [
     { id: 'all', label: 'Todos' },
     { id: 'PENDIENTE', label: 'Pendientes' },
     { id: 'CONFIRMADO', label: 'Confirmados' },
@@ -93,7 +96,7 @@ const OrdersSection = ({ accent }: { accent: string }) => {
           </div>
       ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-            {orders.map((o: any) => (
+            {orders.map((o) => (
               <div
                 key={o.id}
                 onClick={() => setSelectedOrder(o)}
@@ -218,7 +221,7 @@ const OrdersSection = ({ accent }: { accent: string }) => {
                           <h4 className="text-[.65rem] font-black text-slate-400 uppercase tracking-widest mb-4">Productos</h4>
                           <div className="space-y-4">
                               {/* Esta info viene en la relación items si es que fetchById incluye items */}
-                              {selectedOrder.items?.map((item: any) => (
+                              {selectedOrder.items?.map((item: IOrderItem) => (
                                   <div key={item.id} className="flex items-center justify-between">
                                       <div className="flex items-center gap-3">
                                           <div className="size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-xs font-black text-slate-400">

@@ -4,7 +4,7 @@ import type { TemplateProps } from './TemplateMinimal';
 const formatPrice = (price: number, moneda: string) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
 
-export const TemplateModern: React.FC<TemplateProps> = ({ productos, tienda, grupos }) => {
+export const TemplateModern: React.FC<TemplateProps> = ({ tienda, grupos }: TemplateProps) => {
   return (
     <div
       style={{

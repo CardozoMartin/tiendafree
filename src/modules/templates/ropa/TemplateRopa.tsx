@@ -1196,7 +1196,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
     busqueda: busquedaFiltro.trim() !== '' ? busquedaFiltro : undefined,
   });
 
-  const productos = productosData?.datos || [];
+  const productos = productosData || [];
   const visibleProducts = productos.slice(0, visibleCount);
 
   return (

@@ -19,15 +19,9 @@ export default function Dashboard() {
     localStorage.setItem('dashboard_active_section', active);
   }, [active]);
 
-  //Hook que devuelve la tienda del usuario si tienda una tienda creada y activa, sino devuelve null
-  const { data: myShop } = useMyShop();
-  console.log(myShop);
-
-  //hook para verificar si el usuario tiene una tienda creada y activa
-  // const { data: checkUserStoreData } = useCheckUserStore();
-  // const isActiveShop = checkUserStoreData?.data.hasActiveStore ?? false;
-
-  const isActiveShop = !!myShop;
+  // Hook que devuelve la tienda del usuario si tiene una tienda creada y activa.
+  const { data: myShop, isLoading: isMyShopLoading } = useMyShop();
+  const isActiveShop = Boolean(myShop);
 
   // Pedidos pendientes (para badge en el menú)
   const { data: pendientesRes } = useOrders({
@@ -38,8 +32,8 @@ export default function Dashboard() {
   });
   const pendingOrders: number = pendientesRes?.datos?.length ?? 0;
 
-  // Cuando no tiene tienda activa, forzar a 'store' (Crear Tienda)
-  const currentActive = !isActiveShop ? 'store' : active;
+  // No forzar aún la pantalla de creación si la tienda está en carga.
+  const currentActive = !isMyShopLoading && !isActiveShop ? 'store' : active;
   return (
     <>
       <link
