@@ -21,6 +21,10 @@ import {
 } from '../hooks/useProduct';
 import type { IProduct, IProductFilters } from '../types/product.type';
 import FormProduct from './Forms/FormProduct';
+import { useMyShop } from '../hooks/useShop';
+import { usePDF } from 'react-to-pdf';
+import CatalogoPDF from './CatalogoPDF';
+import { FileText } from 'lucide-react';
 
 const formatPrice = (price: number, moneda: string) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
@@ -59,6 +63,40 @@ const ProductsSection = () => {
   const total: number = productosPaginados?.paginacion?.total ?? 0;
   const totalPaginas: number = productosPaginados?.paginacion?.totalPaginas ?? 1;
 
+  // Query para obtener todos los productos para el PDF
+  const { data: todosProductosPaginados } = useMisProductos({ limite: 1000, disponible: true });
+  const allProductsForPdf = (todosProductosPaginados?.datos ?? []).filter(p => p.stock > 0);
+
+  const { data: myShop } = useMyShop();
+  const tiendaInfo = myShop?.datos ? { 
+    nombre: myShop.datos.nombre, 
+    tagline: (myShop.datos.configuracion as any)?.tagline || myShop.datos.dominio, 
+    logo: (myShop.datos.configuracion as any)?.logoUrl || undefined 
+  } : { nombre: 'Tienda' };
+
+  const { toPDF, targetRef } = usePDF({
+    filename: 'catalogo.pdf',
+    canvas: { useCORS: true }
+  });
+
+  const [pdfTheme, setPdfTheme] = useState<'minimal' | 'modern' | 'lookbook'>('minimal');
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    setIsGeneratingPdf(true);
+    // Agregamos un pequeño timeout para permitir que React actualice la UI y muestre el spinner
+    // antes de que html2canvas bloquee el hilo de ejecución buscando renderizar.
+    setTimeout(async () => {
+      try {
+        await toPDF();
+      } catch (error) {
+        console.error('Error generando PDF', error);
+      } finally {
+        setIsGeneratingPdf(false);
+      }
+    }, 150);
+  };
+
   // Estado del formulario inline (null = cerrado, 'create' = nuevo, number = editar id)
   const [expandedId, setExpandedId] = useState<'create' | number | null>(null);
 
@@ -87,6 +125,39 @@ const ProductsSection = () => {
           </p>
         </div>
         <div className="flex items-center gap-2 self-start flex-wrap">
+          {/* Menú de Tema PDF */}
+          <div className="relative group">
+            <select
+              value={pdfTheme}
+              onChange={(e) => setPdfTheme(e.target.value as any)}
+              className="appearance-none bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm px-3 py-2.5 pr-8 focus:outline-none focus:border-gray-400 cursor-pointer"
+              title="Elegir diseño del PDF"
+            >
+              <option value="minimal">Minimalista</option>
+              <option value="modern">Moderno</option>
+              <option value="lookbook">Lookbook</option>
+            </select>
+            {/* Custom arrow for select */}
+            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
+               <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+            </div>
+          </div>
+
+          {/* Catálogo PDF */}
+          <button
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className={`flex items-center gap-1.5 px-3 py-2.5 bg-gray-900 text-white hover:bg-gray-800 text-sm font-bold rounded-xl transition-all shadow-sm ${isGeneratingPdf ? 'opacity-75 cursor-wait' : ''}`}
+            title="Descargar catálogo de productos en PDF"
+          >
+            {isGeneratingPdf ? (
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+            ) : (
+              <FileText className="w-4 h-4" />
+            )}
+            <span className="hidden sm:inline">{isGeneratingPdf ? 'Generando...' : 'Descargar PDF'}</span>
+          </button>
+
           {/* Exportar */}
           <button
             onClick={() => exportar.mutate()}
@@ -95,7 +166,7 @@ const ProductsSection = () => {
             title="Exportar catálogo a Excel"
           >
             <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Exportar</span>
+            <span className="hidden sm:inline">Exportar Excel</span>
           </button>
 
           {/* Importar */}
@@ -452,6 +523,11 @@ const ProductsSection = () => {
           </div>
         </div>
       )}
+
+      {/* Hidden PDF component */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <CatalogoPDF ref={targetRef} productos={allProductsForPdf} tienda={tiendaInfo} tema={pdfTheme} />
+      </div>
     </div>
   );
 };
