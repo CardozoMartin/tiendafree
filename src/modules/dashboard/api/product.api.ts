@@ -1,11 +1,11 @@
 import { api } from '../../../api/ApiBase';
 import type { ISuccessResponse } from '../../../types/api.type';
 import type {
-  ICreateProductDto,
-  IUpdateProductDto,
-  IProductFilters,
-  IProduct,
   ICategory,
+  ICreateProductDto,
+  IProduct,
+  IProductFilters,
+  IUpdateProductDto,
 } from '../types/product.type';
 
 // Re-aliasing for convenience if needed, but I'll use ISuccessResponse directly
@@ -54,10 +54,10 @@ export const postCrearProductoFn = async (payload: ICreateProductDto) => {
   formData.append('moneda', payload.moneda);
   formData.append('disponible', payload.disponible ? 'true' : 'false');
   formData.append('destacado', payload.destacado ? 'true' : 'false');
-  
+
   if (payload.descripcion) formData.append('descripcion', payload.descripcion);
   if (payload.precioOferta !== undefined && payload.precioOferta !== null) {
-     formData.append('precioOferta', payload.precioOferta.toString());
+    formData.append('precioOferta', payload.precioOferta.toString());
   }
   if (payload.categoriaId) {
     formData.append('categoriaId', payload.categoriaId.toString());
@@ -110,7 +110,7 @@ export const putActualizarProductoFn = async ({
   ) {
     delete jsonPayload.precioOferta;
   }
-  
+
   if (
     jsonPayload.categoriaId === null ||
     jsonPayload.categoriaId === '' ||
@@ -120,7 +120,7 @@ export const putActualizarProductoFn = async ({
   }
 
   // Eliminar cualquier otro undefined explicito para asegurar un JSON limpio
-  Object.keys(jsonPayload).forEach(key => {
+  Object.keys(jsonPayload).forEach((key) => {
     if (jsonPayload[key] === undefined) {
       delete jsonPayload[key];
     }
@@ -198,21 +198,40 @@ export const postCrearVarianteFn = async (productoId: number, payload: any): Pro
   return data;
 };
 
-export const putActualizarVarianteFn = async (productoId: number, varianteId: number, payload: any): Promise<any> => {
+export const putActualizarVarianteFn = async (
+  productoId: number,
+  varianteId: number,
+  payload: any
+): Promise<any> => {
   const { data } = await api.put(`/mis-productos/${productoId}/variantes/${varianteId}`, payload);
   return data;
 };
 
-export const deleteEliminarVarianteFn = async (productoId: number, varianteId: number): Promise<any> => {
+export const deleteEliminarVarianteFn = async (
+  productoId: number,
+  varianteId: number
+): Promise<any> => {
   const { data } = await api.delete(`/mis-productos/${productoId}/variantes/${varianteId}`);
   return data;
 };
 
-export const postSubirImagenVarianteFn = async ({ productoId, varianteId, file }: { productoId: number; varianteId: number; file: File }): Promise<any> => {
+export const postSubirImagenVarianteFn = async ({
+  productoId,
+  varianteId,
+  file,
+}: {
+  productoId: number;
+  varianteId: number;
+  file: File;
+}): Promise<any> => {
   const formData = new FormData();
   formData.append('photo', file);
-  const { data } = await api.post(`/mis-productos/${productoId}/variantes/${varianteId}/imagen`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await api.post(
+    `/mis-productos/${productoId}/variantes/${varianteId}/imagen`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
   return data;
 };

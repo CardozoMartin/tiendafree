@@ -1,20 +1,33 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import {
-  ImagePlus, Tag, DollarSign, FileText, Hash,
-  SquarePen, ArrowDownUp, BadgePercent, LayoutGrid, Trash2, Plus, Image as ImageIcon, UploadCloud, Package, ToggleRight
+  ArrowDownUp,
+  BadgePercent,
+  DollarSign,
+  FileText,
+  Hash,
+  Image as ImageIcon,
+  ImagePlus,
+  LayoutGrid,
+  Package,
+  Plus,
+  SquarePen,
+  Tag,
+  ToggleRight,
+  Trash2,
+  UploadCloud,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { getCategoriasFn } from '../../api/product.api';
 import {
-  useCrearProducto,
   useActualizarProducto,
   useAgregarImagen,
-  useEliminarImagen,
+  useCrearProducto,
   useCrearVariante,
+  useEliminarImagen,
   useEliminarVariante,
-  useSubirImagenVariante
+  useSubirImagenVariante,
 } from '../../hooks/useProduct';
-import { getCategoriasFn } from '../../api/product.api';
 import type { IProduct } from '../../types/product.type';
 
 interface FormProductValues {
@@ -73,13 +86,7 @@ const IconInput = ({
 
 // ─── Toggle CSS (idéntico a EditingSite) ────────────────────────────────────
 
-const Toggle = ({
-  name,
-  register,
-}: {
-  name: 'disponible' | 'destacado';
-  register: any;
-}) => {
+const Toggle = ({ name, register }: { name: 'disponible' | 'destacado'; register: any }) => {
   return (
     <label className="inline-flex items-center cursor-pointer">
       <input type="checkbox" {...register(name)} className="sr-only peer" />
@@ -101,7 +108,6 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
   // Variantes pendientes (solo en modo crear)
   const [variantesPendientes, setVariantesPendientes] = useState<VariantePendiente[]>([]);
-
 
   const { data: categorias = [] } = useQuery({
     queryKey: ['categorias'],
@@ -220,13 +226,16 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   };
 
   const handleAgregarVariante = async () => {
-    const validGroups = varianteGroups.filter(g => g.valores.trim() !== '');
+    const validGroups = varianteGroups.filter((g) => g.valores.trim() !== '');
     if (validGroups.length === 0) return;
 
     // Generar combinaciones (Producto Cartesiano)
     const combinations: string[][] = [[]];
     for (const group of validGroups) {
-      const vals = group.valores.split(',').map(s => s.trim()).filter(Boolean);
+      const vals = group.valores
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
       const nextCombinations: string[][] = [];
       for (const combo of combinations) {
         for (const val of vals) {
@@ -238,41 +247,48 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     }
 
     // Convertir combinaciones a strings finales (ej: "Color: Rojo - Talle: M")
-    const finalNames = combinations.map(c => c.join(' - '));
+    const finalNames = combinations.map((c) => c.join(' - '));
 
     if (isEditing && producto) {
       for (const nombreFinal of finalNames) {
         try {
-          await crearVariante({ 
-            productoId: producto.id, 
+          await crearVariante({
+            productoId: producto.id,
             payload: {
-               nombre: nombreFinal,
-               sku: varianteMeta.skuBase ? `${varianteMeta.skuBase}-${nombreFinal.replace(/[: ]/g, '')}` : '',
-               precioExtra: varianteMeta.precioExtra,
-               stock: varianteMeta.stock,
-               disponible: varianteMeta.disponible
-            } 
+              nombre: nombreFinal,
+              sku: varianteMeta.skuBase
+                ? `${varianteMeta.skuBase}-${nombreFinal.replace(/[: ]/g, '')}`
+                : '',
+              precioExtra: varianteMeta.precioExtra,
+              stock: varianteMeta.stock,
+              disponible: varianteMeta.disponible,
+            },
           });
         } catch (e) {
           console.error(e);
         }
       }
     } else {
-      const nuevasP: VariantePendiente[] = finalNames.map(nombreFinal => ({
-         nombre: nombreFinal,
-         sku: varianteMeta.skuBase ? `${varianteMeta.skuBase}-${nombreFinal.replace(/[: ]/g, '')}` : '',
-         precioExtra: varianteMeta.precioExtra,
-         stock: varianteMeta.stock,
-         disponible: varianteMeta.disponible
+      const nuevasP: VariantePendiente[] = finalNames.map((nombreFinal) => ({
+        nombre: nombreFinal,
+        sku: varianteMeta.skuBase
+          ? `${varianteMeta.skuBase}-${nombreFinal.replace(/[: ]/g, '')}`
+          : '',
+        precioExtra: varianteMeta.precioExtra,
+        stock: varianteMeta.stock,
+        disponible: varianteMeta.disponible,
       }));
       setVariantesPendientes((prev) => [...prev, ...nuevasP]);
     }
     // Limpiar solo los valores
-    setVarianteGroups(varianteGroups.map(g => ({ ...g, valores: '' })));
-    setVarMeta(prev => ({ ...prev, skuBase: '', precioExtra: 0, stock: 0 }));
+    setVarianteGroups(varianteGroups.map((g) => ({ ...g, valores: '' })));
+    setVarMeta((prev) => ({ ...prev, skuBase: '', precioExtra: 0, stock: 0 }));
   };
 
-  const handleSubirFotoVariante = async (e: React.ChangeEvent<HTMLInputElement>, varianteId: number) => {
+  const handleSubirFotoVariante = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    varianteId: number
+  ) => {
     const file = e.target.files?.[0];
     if (file && producto) {
       await subirImagenVariante({ productoId: producto.id, varianteId, file });
@@ -284,10 +300,12 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     setVariantesPendientes((prev) => prev.filter((_, i) => i !== idx));
   };
 
-
   const handleSubmit = async (data: FormProductValues) => {
     const tagsArray = data.tags
-      ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
+      ? data.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
       : [];
 
     const payload = {
@@ -320,7 +338,6 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
   return (
     <form onSubmit={onSubmitRHF(handleSubmit)} noValidate className="space-y-8">
-
       {/* ══════════════════════════
           SECCIÓN: FOTO
       ══════════════════════════ */}
@@ -392,12 +409,13 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
       ══════════════════════════ */}
       <div>
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">Información</h2>
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+            Información
+          </h2>
           <p className="text-xs text-gray-400 mt-1">Datos principales del producto.</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] divide-y divide-gray-50">
-
           {/* Nombre */}
           <div className="px-5 py-4 space-y-1.5">
             <label className="block text-xs font-medium text-gray-500">
@@ -449,10 +467,10 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
           {/* Categoría */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-800 flex items-center gap-2">
-                Categoría
+              <p className="text-sm font-medium text-gray-800 flex items-center gap-2">Categoría</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Categoría y subcategoría para clasificar el producto.
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">Categoría y subcategoría para clasificar el producto.</p>
             </div>
             <div className="flex flex-col gap-2">
               <div className="relative min-w-[170px]">
@@ -482,7 +500,10 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                     value={formCategoriaId}
                     onChange={(e) => {
                       const val = e.target.value;
-                      setValue('categoriaId', val ? Number(val) : (selectedParentId !== '' ? Number(selectedParentId) : ''));
+                      setValue(
+                        'categoriaId',
+                        val ? Number(val) : selectedParentId !== '' ? Number(selectedParentId) : ''
+                      );
                     }}
                   >
                     <option value="">(Seleccionar subcategoría...)</option>
@@ -509,7 +530,6 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] divide-y divide-gray-50">
-
           {/* Precio */}
           <div className="px-5 py-4 space-y-1.5">
             <label className="block text-xs font-medium text-gray-500">
@@ -614,75 +634,111 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
       ══════════════════════════ */}
       <div>
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">Variantes</h2>
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+            Variantes
+          </h2>
           <p className="text-xs text-gray-400 mt-1">
-            {isEditing ? 'Talles, colores u otras opciones del producto.' : 'Podés agregar variantes ahora o después de crear el producto.'}
+            {isEditing
+              ? 'Talles, colores u otras opciones del producto.'
+              : 'Podés agregar variantes ahora o después de crear el producto.'}
           </p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
           <ul className="divide-y divide-gray-50">
             {/* Variantes existentes (modo editar) */}
-            {isEditing && producto?.variantes?.map(v => (
-              <li key={v.id} className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {v.sku && `SKU: ${v.sku} · `}
-                    Extra: ${v.precioExtra} · {' '}
-                    Stock: {v.stock} · {' '}
-                    {v.disponible ? <span className="text-green-600 font-medium">Disponible</span> : <span className="text-red-500 font-medium">Oculta</span>}
-                  </p>
-                </div>
-                <div className="flex gap-2 items-center">
-                  {v.imagenUrl && (
-                    <img src={v.imagenUrl} alt={v.nombre} className="w-8 h-8 rounded object-cover shadow-sm" />
-                  )}
-                  <label className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer" title="Subir imagen">
-                    <UploadCloud className="w-4 h-4" />
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleSubirFotoVariante(e, v.id)} />
-                  </label>
+            {isEditing &&
+              producto?.variantes?.map((v) => (
+                <li
+                  key={v.id}
+                  className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {v.sku && `SKU: ${v.sku} · `}
+                      Extra: ${v.precioExtra} · Stock: {v.stock} ·{' '}
+                      {v.disponible ? (
+                        <span className="text-green-600 font-medium">Disponible</span>
+                      ) : (
+                        <span className="text-red-500 font-medium">Oculta</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    {v.imagenUrl && (
+                      <img
+                        src={v.imagenUrl}
+                        alt={v.nombre}
+                        className="w-8 h-8 rounded object-cover shadow-sm"
+                      />
+                    )}
+                    <label
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                      title="Subir imagen"
+                    >
+                      <UploadCloud className="w-4 h-4" />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => handleSubirFotoVariante(e, v.id)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        eliminarVariante({ productoId: producto!.id, varianteId: v.id })
+                      }
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Eliminar variante"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </li>
+              ))}
+
+            {/* Variantes pendientes (modo crear) */}
+            {!isEditing &&
+              variantesPendientes.map((v, idx) => (
+                <li
+                  key={idx}
+                  className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {v.sku && `SKU: ${v.sku} · `}
+                      Extra: ${v.precioExtra} · Stock: {v.stock} ·{' '}
+                      {v.disponible ? (
+                        <span className="text-green-600 font-medium">Disponible</span>
+                      ) : (
+                        <span className="text-red-500 font-medium">Oculta</span>
+                      )}
+                    </p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => eliminarVariante({ productoId: producto!.id, varianteId: v.id })}
+                    onClick={() => handleEliminarVariantePendiente(idx)}
                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Eliminar variante"
+                    title="Quitar variante"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                </div>
-              </li>
-            ))}
-
-            {/* Variantes pendientes (modo crear) */}
-            {!isEditing && variantesPendientes.map((v, idx) => (
-              <li key={idx} className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {v.sku && `SKU: ${v.sku} · `}
-                    Extra: ${v.precioExtra} · {' '}
-                    Stock: {v.stock} · {' '}
-                    {v.disponible ? <span className="text-green-600 font-medium">Disponible</span> : <span className="text-red-500 font-medium">Oculta</span>}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleEliminarVariantePendiente(idx)}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Quitar variante"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </li>
-            ))}
+                </li>
+              ))}
 
             {/* Estado vacío */}
             {isEditing && (!producto?.variantes || producto.variantes.length === 0) && (
-              <li className="px-5 py-5 text-center text-sm text-gray-400 italic">No hay variantes cargadas</li>
+              <li className="px-5 py-5 text-center text-sm text-gray-400 italic">
+                No hay variantes cargadas
+              </li>
             )}
             {!isEditing && variantesPendientes.length === 0 && (
-              <li className="px-5 py-5 text-center text-sm text-gray-400 italic">Sin variantes — se creará sin opciones</li>
+              <li className="px-5 py-5 text-center text-sm text-gray-400 italic">
+                Sin variantes — se creará sin opciones
+              </li>
             )}
           </ul>
 
@@ -690,11 +746,15 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
           <div className="bg-gray-50 p-5 border-t border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-xs font-semibold uppercase text-gray-500 tracking-wider">Generador de combinaciones</p>
-                <p className="text-[10px] text-gray-400">Ej: "Rojo, Azul" x "S, M" = "Rojo-S, Rojo-M, Azul-S, Azul-M"</p>
+                <p className="text-xs font-semibold uppercase text-gray-500 tracking-wider">
+                  Generador de combinaciones
+                </p>
+                <p className="text-[10px] text-gray-400">
+                  Ej: "Rojo, Azul" x "S, M" = "Rojo-S, Rojo-M, Azul-S, Azul-M"
+                </p>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleAddGroup}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-[11px] font-bold text-gray-600 rounded-lg hover:bg-gray-50"
               >
@@ -704,12 +764,15 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
             <div className="space-y-3 mb-6">
               {varianteGroups.map((group, idx) => (
-                <div key={idx} className="flex gap-2 items-start animate-in fade-in slide-in-from-top-2 duration-200">
+                <div
+                  key={idx}
+                  className="flex gap-2 items-start animate-in fade-in slide-in-from-top-2 duration-200"
+                >
                   <div className="w-1/3">
                     <select
                       className={`${inputCls} py-2`}
                       value={group.tipo}
-                      onChange={e => updateGroup(idx, 'tipo', e.target.value)}
+                      onChange={(e) => updateGroup(idx, 'tipo', e.target.value)}
                     >
                       <option value="">(Sin prefijo)</option>
                       <option value="Color">Color</option>
@@ -725,12 +788,12 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                       placeholder="Valores separados por coma (ej. Blanco, Negro)"
                       className={`${inputCls} py-2`}
                       value={group.valores}
-                      onChange={e => updateGroup(idx, 'valores', e.target.value)}
+                      onChange={(e) => updateGroup(idx, 'valores', e.target.value)}
                     />
                   </div>
                   {varianteGroups.length > 1 && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => handleRemoveGroup(idx)}
                       className="p-2 text-gray-300 hover:text-red-500 transition-colors"
                     >
@@ -740,14 +803,14 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                 </div>
               ))}
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
               <input
                 type="text"
                 placeholder="SKU Base (opcional)"
                 className={`${inputCls} py-2`}
                 value={varianteMeta.skuBase}
-                onChange={e => setVarMeta({...varianteMeta, skuBase: e.target.value})}
+                onChange={(e) => setVarMeta({ ...varianteMeta, skuBase: e.target.value })}
               />
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500 whitespace-nowrap">Stock</span>
@@ -756,7 +819,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                   placeholder="0"
                   className={`${inputCls} py-2 w-full`}
                   value={varianteMeta.stock || ''}
-                  onChange={e => setVarMeta({...varianteMeta, stock: Number(e.target.value)})}
+                  onChange={(e) => setVarMeta({ ...varianteMeta, stock: Number(e.target.value) })}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -766,30 +829,36 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                   placeholder="0"
                   className={`${inputCls} py-2 w-full`}
                   value={varianteMeta.precioExtra || ''}
-                  onChange={e => setVarMeta({...varianteMeta, precioExtra: Number(e.target.value)})}
+                  onChange={(e) =>
+                    setVarMeta({ ...varianteMeta, precioExtra: Number(e.target.value) })
+                  }
                 />
               </div>
               <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={varianteMeta.disponible}
-                  onChange={e => setVarMeta({...varianteMeta, disponible: e.target.checked})}
+                  onChange={(e) => setVarMeta({ ...varianteMeta, disponible: e.target.checked })}
                   className="rounded text-gray-900 focus:ring-gray-900/10 cursor-pointer"
                 />
                 Disponible
               </label>
             </div>
-            
+
             {!isEditing && (
               <p className="text-xs text-gray-500 mb-3 italic">
-                La subida de imagen para cada variante se habilitará luego de guardar el producto por primera vez.
+                La subida de imagen para cada variante se habilitará luego de guardar el producto
+                por primera vez.
               </p>
             )}
 
             <button
               type="button"
               onClick={handleAgregarVariante}
-              disabled={varianteGroups.every(g => !g.valores.trim()) || (isEditing ? creandoVariante : false)}
+              disabled={
+                varianteGroups.every((g) => !g.valores.trim()) ||
+                (isEditing ? creandoVariante : false)
+              }
               className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-xs font-bold rounded-lg transition-all w-full sm:w-auto"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -805,14 +874,21 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
       {isEditing && producto && (
         <div>
           <div className="mb-4">
-            <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">Imágenes extra</h2>
-            <p className="text-xs text-gray-400 mt-1">Podés subir fotos adicionales de este producto.</p>
+            <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+              Imágenes extra
+            </h2>
+            <p className="text-xs text-gray-400 mt-1">
+              Podés subir fotos adicionales de este producto.
+            </p>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
             <div className="flex gap-4 overflow-x-auto pb-2">
               {producto.imagenes?.map((img) => (
-                <div key={img.id} className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-gray-200 group">
+                <div
+                  key={img.id}
+                  className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-gray-200 group"
+                >
                   <img src={img.url} alt="Extra" className="w-full h-full object-cover" />
                   <button
                     type="button"
@@ -825,10 +901,17 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                 </div>
               ))}
 
-              <label className={`w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 hover:bg-gray-50 flex flex-col items-center justify-center cursor-pointer shrink-0 transition-all ${subiendoImagen ? 'opacity-50 pointer-events-none' : ''}`}>
+              <label
+                className={`w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 hover:bg-gray-50 flex flex-col items-center justify-center cursor-pointer shrink-0 transition-all ${subiendoImagen ? 'opacity-50 pointer-events-none' : ''}`}
+              >
                 <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
                 <span className="text-[10px] text-gray-500 font-medium">Agregar</span>
-                <input type="file" accept="image/*" className="hidden" onChange={handleSubirImagenExtra} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleSubirImagenExtra}
+                />
               </label>
             </div>
           </div>

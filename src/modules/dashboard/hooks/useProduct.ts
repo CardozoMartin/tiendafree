@@ -1,23 +1,23 @@
-import type { AxiosError } from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { IErrorResponse, ISuccessResponse } from '../../../types/api.type';
-import type { IProductFilters, IProduct } from '../types/product.type';
 import {
-  getMisProductosFn,
-  getMiProductoFn,
-  postCrearProductoFn,
-  putActualizarProductoFn,
-  deleteEliminarProductoFn,
-  postAgregarImagenFn,
   deleteEliminarImagenFn,
-  getExportarProductosFn,
-  postImportarProductosFn,
-  postCrearVarianteFn,
-  putActualizarVarianteFn,
+  deleteEliminarProductoFn,
   deleteEliminarVarianteFn,
-  postSubirImagenVarianteFn
+  getExportarProductosFn,
+  getMiProductoFn,
+  getMisProductosFn,
+  postAgregarImagenFn,
+  postCrearProductoFn,
+  postCrearVarianteFn,
+  postImportarProductosFn,
+  postSubirImagenVarianteFn,
+  putActualizarProductoFn,
+  putActualizarVarianteFn,
 } from '../api/product.api';
+import type { IProduct, IProductFilters } from '../types/product.type';
 
 // ─── Helper para extraer el mensaje de error ──────────────────────────────────
 const getErrorMessage = (error: AxiosError<IErrorResponse>): string => {
@@ -230,10 +230,9 @@ export const useImportarProductos = () => {
     },
     onError: (error: AxiosError<IErrorResponse>) => {
       console.error('[Products] Importar Excel - error', error);
-      const errorDetails =
-        error.response?.data?.errores?.length
-          ? error.response?.data?.errores.join(' · ')
-          : error.response?.data?.mensaje ?? error?.message ?? 'Error inesperado';
+      const errorDetails = error.response?.data?.errores?.length
+        ? error.response?.data?.errores.join(' · ')
+        : (error.response?.data?.mensaje ?? error?.message ?? 'Error inesperado');
       toast.error(`Fallo al importar Excel: ${errorDetails}`);
     },
   });

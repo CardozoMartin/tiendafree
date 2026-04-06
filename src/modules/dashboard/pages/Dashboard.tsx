@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-import DashboardSidebar from '../components/DashboardSidebar';
+import { useEffect, useState } from 'react';
+import DashboardBottomNav from '../components/DashboardBottomNav';
 import DashboardHeader from '../components/DashboardHeader';
 import DashboardMobileHeader from '../components/DashboardMobileHeader';
+import DashboardSidebar from '../components/DashboardSidebar';
 import SectionRenderer from '../components/SectionRenderer';
-import DashboardBottomNav from '../components/DashboardBottomNav';
-import { useMyShop } from '../hooks/useShop';
 import { useOrders } from '../hooks/useOrders';
-
+import { useMyShop } from '../hooks/useShop';
 
 export default function Dashboard() {
   const [active, setActive] = useState(() => {
@@ -22,7 +21,7 @@ export default function Dashboard() {
 
   //Hook que devuelve la tienda del usuario si tienda una tienda creada y activa, sino devuelve null
   const { data: myShop } = useMyShop();
-  console.log( myShop);
+  console.log(myShop);
 
   //hook para verificar si el usuario tiene una tienda creada y activa
   // const { data: checkUserStoreData } = useCheckUserStore();
@@ -40,7 +39,7 @@ export default function Dashboard() {
   const pendingOrders: number = pendientesRes?.datos?.length ?? 0;
 
   // Cuando no tiene tienda activa, forzar a 'store' (Crear Tienda)
-   const currentActive = !isActiveShop ? 'store' : active;
+  const currentActive = !isActiveShop ? 'store' : active;
   return (
     <>
       <link
@@ -89,7 +88,6 @@ export default function Dashboard() {
           <main className="flex-1 min-h-0 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">
             <div className="max-w-5xl mx-auto w-full min-h-0">
               <SectionRenderer
-
                 active={currentActive}
                 accent={accent}
                 setAccent={setAccent}

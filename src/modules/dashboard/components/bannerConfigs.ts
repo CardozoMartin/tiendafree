@@ -1,5 +1,4 @@
 import banner1 from '../../../assets/banners/banner1.png';
-import bannerCyber from '../../../assets/banners/Banner_cyberMonday.png';
 import bannerDegrade from '../../../assets/banners/Banner_Degrade.png';
 import bannerPastel from '../../../assets/banners/Banner_Pastel.png';
 
@@ -90,8 +89,6 @@ export const BANNER_CONFIGS: Record<string, BannerConfig> = {
       },
     },
   },
-
-
 
   degrade: {
     id: 'degrade',

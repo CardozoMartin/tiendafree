@@ -312,7 +312,9 @@ const ProductsSection = () => {
                     <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 sm:pr-2 border-t border-gray-50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
                       {/* Destacado Toggle */}
                       <div className="flex flex-col items-center gap-1.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${producto.destacado ? 'text-amber-600' : 'text-slate-500'}`}>
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wider ${producto.destacado ? 'text-amber-600' : 'text-slate-500'}`}
+                        >
                           Destacado
                         </span>
                         <button
@@ -324,7 +326,9 @@ const ProductsSection = () => {
                           }
                           disabled={actualizar.isPending}
                           className={`relative w-11 h-6 rounded-full border transition-all duration-200 disabled:opacity-50 ${
-                            producto.destacado ? 'bg-amber-50 border-amber-200' : 'bg-slate-100 border-slate-300'
+                            producto.destacado
+                              ? 'bg-amber-50 border-amber-200'
+                              : 'bg-slate-100 border-slate-300'
                           }`}
                         >
                           <span
@@ -336,7 +340,9 @@ const ProductsSection = () => {
                           >
                             <Star
                               className={`w-2.5 h-2.5 transition-colors ${
-                                producto.destacado ? 'stroke-amber-600 fill-none' : 'stroke-slate-400 fill-none'
+                                producto.destacado
+                                  ? 'stroke-amber-600 fill-none'
+                                  : 'stroke-slate-400 fill-none'
                               }`}
                             />
                           </span>
@@ -348,7 +354,9 @@ const ProductsSection = () => {
 
                       {/* Visible Toggle */}
                       <div className="flex flex-col items-center gap-1.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${producto.disponible ? 'text-emerald-600' : 'text-slate-500'}`}>
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wider ${producto.disponible ? 'text-emerald-600' : 'text-slate-500'}`}
+                        >
                           Visible
                         </span>
                         <button
@@ -360,7 +368,9 @@ const ProductsSection = () => {
                           }
                           disabled={actualizar.isPending}
                           className={`relative w-11 h-6 rounded-full border transition-all duration-200 disabled:opacity-50 ${
-                            producto.disponible ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-100 border-slate-300'
+                            producto.disponible
+                              ? 'bg-emerald-50 border-emerald-200'
+                              : 'bg-slate-100 border-slate-300'
                           }`}
                         >
                           <span
@@ -370,7 +380,9 @@ const ProductsSection = () => {
                                 : 'left-0.5 border-slate-300'
                             }`}
                           >
-                            <Package className={`w-2.5 h-2.5 transition-colors ${producto.disponible ? 'stroke-emerald-600' : 'stroke-slate-400'}`} />
+                            <Package
+                              className={`w-2.5 h-2.5 transition-colors ${producto.disponible ? 'stroke-emerald-600' : 'stroke-slate-400'}`}
+                            />
                           </span>
                         </button>
                       </div>

@@ -1,7 +1,7 @@
 import * as htmlToImage from 'html-to-image';
 import { useCallback, useRef, useState } from 'react';
 import MI from './MaterialIcon';
-import { BANNER_CONFIGS, BANNER_LIST, type BannerConfig, type ElementPosition } from './bannerConfigs';
+import { BANNER_CONFIGS, BANNER_LIST, type ElementPosition } from './bannerConfigs';
 
 interface BannerCreatorSectionProps {
   accent: string;
@@ -321,7 +321,10 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
               {/* ══════════════════════════════════════════════════════════
                   🔵 ZONA TOP — Nombre tienda + Badge CTA
               ══════════════════════════════════════════════════════════ */}
-              <div className="absolute z-20" style={getPositionStyle(currentBanner.layout.storeName)}>
+              <div
+                className="absolute z-20"
+                style={getPositionStyle(currentBanner.layout.storeName)}
+              >
                 {/* Nombre de tienda */}
                 {showStoreName && (
                   <span
@@ -338,7 +341,10 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
               </div>
 
               {/* Badge CTA */}
-              <div className="absolute z-20" style={getPositionStyle(currentBanner.layout.ctaBadge)}>
+              <div
+                className="absolute z-20"
+                style={getPositionStyle(currentBanner.layout.ctaBadge)}
+              >
                 <span
                   className="inline-block text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg"
                   style={{
