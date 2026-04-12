@@ -37,12 +37,12 @@ export const SectionRenderer = ({
     case 'home':
       return <HomeSection accent={accent} />;
     case 'products':
-      return <ProductsSection />;
+      return <ProductsSection accent={accent} />;
     case 'orders':
       return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      return isActiveShop ? <Templates /> : <CreateShop accent={accent} />;
+      return isActiveShop ? <Templates accent={accent} /> : <CreateShop accent={accent} />;
     case 'store-edit':
       return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
     case 'store-methods':

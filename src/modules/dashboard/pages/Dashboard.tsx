@@ -82,7 +82,7 @@ export default function Dashboard() {
           <DashboardHeader active={currentActive} accent={accent} />
 
           {/* ── Mobile Header ── */}
-          <DashboardMobileHeader accent={accent} />
+          <DashboardMobileHeader accent={accent} active={currentActive} />
 
           {/* ── Scrollable Content ── */}
           <main className="flex-1 min-h-0 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">

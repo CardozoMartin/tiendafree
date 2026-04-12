@@ -6,6 +6,7 @@ import { useUpdateShop, useUpdateShopVisual } from '../../hooks/useShop';
 import ImageHeroHandlers from '../ImageEditors/ImageHeroHandlers';
 import AboutUsEditor from './AboutUsEditor';
 import MarqueeEditor from './MarqueeEditor';
+import DashboardHelp from '../DashboardHelp';
 
 interface EditingSiteProps {
   tienda?: any;
@@ -141,6 +142,7 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           <p className="text-sm text-slate-500 mt-0.5">{tienda?.titulo || 'Tu tienda online'}</p>
         </div>
         <div className="flex items-center gap-3">
+          <DashboardHelp activeSection="store-edit" accent={temaData.colorAcento} />
           <button
             onClick={handleCancel}
             className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-800 rounded-xl hover:bg-gray-100 transition-all"
