@@ -12,7 +12,6 @@ import {
   Plus,
   SquarePen,
   Tag,
-  ToggleRight,
   Trash2,
   UploadCloud,
 } from 'lucide-react';
@@ -20,6 +19,17 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { getCategoriasFn } from '../../api/product.api';
 import {
+  useActualizarProducto,
+  useAgregarImagen,
+  useCrearProducto,
+  useCrearVariante,
+  useEliminarImagen,
+  useEliminarVariante,
+  useSubirImagenVariante,
+} from '../../hooks/useProduct';
+import { IconInput } from './IconInput';
+import { Toggle } from './Toggle';
+import type { IProduct } from '../../types/product.type';
   useActualizarProducto,
   useAgregarImagen,
   useCrearProducto,
@@ -62,42 +72,6 @@ const inputCls =
   'w-full pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 transition-all';
 
 const inputErrorCls = 'border-red-300 focus:border-red-400 focus:ring-red-100';
-
-// ─── Componente IconInput ────────────────────────────────────────────────────
-
-const IconInput = ({
-  icon: Icon,
-  error,
-  children,
-}: {
-  icon: React.ElementType;
-  error?: boolean;
-  children: React.ReactNode;
-}) => (
-  <div className="relative">
-    <Icon
-      className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${
-        error ? 'text-red-400' : 'text-gray-300'
-      }`}
-    />
-    {children}
-  </div>
-);
-
-// ─── Toggle CSS (idéntico a EditingSite) ────────────────────────────────────
-
-const Toggle = ({ name, register }: { name: 'disponible' | 'destacado'; register: any }) => {
-  return (
-    <label className="inline-flex items-center cursor-pointer">
-      <input type="checkbox" {...register(name)} className="sr-only peer" />
-      <div className="relative w-14 h-8 rounded-full bg-slate-200 border border-slate-300 transition-colors duration-200 peer-checked:border-slate-500">
-        <span className="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-300 shadow-sm transition-transform duration-200 transform peer-checked:translate-x-[1.25rem] peer-checked:border-slate-500">
-          <ToggleRight className="w-3.5 h-3.5 text-slate-400 peer-checked:text-slate-700" />
-        </span>
-      </div>
-    </label>
-  );
-};
 
 // ─── Componente principal ────────────────────────────────────────────────────
 

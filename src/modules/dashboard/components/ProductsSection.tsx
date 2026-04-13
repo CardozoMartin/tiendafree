@@ -4,6 +4,7 @@ import {
   ChevronRight,
   ChevronUp,
   Download,
+  FileText,
   Package,
   Pencil,
   Plus,
@@ -13,18 +14,18 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { usePDF } from 'react-to-pdf';
 import {
   useActualizarProducto,
   useExportarProductos,
   useImportarProductos,
   useMisProductos,
 } from '../hooks/useProduct';
-import type { IProduct, IProductFilters } from '../types/product.type';
-import FormProduct from './Forms/FormProduct';
 import { useMyShop } from '../hooks/useShop';
-import { usePDF } from 'react-to-pdf';
+import type { IProduct, IProductFilters } from '../types/product.type';
 import CatalogoPDF from './CatalogoPDF';
-import { FileText } from 'lucide-react';
+import FormProduct from './Forms/FormProduct';
+import ProductsFilters from './ProductsSection/ProductsFilters';
 
 const formatPrice = (price: number, moneda: string) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
@@ -65,18 +66,20 @@ const ProductsSection = () => {
 
   // Query para obtener todos los productos para el PDF
   const { data: todosProductosPaginados } = useMisProductos({ limite: 1000, disponible: true });
-  const allProductsForPdf = (todosProductosPaginados?.datos ?? []).filter(p => p.stock > 0);
+  const allProductsForPdf = (todosProductosPaginados?.datos ?? []).filter((p) => p.stock > 0);
 
   const { data: myShop } = useMyShop();
-  const tiendaInfo = myShop?.datos ? { 
-    nombre: myShop.datos.nombre, 
-    tagline: (myShop.datos.configuracion as any)?.tagline || myShop.datos.dominio, 
-    logo: (myShop.datos.configuracion as any)?.logoUrl || undefined 
-  } : { nombre: 'Tienda' };
+  const tiendaInfo = myShop?.datos
+    ? {
+        nombre: myShop.datos.nombre,
+        tagline: (myShop.datos.configuracion as any)?.tagline || myShop.datos.dominio,
+        logo: (myShop.datos.configuracion as any)?.logoUrl || undefined,
+      }
+    : { nombre: 'Tienda' };
 
   const { toPDF, targetRef } = usePDF({
     filename: 'catalogo.pdf',
-    canvas: { useCORS: true }
+    canvas: { useCORS: true },
   });
 
   const [pdfTheme, setPdfTheme] = useState<'minimal' | 'modern' | 'lookbook'>('minimal');
@@ -139,7 +142,13 @@ const ProductsSection = () => {
             </select>
             {/* Custom arrow for select */}
             <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
-               <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                <path
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                  fillRule="evenodd"
+                ></path>
+              </svg>
             </div>
           </div>
 
@@ -155,7 +164,9 @@ const ProductsSection = () => {
             ) : (
               <FileText className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">{isGeneratingPdf ? 'Generando...' : 'Descargar PDF'}</span>
+            <span className="hidden sm:inline">
+              {isGeneratingPdf ? 'Generando...' : 'Descargar PDF'}
+            </span>
           </button>
 
           {/* Exportar */}
@@ -221,31 +232,18 @@ const ProductsSection = () => {
         </div>
       )}
 
-      {/* ── Tabs de Filtros ── */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-hide">
-        {[
-          { id: 'todos', label: 'Todos' },
-          { id: 'activos', label: 'Activos' },
-          { id: 'ocultos', label: 'Ocultos' },
-          { id: 'destacados', label: 'Destacados' },
-          { id: 'bajo_stock', label: 'Bajo Stock' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setFiltroActivo(tab.id as any);
-              setPagina(1);
-            }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
-              filtroActivo === tab.id
-                ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
-                : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <ProductsFilters
+        busqueda={busqueda}
+        onBusquedaChange={(value) => {
+          setBusqueda(value);
+          setPagina(1);
+        }}
+        filtroActivo={filtroActivo}
+        onFiltroChange={(value) => {
+          setFiltroActivo(value);
+          setPagina(1);
+        }}
+      />
 
       {/* ══════════════════════════
           BUSCADOR
@@ -526,7 +524,12 @@ const ProductsSection = () => {
 
       {/* Hidden PDF component */}
       <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-        <CatalogoPDF ref={targetRef} productos={allProductsForPdf} tienda={tiendaInfo} tema={pdfTheme} />
+        <CatalogoPDF
+          ref={targetRef}
+          productos={allProductsForPdf}
+          tienda={tiendaInfo}
+          tema={pdfTheme}
+        />
       </div>
     </div>
   );

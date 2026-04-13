@@ -1,12 +1,24 @@
 import * as htmlToImage from 'html-to-image';
-import { useCallback, useRef, useState, useEffect } from 'react';
-import MI from './MaterialIcon';
-import { BANNER_CONFIGS, BANNER_LIST, type ElementPosition } from './bannerConfigs';
-import DashboardHelp from './DashboardHelp';
+import {
+  CheckCircle2,
+  ChevronRight,
+  Download,
+  Image as ImageIcon,
+  Layout,
+  Palette,
+  Plus,
+  Trash2,
+  Type,
+} from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Fondo1 from '../../../assets/Fondos De Cards/Fondo1.jpg';
 import Fondo2 from '../../../assets/Fondos De Cards/Fondo2.jpg';
 import Fondo3 from '../../../assets/Fondos De Cards/Fondo3.avif';
 import Fondo4 from '../../../assets/Fondos De Cards/Fondo4.avif';
+import { BANNER_CONFIGS, BANNER_LIST } from './bannerConfigs';
+import CardBackgroundSelector from './BannerCreatorSection/CardBackgroundSelector';
+import DashboardHelp from './DashboardHelp';
+import MI from './MaterialIcon';
 
 const CARD_IMAGE_BACKGROUNDS = [
   { label: 'Fondo 1', src: Fondo1 },
@@ -14,17 +26,6 @@ const CARD_IMAGE_BACKGROUNDS = [
   { label: 'Fondo 3', src: Fondo3 },
   { label: 'Fondo 4', src: Fondo4 },
 ];
-import {
-  ChevronRight,
-  Image as ImageIcon,
-  Layout,
-  Type,
-  Palette,
-  Download,
-  Trash2,
-  Plus,
-  CheckCircle2,
-} from 'lucide-react';
 
 interface BannerCreatorSectionProps {
   accent: string;
@@ -294,9 +295,7 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
             maxWidth: currentBanner.layout.productName.maxWidth,
           }),
           transform:
-            currentBanner.layout.productName.textAlign === 'center'
-              ? 'translateX(-50%)'
-              : 'none',
+            currentBanner.layout.productName.textAlign === 'center' ? 'translateX(-50%)' : 'none',
           display: 'flex',
           flexDirection: 'column',
           gap: 8,
@@ -388,7 +387,6 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
   // ── Render principal ───────────────────────────────────────────────────────
   return (
     <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 lg:px-8">
-
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
@@ -408,9 +406,10 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
             onClick={handleDownload}
             disabled={isExporting}
             className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-xl active:scale-95 disabled:opacity-50
-              ${exportSuccess
-                ? 'bg-emerald-500 text-white shadow-emerald-200'
-                : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
+              ${
+                exportSuccess
+                  ? 'bg-emerald-500 text-white shadow-emerald-200'
+                  : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
               }`}
           >
             {isExporting ? (
@@ -426,12 +425,10 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
         {/* ══════════════════════════════════════════════════════════════════
             SIDEBAR DE CONTROLES
         ══════════════════════════════════════════════════════════════════ */}
         <div className="lg:col-span-4 space-y-4 sticky top-6">
-
           {/* Tabs */}
           <div className="bg-white rounded-3xl border border-slate-100 p-2 shadow-sm flex gap-1">
             {(
@@ -456,7 +453,6 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
           </div>
 
           <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm min-h-[500px]">
-
             {/* ── TAB: LAYOUT ── */}
             {activeTab === 'layout' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
@@ -573,18 +569,18 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
                     </div>
                   </div>
                   {category !== 'CARD' && (
-                  <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
-                      Texto del Badge
-                    </label>
-                    <input
-                      type="text"
-                      value={ctaText}
-                      onChange={(e) => setCtaText(e.target.value)}
-                      placeholder="¡LIQUIDACIÓN!"
-                      className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-black outline-none"
-                    />
-                  </div>
+                    <div>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                        Texto del Badge
+                      </label>
+                      <input
+                        type="text"
+                        value={ctaText}
+                        onChange={(e) => setCtaText(e.target.value)}
+                        placeholder="¡LIQUIDACIÓN!"
+                        className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-black outline-none"
+                      />
+                    </div>
                   )}
                 </section>
               </div>
@@ -655,69 +651,15 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
                   </div>
                 </section>
                 {category === 'CARD' && (
-                  <section>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">
-                      Fondo de la card
-                    </label>
-                    <div className="flex gap-2 mb-4">
-                      {(
-                        [
-                          { key: 'preset', label: 'Fondos' },
-                          { key: 'color', label: 'Color' },
-                          { key: 'none', label: 'Sin fondo' },
-                        ] as const
-                      ).map((option) => (
-                        <button
-                          key={option.key}
-                          type="button"
-                          onClick={() => setCardBgKind(option.key)}
-                          className={`rounded-full px-3 py-2 text-[10px] font-black uppercase transition-all ${cardBgKind === option.key ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                    {cardBgKind === 'preset' && (
-                      <div className="grid grid-cols-3 gap-2">
-                        {CARD_IMAGE_BACKGROUNDS.map((bg, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setCardBgIdx(idx)}
-                            className={`relative h-16 rounded-3xl border-2 transition-all overflow-hidden ${cardBgIdx === idx ? 'border-slate-900 shadow-lg' : 'border-slate-200'}`}
-                            style={{ backgroundImage: `url(${bg.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                            title={bg.label}
-                          >
-                            <span className="sr-only">{bg.label}</span>
-                            {cardBgIdx === idx && (
-                              <span className="absolute top-2 right-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-black text-slate-900">
-                                ✓
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {cardBgKind === 'color' && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg border border-slate-200" style={{ backgroundColor: cardBgColor }} />
-                          <input
-                            type="color"
-                            value={cardBgColor}
-                            onChange={(e) => setCardBgColor(e.target.value)}
-                            className="w-10 h-10 rounded-xl border-none cursor-pointer bg-transparent"
-                          />
-                        </div>
-                        <span className="text-[10px] text-slate-500">Selecciona un color para el fondo completo de la card.</span>
-                      </div>
-                    )}
-                    {cardBgKind === 'none' && (
-                      <div className="rounded-3xl border border-dashed border-slate-300 p-4 text-[10px] text-slate-500">
-                        El fondo de la card quedará transparente / sin imagen.
-                      </div>
-                    )}
-                  </section>
+                  <CardBackgroundSelector
+                    selectedKind={cardBgKind}
+                    onKindChange={setCardBgKind}
+                    selectedPreset={cardBgIdx}
+                    onPresetChange={setCardBgIdx}
+                    presets={CARD_IMAGE_BACKGROUNDS}
+                    colorValue={cardBgColor}
+                    onColorChange={setCardBgColor}
+                  />
                 )}
 
                 <section>
@@ -757,11 +699,18 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
                     </div>
                     {(
                       [
-                        { label: 'Nombre Tienda', checked: showStoreName, onChange: setShowStoreName },
+                        {
+                          label: 'Nombre Tienda',
+                          checked: showStoreName,
+                          onChange: setShowStoreName,
+                        },
                         { label: 'Descripción', checked: showDesc, onChange: setShowDesc },
                       ] as const
                     ).map(({ label, checked, onChange }) => (
-                      <label key={label} className="flex items-center justify-between cursor-pointer">
+                      <label
+                        key={label}
+                        className="flex items-center justify-between cursor-pointer"
+                      >
                         <span className="text-xs font-bold text-slate-600">{label}</span>
                         <div className="relative inline-flex items-center">
                           <input
@@ -852,18 +801,20 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
                     height: `${currentBanner.height}px`,
                     position: 'relative',
                     overflow: 'hidden',
-                    backgroundColor: category === 'CARD'
-                      ? cardBgKind === 'color'
-                        ? cardBgColor
-                        : 'transparent'
-                      : currentBanner.backgroundColor || '#f8fafc',
-                    backgroundImage: category === 'CARD'
-                      ? cardBgKind === 'preset'
-                        ? `url(${CARD_IMAGE_BACKGROUNDS[cardBgIdx].src})`
-                        : 'none'
-                      : currentBanner.image
-                        ? `url(${currentBanner.image})`
-                        : 'none',
+                    backgroundColor:
+                      category === 'CARD'
+                        ? cardBgKind === 'color'
+                          ? cardBgColor
+                          : 'transparent'
+                        : currentBanner.backgroundColor || '#f8fafc',
+                    backgroundImage:
+                      category === 'CARD'
+                        ? cardBgKind === 'preset'
+                          ? `url(${CARD_IMAGE_BACKGROUNDS[cardBgIdx].src})`
+                          : 'none'
+                        : currentBanner.image
+                          ? `url(${currentBanner.image})`
+                          : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }}

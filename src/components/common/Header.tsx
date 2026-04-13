@@ -49,7 +49,7 @@ const Header = ({
           <div className="size-8 rounded-lg bg-[#6344ee] flex items-center justify-center text-white">
             <ArrowRight />
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">Vitrina</h2>
+          <h2 className="text-xl font-bold tracking-tight text-slate-900">Tiendzi</h2>
         </Link>
 
         {/* Nav - Solo en rutas públicas */}

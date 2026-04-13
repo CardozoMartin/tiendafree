@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import HomeBrands from '../components/HomeBrands';
+import HomeHero from '../components/HomeHero';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface Feature {
@@ -114,141 +116,6 @@ const MI = ({ name, className = '' }: { name: string; className?: string }) => (
 );
 
 // ── Header ─────────────────────────────────────────────────────────────────
-
-// ── Hero ───────────────────────────────────────────────────────────────────
-const Hero = () => (
-  <section className="relative overflow-hidden">
-    {/* Background mesh */}
-    <div className="absolute inset-0 -z-10">
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-[#6344ee]/8 blur-[120px]" />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-violet-300/20 blur-[100px]" />
-    </div>
-
-    <div className="mx-auto max-w-7xl px-6 pt-16 pb-20 lg:px-10 lg:pt-24 lg:pb-32">
-      <div className="grid items-center gap-12 lg:grid-cols-2">
-        {/* Copy */}
-        <div className="flex flex-col gap-8" style={{ animation: 'fadeUp 0.7s ease both' }}>
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#6344ee]/20 bg-[#6344ee]/8 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#6344ee]">
-              <span className="size-1.5 rounded-full bg-[#6344ee] animate-pulse" />
-              Impulsá tu comercio en Argentina
-            </span>
-          </div>
-
-          <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.75rem]">
-            Tu negocio local,
-            <br />
-            ahora{' '}
-            <span className="relative">
-              <span className="text-[#6344ee]">online y gratis</span>
-              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 12" fill="none">
-                <path
-                  d="M2 9 C60 3, 180 3, 298 9"
-                  stroke="#6344ee"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  opacity="0.4"
-                />
-              </svg>
-            </span>
-          </h1>
-
-          <p className="max-w-[500px] text-lg leading-relaxed text-slate-600">
-            Creá tu tienda en minutos, cargá tus productos y empezá a vender. Conectá con clientes
-            de tu zona{' '}
-            <strong className="font-semibold text-slate-800">sin pagar comisiones</strong>.
-          </p>
-
-          {/* Stats bar */}
-          <div className="flex gap-6 sm:gap-8">
-            {STATS.map((s) => (
-              <div key={s.label}>
-                <div className="text-2xl font-black text-[#6344ee]">{s.value}</div>
-                <div className="text-xs text-slate-500 font-medium mt-0.5">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button className="group inline-flex items-center gap-2 h-14 rounded-2xl bg-[#6344ee] px-8 text-base font-bold text-white shadow-xl shadow-[#6344ee]/30 transition-all hover:-translate-y-1 hover:shadow-[#6344ee]/40 active:scale-95">
-              Crear tienda gratis
-              <MI
-                name="arrow_forward"
-                className="!text-base transition-transform group-hover:translate-x-1"
-              />
-            </button>
-            <button className="inline-flex items-center gap-2 h-14 rounded-2xl border-2 border-slate-200 bg-white px-8 text-base font-bold text-slate-800 transition-all hover:border-[#6344ee]/40 hover:bg-[#6344ee]/3 active:scale-95">
-              <MI name="play_circle" className="text-[#6344ee] !text-xl" />
-              Ver demo
-            </button>
-          </div>
-
-          {/* Trust signal */}
-          <p className="flex items-center gap-2 text-sm text-slate-500">
-            <MI name="verified" className="text-green-500 !text-base" />
-            Sin tarjeta de crédito · Sin permanencia · 100% gratis
-          </p>
-        </div>
-
-        {/* Dashboard mockup */}
-        <div className="relative" style={{ animation: 'fadeUp 0.7s ease 0.2s both' }}>
-          {/* Glow */}
-          <div className="absolute inset-8 rounded-3xl bg-[#6344ee]/20 blur-3xl -z-10" />
-
-          <div className="relative rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-visible p-3">
-            <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVteJ3zEDQEN5zmQ2qhJpoxsLneHJfe8Jn8DS00-42RE8f5oVTr0Qo-nDxPsI31LRNB_8vJCa4L58Y8Xcg7QRILf8L6q3_GPTJ0F-eYDs8qrtjhkZVDdWMyaltiXmeXwhSNot3Y_PM89AkU_HdD4cTeEw-juiK-ppPhC3l7D9cOIWktfCLO8SglxJ2bocINmg2hZ68BjKa5bm1e7Wapj2I1gYBFAfMQoeUPtvMMcIcn1MC8RKutFbEMaz_hZNMdD37aSA3XC26lEFT"
-              alt="Dashboard de Vitrina"
-              className="w-full rounded-2xl object-cover aspect-[4/3]"
-            />
-
-            {/* Floating notification card */}
-            <div
-              className="absolute -bottom-5 -left-5 rounded-2xl bg-white shadow-xl border border-slate-100 p-4 flex items-center gap-3 hidden md:flex"
-              style={{ animation: 'float 3s ease-in-out infinite' }}
-            >
-              <div className="size-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600 shrink-0">
-                <MI name="shopping_bag" className="!text-xl" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-800">¡Nueva venta!</p>
-                <p className="text-xs text-slate-500">hace 2 minutos</p>
-              </div>
-              <div className="ml-1 size-2 rounded-full bg-green-400 animate-pulse shrink-0" />
-            </div>
-
-            {/* Floating users pill */}
-            <div className="absolute -top-4 -right-4 rounded-full bg-[#6344ee] text-white text-xs font-bold px-4 py-2 shadow-lg shadow-[#6344ee]/30 hidden md:flex items-center gap-1.5">
-              <MI name="group" className="!text-sm" />
-              12.4K tiendas
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-);
-
-// ── Brands ─────────────────────────────────────────────────────────────────
-const Brands = () => (
-  <section className="border-y border-slate-200/70 bg-white py-10">
-    <div className="mx-auto max-w-7xl px-6 lg:px-10">
-      <p className="mb-8 text-center text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-        Negocios que ya confían en Vitrina
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-10 sm:gap-16">
-        {BRANDS.map((brand) => (
-          <div
-            key={brand}
-            className="font-black text-lg tracking-tight text-slate-300 hover:text-slate-500 transition-colors cursor-default select-none"
-          >
-            {brand}
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
 
 // ── Features ───────────────────────────────────────────────────────────────
 const Features = () => {
@@ -650,8 +517,8 @@ export default function HomePage() {
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
         <main className="flex-1">
-          <Hero />
-          <Brands />
+          <HomeHero />
+          <HomeBrands />
           <Features />
           <HowItWorks />
           <Testimonials />
