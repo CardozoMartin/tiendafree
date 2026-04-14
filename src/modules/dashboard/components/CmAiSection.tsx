@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useMisProductos } from '../hooks/useProduct';
 import { postGeneratePostFn } from '../api/ai.api';
 import MI from './MaterialIcon';
+import DashboardHelp from './DashboardHelp';
 
 interface CmAiSectionProps {
   accent: string;
@@ -63,9 +64,12 @@ export default function CmAiSection({ accent, tienda }: CmAiSectionProps) {
           </div>
           <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Community Manager (IA)</h1>
         </div>
-        <p className="text-sm text-zinc-500 max-w-2xl">
-          Selecciona uno de tus productos y deja que nuestra Inteligencia Artificial escriba un copy atractivo, optimizado y listo para publicar en tus redes sociales.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <p className="text-sm text-zinc-500 max-w-2xl">
+            Selecciona uno de tus productos y deja que nuestra Inteligencia Artificial escriba un copy atractivo, optimizado y listo para publicar en tus redes sociales.
+          </p>
+          <DashboardHelp activeSection="cm-ai" accent={accent} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

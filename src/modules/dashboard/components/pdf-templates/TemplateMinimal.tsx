@@ -10,84 +10,203 @@ export interface TemplateProps {
   grupos: Record<string, IProduct[]>;
 }
 
-export const TemplateMinimal: React.FC<TemplateProps> = ({ tienda, grupos }: TemplateProps) => {
+/* ─────────────────────────────────────────────────────────────────────────────
+   TEMPLATE: MINIMAL — Elegante, limpio, fondo blanco con acentos dorados.
+   Ideal para catálogos de joyería, cosmética, productos premium.
+   ────────────────────────────────────────────────────────────────────────── */
+
+export const TemplateMinimal: React.FC<TemplateProps> = ({ productos, tienda, grupos }) => {
+  const accent = '#b8860b';       // dorado oscuro
+  const textMain = '#1a1a1a';
+  const textMuted = '#888888';
+  const borderCol = '#e8e4de';
+  const bgPage = '#ffffff';
+  const bgSoft = '#faf9f7';
+  const totalProductos = productos.length;
+
   return (
     <div
       style={{
-        width: '794px',           // A4 a 96dpi
-        background: '#ffffff',
-        fontFamily: "'Outfit', 'Helvetica Neue', sans-serif",
-        color: '#111',
-        padding: '0',
+        width: '794px',
+        background: bgPage,
+        fontFamily: "'Outfit', 'Helvetica Neue', Arial, sans-serif",
+        color: textMain,
+        padding: 0,
       }}
     >
-      {/* ── Portada ── */}
+      {/* ═══════════════════ PORTADA ═══════════════════ */}
       <div
         style={{
           width: '794px',
           height: '1123px',
-          background: '#0f172a',
+          background: bgPage,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '16px',
           pageBreakAfter: 'always',
+          position: 'relative',
         }}
       >
+        {/* Marco decorativo */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '48px',
+            left: '48px',
+            right: '48px',
+            bottom: '48px',
+            border: `1px solid ${borderCol}`,
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Logo */}
         {tienda.logo && (
           <img
             src={tienda.logo}
             alt={tienda.nombre}
             crossOrigin="anonymous"
-            style={{ width: '80px', height: '80px', borderRadius: '16px', objectFit: 'cover' }}
+            style={{
+              width: '72px',
+              height: '72px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: `2px solid ${borderCol}`,
+              marginBottom: '32px',
+            }}
           />
         )}
+
+        {/* Nombre de la tienda */}
         <h1
           style={{
-            fontSize: '56px',
-            fontWeight: 900,
-            color: '#ffffff',
-            letterSpacing: '0.06em',
+            fontSize: '44px',
+            fontWeight: 300,
+            color: textMain,
+            letterSpacing: '0.18em',
             textTransform: 'uppercase',
             margin: 0,
             textAlign: 'center',
-            padding: '0 20px',
+            padding: '0 80px',
+            lineHeight: 1.2,
           }}
         >
           {tienda.nombre}
         </h1>
+
+        {/* Línea decorativa */}
+        <div
+          style={{
+            width: '56px',
+            height: '1px',
+            background: accent,
+            margin: '28px 0',
+          }}
+        />
+
+        {/* Tagline */}
         {tienda.tagline && (
-          <p style={{ fontSize: '14px', color: '#94a3b8', letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0, textAlign: 'center', padding: '0 20px' }}>
+          <p
+            style={{
+              fontSize: '13px',
+              color: textMuted,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              margin: 0,
+              textAlign: 'center',
+              padding: '0 80px',
+              fontWeight: 300,
+            }}
+          >
             {tienda.tagline}
           </p>
         )}
-        <div style={{ width: '48px', height: '2px', background: '#f59e0b', marginTop: '8px' }} />
-        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '8px' }}>
-          Catálogo de Productos — {new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long' })}
-        </p>
+
+        {/* Badge inferior */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '80px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '10px',
+              color: textMuted,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              margin: 0,
+            }}
+          >
+            Catálogo de Productos
+          </p>
+          <p style={{ fontSize: '10px', color: accent, margin: 0, fontWeight: 500 }}>
+            {new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long' })} — {totalProductos} artículos
+          </p>
+        </div>
       </div>
 
-      {/* ── Páginas por categoría ── */}
-      {Object.entries(grupos).map(([categoria, items]) => (
-        <div key={categoria} style={{ pageBreakBefore: 'always', width: '794px', minHeight: '1123px', background: '#f1f5f9' }}>
-
+      {/* ═══════════════════ PÁGINAS POR CATEGORÍA ═══════════════════ */}
+      {Object.entries(grupos).map(([categoria, items], catIndex) => (
+        <div
+          key={categoria}
+          style={{
+            pageBreakBefore: 'always',
+            width: '794px',
+            minHeight: '1123px',
+            background: bgPage,
+          }}
+        >
           {/* Header de categoría */}
           <div
             style={{
-              background: '#f8fafc',
-              borderBottom: '3px solid #f59e0b',
-              padding: '32px 48px 24px',
+              padding: '56px 56px 36px',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              borderBottom: `1px solid ${borderCol}`,
             }}
           >
-            <p style={{ fontSize: '10px', color: '#94a3b8', letterSpacing: '0.2em', textTransform: 'uppercase', margin: '0 0 4px' }}>
-              Categoría
-            </p>
-            <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'capitalize' }}>
-              {categoria}
-            </h2>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0' }}>
-              {items.length} producto{items.length !== 1 ? 's' : ''}
+            <div>
+              <p
+                style={{
+                  fontSize: '9px',
+                  color: accent,
+                  letterSpacing: '0.25em',
+                  textTransform: 'uppercase',
+                  margin: '0 0 8px',
+                  fontWeight: 600,
+                }}
+              >
+                Colección
+              </p>
+              <h2
+                style={{
+                  fontSize: '30px',
+                  fontWeight: 300,
+                  color: textMain,
+                  margin: 0,
+                  textTransform: 'capitalize',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {categoria}
+              </h2>
+            </div>
+            <p
+              style={{
+                fontSize: '10px',
+                color: textMuted,
+                margin: 0,
+                letterSpacing: '0.1em',
+              }}
+            >
+              {String(catIndex + 1).padStart(2, '0')} / {String(Object.keys(grupos).length).padStart(2, '0')}
             </p>
           </div>
 
@@ -96,34 +215,33 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ tienda, grupos }: Tem
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '1px',
-              background: '#e2e8f0',
-              margin: '0',
+              gap: '0',
+              margin: 0,
             }}
           >
-            {items.map((producto) => (
+            {items.map((producto, idx) => (
               <div
                 key={producto.id}
                 style={{
-                  background: '#ffffff',
-                  padding: '24px',
+                  background: idx % 2 === 0 ? bgPage : bgSoft,
+                  padding: '32px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px',
+                  gap: '14px',
+                  borderBottom: `1px solid ${borderCol}`,
+                  borderRight: idx % 2 === 0 ? `1px solid ${borderCol}` : 'none',
                 }}
               >
                 {/* Imagen */}
                 <div
                   style={{
                     width: '100%',
-                    height: '220px',
-                    borderRadius: '12px',
+                    height: '240px',
                     overflow: 'hidden',
-                    background: '#f8fafc',
+                    background: bgSoft,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    border: '1px solid #e2e8f0',
                   }}
                 >
                   {producto.imagenPrincipalUrl ? (
@@ -134,117 +252,197 @@ export const TemplateMinimal: React.FC<TemplateProps> = ({ tienda, grupos }: Tem
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
-                    <span style={{ fontSize: '32px', color: '#cbd5e1' }}>📦</span>
+                    <div style={{ color: '#ccc', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                      Sin imagen
+                    </div>
                   )}
                 </div>
 
-                {/* Nombre */}
+                {/* Info del producto */}
                 <div>
-                  <p style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: '0 0 4px', lineHeight: 1.3 }}>
+                  <p
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: textMain,
+                      margin: '0 0 4px',
+                      lineHeight: 1.4,
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     {producto.nombre}
                   </p>
                   {producto.descripcion && (
-                    <p style={{
-                      fontSize: '11px', color: '#64748b', margin: 0, lineHeight: 1.5,
-                      display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
-                    }}>
+                    <p
+                      style={{
+                        fontSize: '10px',
+                        color: textMuted,
+                        margin: 0,
+                        lineHeight: 1.6,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
                       {producto.descripcion}
                     </p>
                   )}
                 </div>
 
                 {/* Precio */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-                    {formatPrice(producto.precio, producto.moneda)}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   {producto.precioOferta ? (
-                    <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through' }}>
-                      {formatPrice(producto.precioOferta, producto.moneda)}
+                    <>
+                      <span style={{ fontSize: '16px', fontWeight: 600, color: textMain }}>
+                        {formatPrice(producto.precioOferta, producto.moneda)}
+                      </span>
+                      <span style={{ fontSize: '11px', color: textMuted, textDecoration: 'line-through' }}>
+                        {formatPrice(producto.precio, producto.moneda)}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '8px',
+                          fontWeight: 700,
+                          background: accent,
+                          color: '#fff',
+                          padding: '2px 7px',
+                          letterSpacing: '0.1em',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Oferta
+                      </span>
+                    </>
+                  ) : (
+                    <span style={{ fontSize: '16px', fontWeight: 600, color: textMain }}>
+                      {formatPrice(producto.precio, producto.moneda)}
                     </span>
-                  ) : null}
-                  {producto.precioOferta ? (
-                    <span style={{
-                      fontSize: '10px', fontWeight: 700, background: '#fef3c7',
-                      color: '#d97706', padding: '2px 6px', borderRadius: '4px'
-                    }}>
-                      OFERTA
-                    </span>
-                  ) : null}
+                  )}
                 </div>
 
-                {/* Stock / Talles */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {/* Badges: Stock + Talles */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                   {producto.stock <= 0 && (
-                    <span style={{ fontSize: '10px', fontWeight: 700, background: '#fef2f2', color: '#dc2626', padding: '3px 8px', borderRadius: '4px', border: '1px solid #fecaca' }}>
-                      SIN STOCK
+                    <span
+                      style={{
+                        fontSize: '8px',
+                        fontWeight: 700,
+                        color: '#b91c1c',
+                        border: '1px solid #fca5a5',
+                        padding: '2px 7px',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Agotado
                     </span>
                   )}
                   {producto.stock > 0 && producto.stock <= 5 && (
-                    <span style={{ fontSize: '10px', fontWeight: 700, background: '#fffbeb', color: '#d97706', padding: '3px 8px', borderRadius: '4px', border: '1px solid #fde68a' }}>
-                      ÚLTIMAS {producto.stock} UNIDADES
+                    <span
+                      style={{
+                        fontSize: '8px',
+                        fontWeight: 700,
+                        color: accent,
+                        border: `1px solid ${accent}`,
+                        padding: '2px 7px',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Últimas {producto.stock} un.
                     </span>
                   )}
-                  {producto.stock > 5 && (
-                    <span style={{ fontSize: '10px', fontWeight: 700, background: '#f0fdf4', color: '#16a34a', padding: '3px 8px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
-                      DISPONIBLE
+                  {producto.destacado && (
+                    <span
+                      style={{
+                        fontSize: '8px',
+                        fontWeight: 700,
+                        color: accent,
+                        padding: '2px 7px',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      ★ Destacado
                     </span>
                   )}
-                  {/* Talles */}
                   {producto.tags
-                    ?.filter((t: any) => t.nombre.toLowerCase().startsWith('talle'))
-                    .map((t: any) => (
-                      <span key={t.nombre} style={{
-                        fontSize: '10px', fontWeight: 600, background: '#f8fafc',
-                        color: '#475569', padding: '3px 8px', borderRadius: '4px', border: '1px solid #e2e8f0'
-                      }}>
+                    ?.filter((t) => t.nombre.toLowerCase().startsWith('talle'))
+                    .map((t) => (
+                      <span
+                        key={t.nombre}
+                        style={{
+                          fontSize: '8px',
+                          fontWeight: 500,
+                          color: textMuted,
+                          border: `1px solid ${borderCol}`,
+                          padding: '2px 6px',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
                         {t.nombre.replace(/^talle[:\s]*/i, '').toUpperCase()}
                       </span>
                     ))}
                 </div>
-
-                {/* Badges destacado */}
-                {producto.destacado && (
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 700, background: '#fffbeb', color: '#d97706', padding: '3px 8px', borderRadius: '4px', border: '1px solid #fde68a' }}>
-                      ★ DESTACADO
-                    </span>
-                  </div>
-                )}
               </div>
             ))}
 
-            {/* Celda vacía si número impar */}
+            {/* Celda vacía si impar */}
             {items.length % 2 !== 0 && (
-              <div style={{ background: '#ffffff' }} />
+              <div style={{ background: bgSoft, borderBottom: `1px solid ${borderCol}` }} />
             )}
           </div>
         </div>
       ))}
 
-      {/* ── Contraportada ── */}
+      {/* ═══════════════════ CONTRAPORTADA ═══════════════════ */}
       <div
         style={{
           width: '794px',
           height: '1123px',
-          background: '#0f172a',
+          background: bgPage,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px',
+          gap: '16px',
           pageBreakBefore: 'always',
+          position: 'relative',
         }}
       >
-        <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '48px',
+            left: '48px',
+            right: '48px',
+            bottom: '48px',
+            border: `1px solid ${borderCol}`,
+            pointerEvents: 'none',
+          }}
+        />
+        <p style={{ fontSize: '11px', color: textMuted, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0, fontWeight: 300 }}>
           Gracias por elegirnos
         </p>
-        <p style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', margin: 0, textAlign: 'center', padding: '0 20px' }}>
+        <p
+          style={{
+            fontSize: '24px',
+            fontWeight: 300,
+            color: textMain,
+            margin: 0,
+            textAlign: 'center',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            padding: '0 80px',
+          }}
+        >
           {tienda.nombre}
         </p>
-        <div style={{ width: '32px', height: '2px', background: '#f59e0b', margin: '8px 0' }} />
-        <p style={{ fontSize: '11px', color: '#475569', margin: 0 }}>
-          Catálogo generado el {new Date().toLocaleDateString('es-AR')}
+        <div style={{ width: '40px', height: '1px', background: accent, margin: '4px 0' }} />
+        <p style={{ fontSize: '9px', color: textMuted, margin: 0, letterSpacing: '0.1em' }}>
+          Catálogo generado el {new Date().toLocaleDateString('es-AR')} — {totalProductos} productos
         </p>
       </div>
     </div>

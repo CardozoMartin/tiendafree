@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import type { IShopData } from '../types/shop.type';
 import HomeSection from '../components/HomeSection';
 import OrdersSection from '../components/OrdersSection';
 import ProductsSection from '../components/ProductsSection';
@@ -12,14 +11,12 @@ import CmAiSection from './CmAiSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
 
-type MaybeShop = Partial<IShopData> & { slug?: string; datos?: { slug?: string } };
-
 interface SectionRendererProps {
   active: string;
   accent: string;
   setAccent: (color: string) => void;
   isActiveShop?: boolean;
-  myShop?: MaybeShop;
+  myShop?: any;
 }
 
 export const SectionRenderer = ({
@@ -40,14 +37,14 @@ export const SectionRenderer = ({
     case 'home':
       return <HomeSection accent={accent} />;
     case 'products':
-      return <ProductsSection />;
+      return <ProductsSection accent={accent} />;
     case 'orders':
       return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      return isActiveShop ? <Templates /> : <CreateShop accent={accent} />;
+      return isActiveShop ? <Templates accent={accent} /> : <CreateShop accent={accent} />;
     case 'store-edit':
-      return isActiveShop ? <EditingSite tienda={myShop as any} /> : <CreateShop accent={accent} />;
+      return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
     case 'store-methods':
       return <MethodsSection accent={accent} />;
     case 'store-website':

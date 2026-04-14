@@ -17,7 +17,7 @@ import {
   putActualizarProductoFn,
   putActualizarVarianteFn,
 } from '../api/product.api';
-import type { IProduct, IProductFilters, IProductPaginatedResponse } from '../types/product.type';
+import type { IProduct, IProductFilters } from '../types/product.type';
 
 // ─── Helper para extraer el mensaje de error ──────────────────────────────────
 const getErrorMessage = (error: AxiosError<IErrorResponse>): string => {
@@ -27,20 +27,20 @@ const getErrorMessage = (error: AxiosError<IErrorResponse>): string => {
 
 const QUERY_KEY = 'misProductos';
 
+// ─── Queries ──────────────────────────────────────────────────────────────────
 
-
-//Hook para obtener la lista de productos del owner autenticado, con paginación y filtros opcionales
+/** Lista paginada de mis productos con filtros */
 export const useMisProductos = (filtros?: IProductFilters) => {
-  return useQuery<IProductPaginatedResponse, AxiosError<IErrorResponse>>({
-    queryKey: ['misProductos', filtros?.pagina, filtros?.limite, filtros?.busqueda, filtros?.disponible, filtros?.destacado, filtros?.categoriaId, filtros?.orden, filtros?.direccion],
+  return useQuery({
+    queryKey: [QUERY_KEY, filtros],
     queryFn: () => getMisProductosFn(filtros),
   });
 };
 
-// Hook para obtener un producto del owner por ID
+/** Obtener un producto por ID (para edición) */
 export const useMiProducto = (productoId: number | null) => {
-  return useQuery<IProduct, AxiosError<IErrorResponse>>({
-    queryKey: ['misProducto', productoId],
+  return useQuery({
+    queryKey: [QUERY_KEY, productoId],
     queryFn: () => getMiProductoFn(productoId!),
     enabled: !!productoId,
   });
@@ -48,14 +48,14 @@ export const useMiProducto = (productoId: number | null) => {
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
-//Hook para crear un nuevo producto para el owner autenticado
+/** Crear un producto nuevo */
 export const useCrearProducto = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postCrearProductoFn,
     onSuccess: (data: ISuccessResponse<IProduct>) => {
       toast.success(data.mensaje);
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
@@ -63,15 +63,14 @@ export const useCrearProducto = () => {
   });
 };
 
-
-//Hook para actualizar un producto del owner autenticado
+/** Actualizar datos de un producto */
 export const useActualizarProducto = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: putActualizarProductoFn,
     onSuccess: (data: ISuccessResponse<IProduct>) => {
       toast.success(data.mensaje);
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
@@ -79,14 +78,14 @@ export const useActualizarProducto = () => {
   });
 };
 
-//Hook para eliminar un producto del owner autenticado
+/** Eliminar un producto */
 export const useEliminarProducto = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteEliminarProductoFn,
     onSuccess: (data: ISuccessResponse<null>) => {
       toast.success(data.mensaje);
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
@@ -94,13 +93,13 @@ export const useEliminarProducto = () => {
   });
 };
 
-//Hook para agregar una imagen a un producto del owner autenticado
+/** Agregar imagen a un producto */
 export const useAgregarImagen = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postAgregarImagenFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
@@ -108,7 +107,7 @@ export const useAgregarImagen = () => {
   });
 };
 
-//Hook para eliminar una imagen de un producto del owner autenticado
+/** Eliminar imagen de un producto */
 export const useEliminarImagen = () => {
   const queryClient = useQueryClient();
 
@@ -117,7 +116,7 @@ export const useEliminarImagen = () => {
       return deleteEliminarImagenFn(data);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
       toast.success('Imagen eliminada');
     },
@@ -127,16 +126,15 @@ export const useEliminarImagen = () => {
 
 // ── VARIANTE HOOKS ──
 
-//Hook para crear una variante de un producto del owner autenticado
 export const useCrearVariante = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { productoId: number; payload: Record<string, unknown> }) => {
+    mutationFn: (data: { productoId: number; payload: any }) => {
       return postCrearVarianteFn(data.productoId, data.payload);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
       toast.success('Variante agregada');
     },
@@ -144,16 +142,15 @@ export const useCrearVariante = () => {
   });
 };
 
-//Hook para actualizar una variante de un producto del owner autenticado
 export const useActualizarVariante = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { productoId: number; varianteId: number; payload: Record<string, unknown> }) => {
+    mutationFn: (data: { productoId: number; varianteId: number; payload: any }) => {
       return putActualizarVarianteFn(data.productoId, data.varianteId, data.payload);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
       toast.success('Variante actualizada');
     },
@@ -161,7 +158,6 @@ export const useActualizarVariante = () => {
   });
 };
 
-//Hook para eliminar una variante de un producto del owner autenticado
 export const useEliminarVariante = () => {
   const queryClient = useQueryClient();
 
@@ -170,7 +166,7 @@ export const useEliminarVariante = () => {
       return deleteEliminarVarianteFn(data.productoId, data.varianteId);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
       toast.success('Variante eliminada');
     },
@@ -178,7 +174,6 @@ export const useEliminarVariante = () => {
   });
 };
 
-//Hook para subir una imagen a una variante de un producto del owner autenticado
 export const useSubirImagenVariante = () => {
   const queryClient = useQueryClient();
 
@@ -187,7 +182,7 @@ export const useSubirImagenVariante = () => {
       return postSubirImagenVarianteFn(data);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['misProductos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['producto', variables.productoId] });
       toast.success('Imagen de variante subida con éxito');
     },
@@ -195,14 +190,12 @@ export const useSubirImagenVariante = () => {
   });
 };
 
-// ── Exportar/Importar ──
-
-//Hook para exportar los productos del owner autenticado a un archivo Excel
+/** Exportar productos a Excel */
 export const useExportarProductos = () => {
   return useMutation({
     mutationFn: getExportarProductosFn,
-    onSuccess: (blob: Blob) => {
-      const url = window.URL.createObjectURL(blob);
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(new Blob([blob as any]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'productos.xlsx');
@@ -217,7 +210,7 @@ export const useExportarProductos = () => {
   });
 };
 
-//Hook para importar productos del owner autenticado desde un archivo Excel
+/** Importar productos desde Excel */
 export const useImportarProductos = () => {
   const queryClient = useQueryClient();
   return useMutation({

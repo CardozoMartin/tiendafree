@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, ChevronRight } from 'lucide-react';
-import { NAV_ITEMS, type NavItem, type NavSubItem } from '../constant/constants';
+import { NAV_ITEMS } from '../constant/constants';
 import MI from './MaterialIcon';
 
 interface DashboardBottomNavProps {
@@ -29,18 +29,18 @@ export const DashboardBottomNav = ({
   const moreItems = NAV_ITEMS.filter((i) => !PINNED_IDS.includes(i.id));
 
   // Ítem de tienda con submenú
-  const storeItem = NAV_ITEMS.find((i): i is NavItem & { submenu: NavSubItem[] } => i.id === 'store' && Array.isArray(i.submenu));
-  const storeHasSubmenu = Boolean(storeItem?.submenu?.length);
+  const storeItem = NAV_ITEMS.find((i) => i.id === 'store');
+  const storeHasSubmenu = storeItem && 'submenu' in storeItem && storeItem.submenu;
 
   // Verificar si algún subítem de tienda está activo
-  const storeSubIds = storeItem?.submenu?.map((s) => s.id) ?? [];
+  const storeSubIds = storeHasSubmenu ? storeItem.submenu.map((s: any) => s.id) : [];
   const isStoreGroupActive = active === 'store' || storeSubIds.includes(active);
 
-  const handleNavClick = (item: NavItem) => {
+  const handleNavClick = (item: any) => {
     const isDisabled = !isActiveShop && item.id !== 'store';
     if (isDisabled) return;
 
-    const hasSubmenu = Boolean(item.submenu?.length) && isActiveShop;
+    const hasSubmenu = 'submenu' in item && item.submenu && isActiveShop;
 
     if (item.id === 'store' && hasSubmenu) {
       setStoreDrawerOpen(true);
@@ -190,7 +190,7 @@ export const DashboardBottomNav = ({
 
               {/* Subítems */}
               {storeHasSubmenu &&
-                storeItem?.submenu?.map((sub) => {
+                storeItem.submenu.map((sub: any) => {
                   const isSubActive = active === sub.id;
                   return (
                     <button

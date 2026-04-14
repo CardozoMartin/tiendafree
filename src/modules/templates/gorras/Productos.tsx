@@ -34,7 +34,7 @@ export default function Productos({ onSelect, tiendaId }: Props) {
     busqueda: busquedaFiltro.trim() !== '' ? busquedaFiltro : undefined,
   });
 
-  const allProductos = productosData || [];
+  const allProductos = productosData?.datos || [];
   const productos = allProductos.slice(0, visibleCount);
 
   const handleCat = (id: number | 'Todo') => {

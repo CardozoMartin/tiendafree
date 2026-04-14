@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../../api/ApiBase';
+import DashboardHelp from './DashboardHelp';
 
 interface Review {
   id: number;
@@ -154,6 +155,7 @@ export const ReviewsSection = ({ accent, tienda }: ReviewsSectionProps) => {
             Modera las opiniones de tus clientes para mejorar la confianza de tu tienda.
           </p>
         </div>
+        <DashboardHelp activeSection="reviews" accent={accent} />
       </div>
 
       {/* Tabs */}

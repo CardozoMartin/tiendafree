@@ -19,9 +19,15 @@ export default function Dashboard() {
     localStorage.setItem('dashboard_active_section', active);
   }, [active]);
 
-  // Hook que devuelve la tienda del usuario si tiene una tienda creada y activa.
-  const { data: myShop, isLoading: isMyShopLoading } = useMyShop();
-  const isActiveShop = Boolean(myShop);
+  //Hook que devuelve la tienda del usuario si tienda una tienda creada y activa, sino devuelve null
+  const { data: myShop } = useMyShop();
+  console.log(myShop);
+
+  //hook para verificar si el usuario tiene una tienda creada y activa
+  // const { data: checkUserStoreData } = useCheckUserStore();
+  // const isActiveShop = checkUserStoreData?.data.hasActiveStore ?? false;
+
+  const isActiveShop = !!myShop;
 
   // Pedidos pendientes (para badge en el menú)
   const { data: pendientesRes } = useOrders({
@@ -32,8 +38,8 @@ export default function Dashboard() {
   });
   const pendingOrders: number = pendientesRes?.datos?.length ?? 0;
 
-  // No forzar aún la pantalla de creación si la tienda está en carga.
-  const currentActive = !isMyShopLoading && !isActiveShop ? 'store' : active;
+  // Cuando no tiene tienda activa, forzar a 'store' (Crear Tienda)
+  const currentActive = !isActiveShop ? 'store' : active;
   return (
     <>
       <link
@@ -76,7 +82,7 @@ export default function Dashboard() {
           <DashboardHeader active={currentActive} accent={accent} />
 
           {/* ── Mobile Header ── */}
-          <DashboardMobileHeader accent={accent} />
+          <DashboardMobileHeader accent={accent} active={currentActive} />
 
           {/* ── Scrollable Content ── */}
           <main className="flex-1 min-h-0 overflow-y-auto px-4 py-4 md:px-8 md:py-6 pb-24 md:pb-8">

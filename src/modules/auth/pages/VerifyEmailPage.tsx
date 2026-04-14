@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../../../api/ApiBase';
 import { ROUTES } from '../../../constants/routes';
@@ -24,13 +23,9 @@ export default function VerifyEmailPage() {
         await api.get(`/auth/verificar-email/${token}`);
         setStatus('success');
         setMessage('¡Tu cuenta de administrador ha sido verificada exitosamente! Ya podés ingresar al panel.');
-      } catch (error) {
+      } catch (error: any) {
         setStatus('error');
-        if (axios.isAxiosError(error)) {
-          setMessage(error.response?.data?.mensaje || 'Error al verificar la cuenta.');
-        } else {
-          setMessage('Error al verificar la cuenta.');
-        }
+        setMessage(error.response?.data?.mensaje || 'Error al verificar la cuenta.');
       }
     };
 

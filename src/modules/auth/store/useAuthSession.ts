@@ -25,9 +25,11 @@ const validateToken = (token: string | null): AuthState => {
 
   try {
     const decoded = jwtDecode<DecodedToken>(token);
+    console.log("Decoded token:", decoded);
 
     // Verificar si el token ha expirado
     if (!decoded.exp || isTokenExpired(decoded.exp)) {
+      console.warn("Token expirado");
       return {
         user: null,
         isLoggedIn: false,
@@ -80,11 +82,11 @@ export const useAuthSessionStore = create<SessionStore>()(
           finalUser = {
             userId: decoded.id || userData.userId,
             email: decoded.email || userData.email,
-            nombre: decoded.nombre || userData.nombre,
-            rol: decoded.roles || userData.rol,
+            nombre: decoded.nombre || (userData as any).nombre,
+            rol: decoded.roles || (userData as any).rol,
           } as User;
-        } catch {
-          finalUser = userData;
+        } catch (err) {
+          console.warn('Failed to decode token during login:', err);
         }
 
         set({
@@ -93,6 +95,7 @@ export const useAuthSessionStore = create<SessionStore>()(
           token,
         });
 
+        // Iniciar verificación automática
         get().startSessionCheck();
       },
 
@@ -128,14 +131,20 @@ export const useAuthSessionStore = create<SessionStore>()(
       },
 
       startSessionCheck: () => {
+        // Limpiar intervalo existente si hay uno
         if (intervalId) {
           clearInterval(intervalId);
         }
 
+        // Verificar inmediatamente
         get().checkSession();
 
+        // Configurar verificación periódica
         intervalId = setInterval(() => {
-          get().checkSession();
+          const isValid = get().checkSession();
+          if (!isValid) {
+            console.log('Sesión inválida, redirigiendo al login...');
+          }
         }, CHECK_INTERVAL);
       },
 
@@ -153,11 +162,13 @@ export const useAuthSessionStore = create<SessionStore>()(
         if (state?.token) {
           const validated = validateToken(state.token);
           if (!validated.isLoggedIn) {
+            console.warn('Token expirado detectado al recargar, limpiando...');
             state.user = null;
             state.isLoggedIn = false;
             state.token = null;
           } else {
-            state.startSessionCheck?.();
+            // Iniciar verificación automática si la sesión es válida
+            state.startSessionCheck();
           }
         }
       },

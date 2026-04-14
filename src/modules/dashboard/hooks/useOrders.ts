@@ -1,39 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { getOrdersFn, getOrderByIdFn, patchUpdateOrderStatusFn } from '../api/orders.api';
-import type { IErrorResponse } from '../../../types/api.type';
-import type { IOrder, IOrderPaginatedResponse } from '../types/order.type';
 
-interface OrderFilters {
-  tiendaId?: number;
-  estado?: string;
-  pagina?: number;
-  limite?: number;
-}
+const QUERY_KEY = 'pedidos';
 
-//hook para obtener la lista de pedidos para el dueño de la tienda, con filtros opcionales por estado y paginación
-export const useOrders = (filtros: OrderFilters) => {
-  const hasTienda = typeof filtros.tiendaId === 'number' && filtros.tiendaId > 0;
-
-  return useQuery<IOrderPaginatedResponse, AxiosError<IErrorResponse>>({
-    queryKey: ['pedidos', filtros.tiendaId, filtros.estado, filtros.pagina, filtros.limite],
+export const useOrders = (filtros: { tiendaId?: number; estado?: string; pagina?: number; limite?: number }) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, filtros],
     queryFn: () => getOrdersFn(filtros),
-    enabled: hasTienda,
+    enabled: !!filtros.tiendaId,
   });
 };
 
-// Hook para obtener los detalles de un pedido específico por su ID
 export const useOrder = (id: number | null) => {
-  return useQuery<IOrder, AxiosError<IErrorResponse>>({
-    queryKey: ['pedido', id],
+  return useQuery({
+    queryKey: [QUERY_KEY, id],
     queryFn: () => getOrderByIdFn(id!),
-    enabled: typeof id === 'number' && id > 0,
+    enabled: !!id,
   });
 };
 
-
-// Hook para actualizar el estado del pedido, agregar notas para el dueño, y opcionalmente agregar información de seguimiento si el pedido ha sido enviado.
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -52,7 +38,7 @@ export const useUpdateOrderStatus = () => {
       }),
     onSuccess: () => {
       toast.success('Estado del pedido actualizado');
-      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
     onError: () => {
       toast.error('Error al actualizar el estado');

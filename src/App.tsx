@@ -1,7 +1,6 @@
 import { ROUTES } from '@constants/routes';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { lazy, Suspense, useEffect } from 'react';
-import { toast } from 'sonner';
+import { lazy, Suspense } from 'react';
 
 import PrivateRoutes from './routes/PrivateRoutes';
 import PublicRoutes from './routes/PublicRoutes';
@@ -23,15 +22,6 @@ const VerifyEmailPage = lazy(() =>
 const Dashboard = lazy(() => import('@modules/dashboard/pages/Dashboard'));
 
 function App() {
-  useEffect(() => {
-    const handleAuthExpired = () => {
-      toast.error('Tu sesión ha expirado. Por favor inicia sesión de nuevo.');
-    };
-
-    window.addEventListener('app:auth-expired', handleAuthExpired);
-    return () => window.removeEventListener('app:auth-expired', handleAuthExpired);
-  }, []);
-
   return (
     <BrowserRouter>
       <Suspense

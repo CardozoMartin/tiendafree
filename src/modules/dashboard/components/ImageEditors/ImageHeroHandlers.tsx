@@ -2,17 +2,13 @@ import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 import { useRef, useState } from 'react';
 import { useAddShopCarouselImage, useDeleteShopCarouselImage } from '../../hooks/useCarrusel';
 
-import type { CarruselItem, TiendaData } from '../../../templates/types';
-
-interface ImageHeroHandlersProps {
-  data: TiendaData;
-  onChangeData: (patch: Partial<TiendaData>) => void;
-}
-
 const ImageHeroHandlers = ({
   data,
   onChangeData,
-}: ImageHeroHandlersProps) => {
+}: {
+  data: any;
+  onChangeData: (patch: any) => void;
+}) => {
   const { mutate: deleteCarouselImage } = useDeleteShopCarouselImage();
   const { mutateAsync: addCarouselImage, isPending: isAdding } = useAddShopCarouselImage();
 
@@ -79,7 +75,7 @@ const ImageHeroHandlers = ({
       {ConfirmModal}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
         <div className="divide-y divide-gray-50">
-          {(data.carrusel ?? []).map((item: CarruselItem, idx: number) => (
+          {((data?.carrusel || []) as any[]).map((item: any, idx: number) => (
             <div key={idx} className="flex items-center gap-4 px-6 py-3.5 group">
               <img
                 src={item.url}
@@ -93,7 +89,7 @@ const ImageHeroHandlers = ({
                 onChange={(e) => handleChangeUrl(idx, e.target.value)}
               />
               <button
-                onClick={() => item.id != null && handleDeleteCarouselImage(item.id)}
+                onClick={() => handleDeleteCarouselImage(item.id)}
                 className="p-1.5 text-red-500 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
                 title="Eliminar imagen"
               >
