@@ -10,60 +10,96 @@ import {
   ProductSectionHeader,
 } from './products';
 
+// Constantes globales del componente para evitar valores mágicos en el código
+const PRODUCTOS_POR_PAGINA = 12;
+const TIEMPO_ESPERA_BUSQUEDA_MS = 400;
+
 const ProductsSection = () => {
-  const [busqueda, setBusqueda] = useState("");
-  const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
-  const [pagina, setPagina] = useState(1);
-  const [filtroActivo, setFiltroActivo] = useState<
+  // ============================================================================
+  // 1. ESTADOS LOCALES
+  // ============================================================================
+  
+  // Término de búsqueda escrito por el usuario en el input
+  const [terminoBusqueda, setTerminoBusqueda] = useState("");
+  // Término de búsqueda con retraso (debounce) para no realizar múltiples peticiones
+  const [terminoBusquedaDebounced, setTerminoBusquedaDebounced] = useState("");
+  
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [filtroSeleccionado, setFiltroSeleccionado] = useState<
     "todos" | "activos" | "ocultos" | "destacados" | "bajo_stock"
   >("todos");
-  const LIMITE = 12;
 
-  // Efecto para actualizar la búsqueda de los productos con debounce de 400ms
+  // Controla qué elemento está expandido en la interfaz:
+  // null = ninguno, 'create' = formulario nuevo, un número = id de producto en edición
+  const [panelExpandidoId, setPanelExpandidoId] = useState<"create" | number | null>(null);
+
+  // ============================================================================
+  // 2. EFECTOS SECUNDARIOS
+  // ============================================================================
+
+  // Efecto: Aplicar retraso (debounce) a la búsqueda para optimizar las peticiones a la API
   useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedBusqueda(busqueda);
-      setPagina(1);
-    }, 400);
-    return () => clearTimeout(t);
-  }, [busqueda]);
+    const temporizador = setTimeout(() => {
+      setTerminoBusquedaDebounced(terminoBusqueda);
+      setPaginaActual(1); // Volver a la primera página al realizar una nueva búsqueda
+    }, TIEMPO_ESPERA_BUSQUEDA_MS);
+    
+    // Limpieza del temporizador si el componente se desmonta o terminoBusqueda cambia rápido
+    return () => clearTimeout(temporizador);
+  }, [terminoBusqueda]);
 
-  // Construimos el objeto de filtros para la consulta, omitiendo los que no aplican
-  const filtros: IProductFilters = {
-    pagina,
-    limite: LIMITE,
-    busqueda: debouncedBusqueda || undefined,
+  // ============================================================================
+  // 3. PREPARACIÓN DE PARÁMETROS Y CONSULTAS (API)
+  // ============================================================================
+
+  // Construcción dinámica del objeto de filtros para la consulta a la base de datos
+  const parametrosConsulta: IProductFilters = {
+    pagina: paginaActual,
+    limite: PRODUCTOS_POR_PAGINA,
+    busqueda: terminoBusquedaDebounced || undefined, // Evitamos mandar strings vacíos
     disponible:
-      filtroActivo === "activos"
+      filtroSeleccionado === "activos"
         ? true
-        : filtroActivo === "ocultos"
+        : filtroSeleccionado === "ocultos"
           ? false
-          : undefined,
-    destacado: filtroActivo === "destacados" ? true : undefined,
-    bajoStock: filtroActivo === "bajo_stock" ? true : undefined,
+          : undefined, // undefined ignora este filtro y trae todo
+    destacado: filtroSeleccionado === "destacados" ? true : undefined,
+    bajoStock: filtroSeleccionado === "bajo_stock" ? true : undefined,
   };
 
-  // Consulta principal para obtener los productos paginados según los filtros
-  const { data: productosPaginados, isLoading } = useMisProductos(filtros);
-  const actualizar = useActualizarProducto();
+  // Peticiones usando hooks personalizados (React Query internamente)
+  const { data: respuestaProductos, isLoading: cargandoProductos } = useMisProductos(parametrosConsulta);
+  const mutacionActualizar = useActualizarProducto();
 
-  // Extraemos la lista de productos y la metadata de paginación de la respuesta
-  const productos: IProduct[] = productosPaginados?.datos ?? [];
-  const total: number = productosPaginados?.paginacion?.total ?? 0;
-  const totalPaginas: number =
-    productosPaginados?.paginacion?.totalPaginas ?? 1;
+  // ============================================================================
+  // 4. PROCESAMIENTO Y LIMPIEZA DE DATOS EXTRÍDOS
+  // ============================================================================
 
-  // Estado del formulario inline (null = cerrado, 'create' = nuevo, number = editar id)
-  const [expandedId, setExpandedId] = useState<"create" | number | null>(null);
+  // Datos limpios con fallbacks (valores por defecto) para evitar errores "undefined"
+  const productosFiltrados: IProduct[] = respuestaProductos?.datos ?? [];
+  const cantidadTotalProductos: number = respuestaProductos?.paginacion?.total ?? 0;
+  const totalDePaginas: number = respuestaProductos?.paginacion?.totalPaginas ?? 1;
 
-  const toggleCreate = () =>
-    setExpandedId((prev) => (prev === "create" ? null : "create"));
+  // ============================================================================
+  // 5. MANEJADORES DE EVENTOS (HANDLERS)
+  // ============================================================================
 
-  const toggleEdit = (id: number) =>
-    setExpandedId((prev) => (prev === id ? null : id));
+  const alternarFormularioCreacion = () => {
+    setPanelExpandidoId((estadoActual) => (estadoActual === "create" ? null : "create"));
+  };
 
-  // Si está cargando, mostramos un spinner centrado
-  if (isLoading) {
+  const alternarFormularioEdicion = (idProducto: number) => {
+    setPanelExpandidoId((estadoActual) => (estadoActual === idProducto ? null : idProducto));
+  };
+
+  const cerrarPaneles = () => setPanelExpandidoId(null);
+
+  // ============================================================================
+  // 6. RENDERIZADO (UI)
+  // ============================================================================
+
+  // Vista de carga principal (Spinner)
+  if (cargandoProductos) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="animate-spin w-8 h-8 border-[3px] border-gray-200 border-t-gray-800 rounded-full" />
@@ -73,15 +109,15 @@ const ProductsSection = () => {
 
   return (
     <div className="min-h-0 space-y-6 pb-6">
-      {/* ── Header ── */}
+      {/* --- Encabezado --- */}
       <ProductSectionHeader
-        total={total}
-        expandedId={expandedId}
-        onToggleCreate={toggleCreate}
+        total={cantidadTotalProductos}
+        expandedId={panelExpandidoId}
+        onToggleCreate={alternarFormularioCreacion}
       />
 
-      {/* Formulario para crear un nuevo Producto */}
-      {expandedId === "create" && (
+      {/* --- Sección: Nuevo Producto --- */}
+      {panelExpandidoId === "create" && (
         <div>
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
@@ -91,51 +127,56 @@ const ProductsSection = () => {
               Completá los datos y guardá.
             </p>
           </div>
-          <FormProduct onSuccess={() => setExpandedId(null)} />
+          <FormProduct onSuccess={cerrarPaneles} />
         </div>
       )}
 
+      {/* --- Sección: Filtros y Buscador --- */}
       <ProductFilters
-        busqueda={busqueda}
-        filtroActivo={filtroActivo}
-        onSearchChange={(value) => setBusqueda(value)}
-        onFilterChange={(value) => {
-          setFiltroActivo(value);
-          setPagina(1);
+        busqueda={terminoBusqueda}
+        filtroActivo={filtroSeleccionado}
+        onSearchChange={(nuevoValor) => setTerminoBusqueda(nuevoValor)}
+        onFilterChange={(nuevoFiltro) => {
+          setFiltroSeleccionado(nuevoFiltro);
+          setPaginaActual(1); // Al cambiar contenedor de filtros, volver al inicio
         }}
       />
 
-      {productos.length === 0 && <ProductEmptyState busqueda={debouncedBusqueda} />}
+      {/* --- Sección: Estado Vacío (sin resultados) --- */}
+      {productosFiltrados.length === 0 && (
+        <ProductEmptyState busqueda={terminoBusquedaDebounced} />
+      )}
 
-      {/* Lista de productos */}
-      {productos.length > 0 && (
+      {/* --- Sección: Lista del Catálogo --- */}
+      {productosFiltrados.length > 0 && (
         <div>
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
               Catálogo
             </h2>
             <p className="text-xs text-gray-400 mt-1">
-              {debouncedBusqueda
-                ? `Resultados para "${debouncedBusqueda}"`
+              {terminoBusquedaDebounced
+                ? `Resultados para "${terminoBusquedaDebounced}"`
                 : "Todos tus productos activos e inactivos"}
             </p>
           </div>
 
           <ProductList
-            productos={productos}
-            expandedId={expandedId}
-            toggleEdit={toggleEdit}
-            actualizar={actualizar}
-            onEditSuccess={() => setExpandedId(null)}
+            productos={productosFiltrados}
+            expandedId={panelExpandidoId}
+            toggleEdit={alternarFormularioEdicion}
+            actualizar={mutacionActualizar}
+            onEditSuccess={cerrarPaneles}
           />
         </div>
       )}
 
-      {totalPaginas > 1 && (
+      {/* --- Sección: Paginación --- */}
+      {totalDePaginas > 1 && (
         <ProductPagination
-          pagina={pagina}
-          totalPaginas={totalPaginas}
-          onPageChange={setPagina}
+          pagina={paginaActual}
+          totalPaginas={totalDePaginas}
+          onPageChange={setPaginaActual}
         />
       )}
     </div>
@@ -143,3 +184,4 @@ const ProductsSection = () => {
 };
 
 export default ProductsSection;
+
