@@ -1,75 +1,218 @@
-# React + TypeScript + Vite
+# TiendaFree Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+README tecnico del frontend de TiendaFree.
 
-Currently, two official plugins are available:
+## 1. Objetivo del proyecto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Aplicacion web para:
 
-## React Compiler
+- Gestionar autenticacion de usuarios.
+- Administrar una tienda desde un dashboard privado.
+- Publicar una tienda en una URL publica por slug.
+- Renderizar la tienda publica usando plantillas configurables.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 2. Stack tecnologico
 
-Note: This will impact Vite dev & build performances.
+- React 19 + TypeScript
+- Vite 8
+- React Router DOM
+- TanStack React Query
+- Zustand (estado de sesion)
+- Axios (cliente HTTP)
+- Tailwind CSS
+- Vitest + Testing Library
+- ESLint
 
-## Expanding the ESLint configuration
+Dependencias de UI relevantes:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- MUI (Material UI)
+- Sonner (toasts)
+- Lucide
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 3. Arquitectura general
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+El proyecto esta organizado por dominios funcionales en src/modules:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- auth: login, registro, recuperacion y cambio de password.
+- dashboard: gestion de tienda, productos, pedidos y configuraciones.
+- storefront: vistas publicas y landing/public store.
+- templates: motor de plantillas para render del storefront.
+
+Capas principales:
+
+- Presentacion: componentes y paginas React.
+- Estado local/global: hooks + Zustand.
+- Estado de servidor: React Query.
+- Integracion API: axios centralizado en src/api/ApiBase.ts.
+
+## 4. Flujo de navegacion
+
+Rutas principales:
+
+- Publicas: /, /login, /register, /forgot-password, /reset-password, /verify-email.
+- Privadas: /dashboard y /demo/:nombre.
+- Tienda publica: /tienda/:slug.
+
+Comportamiento:
+
+- PublicRoutes redirige al dashboard si el usuario ya esta autenticado.
+- PrivateRoutes valida la sesion y redirige al login cuando no hay sesion valida.
+
+## 5. Sesion y autenticacion
+
+Estado de autenticacion:
+
+- Persistencia en localStorage con middleware persist de Zustand.
+- Validacion de expiracion JWT al hidratar estado y de forma periodica.
+- Verificacion periodica de sesion cada 60 segundos.
+
+Cliente API:
+
+- Interceptor request agrega Authorization Bearer token cuando existe.
+- Interceptor response hace logout y redirecciona a /login ante 401 (excepto login).
+
+## 6. Integracion con backend
+
+La app consume una API REST. Endpoints agrupados por dominio:
+
+- authApi: registro, login, solicitud y confirmacion de reset.
+- shop.api: alta de tienda, actualizacion de tienda/tema, metodos de pago y entrega, about us, marquee.
+- product.api: CRUD de productos, imagenes, variantes, importacion/exportacion.
+
+Nota tecnica:
+
+- Existen operaciones multipart/form-data para archivos (imagenes y excel).
+- Existen operaciones JSON para updates parciales.
+
+## 7. Plantillas de storefront
+
+El renderer de tienda publica selecciona plantilla a partir de metadata de tienda.
+
+Plantillas registradas actualmente:
+
+- plantilla_accesorios
+- plantilla_gorras
+- plantilla_ropa
+- plantilla_urban
+
+El sistema resuelve alias y formatos distintos del backend para plantilla/template.
+
+## 8. Variables de entorno
+
+La base URL de API en runtime se obtiene de:
+
+- VITE_API_BASE_URL
+
+Si no se define, se usa fallback local:
+
+- http://localhost:3000/api/v1
+
+Archivo disponible en repo:
+
+- .env.example
+
+Observacion importante:
+
+- .env.example usa VITE_API_URL, pero el codigo usa VITE_API_BASE_URL.
+- Recomendado: alinear ambos nombres para evitar errores de configuracion.
+
+Ejemplo recomendado de .env local:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000/api/v1
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 9. Scripts de desarrollo
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
+
+Scripts disponibles:
+
+- npm run dev: servidor de desarrollo.
+- npm run build: typecheck y build de produccion.
+- npm run preview: previsualizar build.
+- npm run lint: analisis estatico.
+- npm run test: tests en modo verbose.
+- npm run test:ui: interfaz de Vitest.
+- npm run test:run: ejecucion unica de tests.
+- npm run audit: auditoria de dependencias (high+).
+
+## 10. Testing
+
+Framework de pruebas:
+
+- Vitest con entorno jsdom.
+- Setup global en src/test/setup.ts.
+
+Cobertura actual observada:
+
+- Formularios de autenticacion (Login, Register, ForgotPassword, ChangePass).
+
+Pendientes sugeridos:
+
+- Tests de rutas privadas/publicas.
+- Tests de hooks de React Query (mock de API).
+- Tests de render de plantillas de storefront.
+
+## 11. Estructura de carpetas (resumen)
+
+```text
+src/
+  api/                # cliente axios y configuracion base
+  components/         # componentes compartidos
+  constants/          # rutas y constantes globales
+  hooks/              # hooks compartidos
+  modules/
+    auth/             # autenticacion y sesion
+    dashboard/        # panel privado y gestion de tienda
+    storefront/       # vistas publicas
+    templates/        # motor y plantillas de storefront
+  routes/             # guards de rutas
+  store/              # stores globales compartidos
+  test/               # setup y utilidades de test
+  types/              # tipados base
+```
+
+## 12. Lineamientos para contribucion tecnica
+
+- Mantener la segmentacion por modulos funcionales.
+- Centralizar acceso HTTP en capa api por dominio.
+- Evitar logica de negocio en componentes de presentacion.
+- Tipar requests/responses y evitar any en nuevas piezas.
+- Agregar pruebas para nuevas reglas de negocio.
+
+## 13. Seguridad y operacion
+
+Existe un documento complementario en SECURITY.md con recomendaciones de:
+
+- gestion de secrets
+- hardening de autenticacion
+- observabilidad
+- plan de accion de seguridad
+
+## 14. Recursos visuales para el repositorio
+
+Si se desea mejorar la presentacion del README, insertar capturas en estos puntos:
+
+- Insertar imagen: flujo de login y registro.
+- Insertar imagen: vista principal del dashboard.
+- Insertar imagen: vista de editor/gestion de tienda.
+- Insertar imagen: ejemplo de tienda publica por slug.
+- Insertar imagen: mapa de arquitectura (modulos y capas).
+
+Sugerencia de carpeta para assets de documentacion:
+
+- docs/images/
+
+## 15. Estado actual
+
+El proyecto se encuentra funcional sobre Vite + React + TypeScript, con:
+
+- enrutado publico/privado
+- sesion persistida con validacion de JWT
+- integracion modular con API REST
+- render de storefront por plantillas
+- base inicial de pruebas unitarias en autenticacion
