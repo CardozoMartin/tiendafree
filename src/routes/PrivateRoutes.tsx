@@ -1,3 +1,4 @@
+import { ROUTES } from '@constants/routes';
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthSessionStore } from '../modules/auth/store/useAuthSession';
@@ -31,7 +32,7 @@ const RoutesPrivate = () => {
   }
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
   return <Outlet />;

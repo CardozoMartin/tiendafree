@@ -1,6 +1,7 @@
 import { useAuthSessionStore } from "../../auth/store/useAuthSession";
 import { NAV_ITEMS } from "../constant/constants";
 import MI from "./MaterialIcon";
+import DashboardHelp from "./DashboardHelp";
 
 interface DashboardHeaderProps {
   active: string;
@@ -25,6 +26,7 @@ export const DashboardHeader = ({ active, accent }: DashboardHeaderProps) => {
         </h2>
       </div>
       <div className="flex items-center gap-3">
+        <DashboardHelp activeSection={active} accent={accent} />
         <button className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors">
           <MI name="notifications" className="!text-xl" />
           <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500" />

@@ -4,13 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { render } from '../../../test/utils';
 import FormChangePass from './FormChangePass';
 import { useResetPassword } from '../hooks/useAuth';
-import { useConfirm } from '../../../hooks/useConfirm';
+import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 
 vi.mock('../hooks/useAuth', () => ({
   useResetPassword: vi.fn(),
 }));
 
-vi.mock('../../../hooks/useConfirm', () => ({
+vi.mock('@components/ConfirmDialog/useConfirm', () => ({
   useConfirm: vi.fn(),
 }));
 

@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import type { AxiosError } from 'axios';
+import type { IErrorResponse, ISuccessResponse } from '../../../types/api.type';
 import {
   postLoginUserFn,
   postRegisterUserFn,
@@ -9,9 +10,7 @@ import {
   postResetPasswordFn,
 } from '../api/authApi';
 import { useAuthSessionStore } from '../store/useAuthSession';
-import type { IErrorResponse, ISuccessResponse } from '../../../types/api.type';
-import type { ILoginDatos, IRegistroDatos, LoginResponse } from '../types/Auth';
-
+import type { IRegistroDatos, LoginResponse } from '../types/Auth';
 
 // ─── Helper para extraer el mensaje de error ─────────────────────────────────
 const getErrorMessage = (error: AxiosError<IErrorResponse>): string => {
@@ -79,8 +78,15 @@ export const useResetPassword = () => {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: ({ token, passwordNueva, confirmarPassword }: { token: string; passwordNueva: string; confirmarPassword: string }) => 
-      postResetPasswordFn(token, passwordNueva, confirmarPassword),
+    mutationFn: ({
+      token,
+      passwordNueva,
+      confirmarPassword,
+    }: {
+      token: string;
+      passwordNueva: string;
+      confirmarPassword: string;
+    }) => postResetPasswordFn(token, passwordNueva, confirmarPassword),
     onSuccess: (data: ISuccessResponse<null>) => {
       toast.success(data.mensaje);
       setTimeout(() => navigate('/login'), 1500);

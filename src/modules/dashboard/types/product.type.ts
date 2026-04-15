@@ -16,6 +16,7 @@ export interface IProductVariant {
   nombre: string;
   sku?: string;
   precioExtra: number;
+  stock: number;
   imagenUrl?: string;
   disponible: boolean;
 }
@@ -39,6 +40,7 @@ export interface IProduct {
   categoria?: { id: number; nombre: string };
   disponible: boolean;
   destacado: boolean;
+  stock: number;
   vistas: number;
   creadoEn: string;
   actualizadoEn: string;
@@ -62,6 +64,7 @@ export interface ICreateProductDto {
   categoriaId?: number | '';
   disponible: boolean;
   destacado: boolean;
+  stock: number;
   tags: string[];
   variantes: Omit<IProductVariant, 'id'>[];
 }
@@ -69,6 +72,7 @@ export interface ICreateProductDto {
 export interface IUpdateProductDto extends Partial<Omit<ICreateProductDto, 'variantes' | 'tags'>> {
   categoriaId?: number | '';
   tags?: string[];
+  stock?: number;
 }
 
 // ─── Filtros de listado ───────────────────────────────────────────────────────
@@ -79,6 +83,7 @@ export interface IProductFilters {
   busqueda?: string;
   disponible?: boolean;
   destacado?: boolean;
+  bajoStock?: boolean;
   categoriaId?: number;
   orden?: 'nombre' | 'precio' | 'vistas' | 'creadoEn' | 'destacado';
   direccion?: 'asc' | 'desc';

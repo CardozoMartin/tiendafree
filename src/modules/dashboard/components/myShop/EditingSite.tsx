@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { resolveTemplateIdFromShop } from '../../../templates/registry';
 import type { TiendaData } from '../../../templates/types';
-import { useDeleteShopCarouselImage } from '../../hooks/useCarrusel';
 import { useUpdateShop, useUpdateShopVisual } from '../../hooks/useShop';
-import ImagenHeroHandlers from '../EditingComponentes/ImagenHeroHandlers';
+import ImageHeroHandlers from '../ImageEditors/ImageHeroHandlers';
+import AboutUsEditor from './AboutUsEditor';
+import MarqueeEditor from './MarqueeEditor';
+import DashboardHelp from '../DashboardHelp';
 
 interface EditingSiteProps {
   tienda?: any;
 }
 
 const EditingSite = ({ tienda }: EditingSiteProps) => {
-  const plantillaId = resolveTemplateIdFromShop(tienda);
-
   // Mutations
   const updateShop = useUpdateShop();
   const updateShopVisual = useUpdateShopVisual();
- 
 
   // react-hook-form para el diseño global
   const { register, handleSubmit, watch, setValue, reset } = useForm({
@@ -65,24 +63,19 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
         cardMostrarBadge: tienda.temaConfig.cardMostrarBadge ?? true,
       });
     }
-    // Sincronizar también los datos locales de identidad y carrusel
     setData({
       titulo: tienda?.titulo ?? '',
       descripcion: tienda?.descripcion ?? '',
       carrusel: tienda?.carrusel ?? [],
     });
-  }, [tienda, reset, plantillaId]);
+  }, [tienda, reset]);
 
-  // Sincronizar temaData con variables CSS globales (Live Preview Suave)
   useEffect(() => {
     const root = document.documentElement;
     if (temaData) {
-      // Usamos el color de acento para los elementos principales
       root.style.setProperty('--primary-color', temaData.colorAcento);
       root.style.setProperty('--accent-color', temaData.colorAcento);
       root.style.setProperty('--button-bg', temaData.colorAcento);
-
-      // Colores base dependientes del modo (simulado o fijo para modern)
       const isDark = temaData.modoOscuro;
       root.style.setProperty('--site-bg', isDark ? '#0d0d12' : '#FFFFFF');
       root.style.setProperty('--text-color', isDark ? '#f5f0e8' : '#1F2937');
@@ -91,7 +84,6 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
     }
   }, [temaData]);
 
-  // Datos locales de edición (se sincronizan con la tienda)
   const [data, setData] = useState<TiendaData>({
     titulo: tienda?.titulo ?? '',
     descripcion: tienda?.descripcion ?? '',
@@ -103,17 +95,12 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
   };
 
   const handleSave = async () => {
-    console.log(`[EditingSite] Guardando toda la configuración`);
-
-    // 1. Datos básicos
     const updateData: any = {
       titulo: data.titulo,
       descripcion: data.descripcion,
       carrusel: data.carrusel,
     };
     await updateShop.mutateAsync(updateData);
-
-    // 2. Apariencia y textos vinculados al tema
     await updateShopVisual.mutateAsync({
       ...temaData,
       heroTitulo: data.titulo,
@@ -130,10 +117,13 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
     });
   };
 
-
-
+  // Verificamos si alguna petición está cargando en backend para mostrar estados de "Guardando..."
   const isSaving = updateShop.isPending || updateShopVisual.isPending;
 
+  // ============================================================================
+  // 6. RENDERIZADO (UI)
+  // ============================================================================
+  
   return (
     <div className="space-y-6 pb-20">
       {/* ── Header ── */}
@@ -143,6 +133,7 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           <p className="text-sm text-slate-500 mt-0.5">{tienda?.titulo || 'Tu tienda online'}</p>
         </div>
         <div className="flex items-center gap-3">
+          <DashboardHelp activeSection="store-edit" accent={temaData.colorAcento} />
           <button
             onClick={handleCancel}
             className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-800 rounded-xl hover:bg-gray-100 transition-all"
@@ -389,10 +380,16 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           </div>
         </div>
 
+        {/* ── About Us Editor ── */}
+        <AboutUsEditor />
+
+        {/* ── Marquee Editor ── */}
+        <MarqueeEditor />
+
         {/* ══════════════════════════
             SECCIÓN: IMÁGENES
         ══════════════════════════ */}
-        <ImagenHeroHandlers data={data} onChangeData={handleChange} />
+        <ImageHeroHandlers data={data} onChangeData={handleChange} />
 
         {/* Spacer */}
         <div className="h-6" />

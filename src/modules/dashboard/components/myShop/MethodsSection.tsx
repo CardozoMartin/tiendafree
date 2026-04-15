@@ -12,6 +12,7 @@ import {
   Banknote, Building2, QrCode, CreditCard, Wallet,
   Store, Truck, Package, Handshake, Bike, CircleHelp, Check, Plus, Trash2
 } from 'lucide-react';
+import DashboardHelp from '../DashboardHelp';
 
 const getLucideIcon = (name: string, className?: string) => {
   const map: Record<string, any> = {
@@ -29,6 +30,57 @@ const getLucideIcon = (name: string, className?: string) => {
   };
   const Icon = map[name] || CircleHelp;
   return <Icon className={className || "w-5 h-5"} strokeWidth={1.5} />;
+};
+
+// ── Custom Icon Mapping ────────────────────────────────────────────────────────
+const METHOD_IMG_MAP: Record<string, string> = {
+  // Pagos
+  'efectivo': '/src/assets/SVG/Efectivo.png',
+  'transferencia bancaria': '/src/assets/SVG/Transferencias.png',
+  'transferencia': '/src/assets/SVG/Transferencias.png',
+  'transferencias': '/src/assets/SVG/Transferencias.png',
+  'tarjeta de crédito': '/src/assets/SVG/TarjetaDeCredito.png',
+  'tarjeta de credito': '/src/assets/SVG/TarjetaDeCredito.png',
+  'tarjeta de débito': '/src/assets/SVG/TarjetaDeCredito.png',
+  'tarjeta de debito': '/src/assets/SVG/TarjetaDeCredito.png',
+  'mercado pago': '/src/assets/SVG/PagosQR.png',
+  'pagos qr': '/src/assets/SVG/PagosQR.png',
+  'pago con qr': '/src/assets/SVG/PagosQR.png',
+  'qr': '/src/assets/SVG/PagosQR.png',
+  
+  // Envíos
+  'retiro en local': '/src/assets/SVG/RetiroLocal.png',
+  'retiro del local': '/src/assets/SVG/RetiroLocal.png',
+  'retiro por sucursal': '/src/assets/SVG/RetiroLocal.png',
+  'retiro en el local': '/src/assets/SVG/RetiroLocal.png',
+  'retiro por el local': '/src/assets/SVG/RetiroLocal.png',
+  'punto de encuentro': '/src/assets/SVG/PuntoEncuentro.png',
+  'cadetería propia': '/src/assets/SVG/CadeteriaPropia.png',
+  'cadeteria propia': '/src/assets/SVG/CadeteriaPropia.png',
+  'envio a domicilio con cadeteria propia': '/src/assets/SVG/CadeteriaPropia.png',
+  'envío a todo el país': '/src/assets/SVG/EnvioTodoPais.png',
+  'envio a todo el pais': '/src/assets/SVG/EnvioTodoPais.png',
+  'correo argentino': '/src/assets/SVG/EnvioTodoPais.png',
+  'uber flash': '/src/assets/SVG/Uber.png',
+  'uber': '/src/assets/SVG/Uber.png',
+  'envio a domicilio con ubber': '/src/assets/SVG/Uber.png',
+};
+
+const MethodIcon = ({ metodo, className }: { metodo: any, className?: string }) => {
+  const nombreNormalizado = metodo.nombre?.toLowerCase().trim();
+  const customImg = METHOD_IMG_MAP[nombreNormalizado];
+  
+  if (customImg) {
+    return (
+      <img 
+        src={customImg} 
+        alt={metodo.nombre} 
+        className={className || "w-7 h-7 object-contain"} 
+      />
+    );
+  }
+  
+  return getLucideIcon(metodo.icono || (metodo.metodoPagoId ? 'payments' : 'local_shipping'), className);
 };
 
 export default function MethodsSection({ accent }: { accent: string }) {
@@ -77,9 +129,12 @@ export default function MethodsSection({ accent }: { accent: string }) {
   return (
     <div className="space-y-6 pb-20">
       {/* ── Header ── */}
-      <div>
-        <h1 className="text-2xl font-black text-slate-900">Métodos de pago y envío</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Elegí cómo cobrar y cómo entregar tus productos.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900">Métodos de pago y envío</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Elegí cómo cobrar y cómo entregar tus productos.</p>
+        </div>
+        <DashboardHelp activeSection="store-methods" accent={accent} />
       </div>
 
       <div className="space-y-8">
@@ -108,8 +163,8 @@ export default function MethodsSection({ accent }: { accent: string }) {
                 <div key={metodo.id} className="flex flex-col">
                   {/* Fila principal */}
                   <div className="flex items-center gap-4 px-6 py-5">
-                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shrink-0 border border-gray-100/50">
-                      {getLucideIcon(metodo.icono || 'payments', "w-5 h-5")}
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 border border-gray-100 shadow-sm">
+                      <MethodIcon metodo={metodo} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -216,8 +271,8 @@ export default function MethodsSection({ accent }: { accent: string }) {
                 <div key={metodo.id} className="flex flex-col">
                   {/* Fila principal */}
                   <div className="flex items-center gap-4 px-6 py-5">
-                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shrink-0 border border-gray-100/50">
-                      {getLucideIcon(metodo.icono || 'local_shipping', "w-5 h-5")}
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 border border-gray-100 shadow-sm">
+                      <MethodIcon metodo={metodo} />
                     </div>
 
                     <div className="flex-1 min-w-0">

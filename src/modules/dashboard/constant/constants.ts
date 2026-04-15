@@ -14,14 +14,19 @@ export const NAV_ITEMS = [
   { id: 'home', icon: 'home', label: 'Inicio' },
   { id: 'products', icon: 'inventory_2', label: 'Productos' },
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos' },
+  { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },
+  { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' },
+  { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
   { id: 'settings', icon: 'settings', label: 'Config' },
 ];
 
 // ── Status Metadata ────────────────────────────────────────────────────────
-export const STATUS_META = {
-  new: { label: 'Nuevo', bg: 'bg-violet-100', text: 'text-violet-700' },
-  pending: { label: 'En camino', bg: 'bg-amber-100', text: 'text-amber-700' },
-  done: { label: 'Entregado', bg: 'bg-green-100', text: 'text-green-700' },
+export const STATUS_META: Record<string, { label: string; bg: string; text: string }> = {
+  PENDIENTE: { label: 'Pendiente', bg: 'bg-amber-100', text: 'text-amber-700' },
+  CONFIRMADO: { label: 'Confirmado', bg: 'bg-blue-100', text: 'text-blue-700' },
+  EN_CAMINO: { label: 'En camino', bg: 'bg-violet-100', text: 'text-violet-700' },
+  ENTREGADO: { label: 'Entregado', bg: 'bg-green-100', text: 'text-green-700' },
+  CANCELADO: { label: 'Cancelado', bg: 'bg-red-100', text: 'text-red-700' },
 };
 
 // ── Fonts and Colors ──────────────────────────────────────────────────────

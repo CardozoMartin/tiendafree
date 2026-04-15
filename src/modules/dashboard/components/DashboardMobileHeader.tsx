@@ -1,13 +1,15 @@
 import { useAuthSessionStore } from "../../auth/store/useAuthSession";
 import MI from "./MaterialIcon";
+import DashboardHelp from "./DashboardHelp";
 
 
 
 interface DashboardMobileHeaderProps {
   accent: string;
+  active: string;
 }
 
-export const DashboardMobileHeader = ({ accent }: DashboardMobileHeaderProps) => {
+export const DashboardMobileHeader = ({ accent, active }: DashboardMobileHeaderProps) => {
   const { user } = useAuthSessionStore();
 
   // Obtener iniciales del nombre
@@ -30,6 +32,7 @@ export const DashboardMobileHeader = ({ accent }: DashboardMobileHeaderProps) =>
         <span className="font-black text-slate-900">Vitrina</span>
       </div>
       <div className="flex items-center gap-2">
+        <DashboardHelp activeSection={active} accent={accent} />
         <button className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
           <MI name="notifications" className="!text-xl" />
           <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500" />
