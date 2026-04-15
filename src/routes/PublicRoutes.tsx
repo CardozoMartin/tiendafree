@@ -1,13 +1,15 @@
+// PublicRoutes.tsx
+import { ROUTES } from '@constants/routes';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useSession } from '../store/useAuthSession';
+import { useShallow } from 'zustand/react/shallow';
 import Header from '../components/common/Header';
+import { useAuthSessionStore } from '../modules/auth/store/useAuthSession';
 
 const PublicRoutes = () => {
-  const { isLoggedIn } = useSession();
+  const isLoggedIn = useAuthSessionStore(useShallow((s) => s.isLoggedIn));
 
-  // Si el usuario ya está logueado, redirigir al dashboard
   if (isLoggedIn) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   return (

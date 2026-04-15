@@ -1,0 +1,358 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCarrito } from '../../../hooks/useCarrito';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
+
+// ── Componentes ───────────────────────────────────────────────
+import AboutUs from './AboutUs';
+import AccountView from './AccountView';
+import AuthView from './AuthView';
+import CartDrawer from './CartDrawer';
+import Contact from './Contact';
+import { Footer } from './Footer';
+import Hero from './Hero';
+import Marquee from './Marquee';
+import { Navbar } from './Navbar';
+import OrderData from './OrderData';
+import ProductDetailView from './ProductDetailView';
+import Productos from './Productos';
+import ProductosDestacados from './ProductosDestacados';
+import Toast from './Toast';
+import type { IHeroProps, Producto, Tienda } from './Types';
+
+// ── Tipos ─────────────────────────────────────────────────────
+export interface PlantillaGorrasProps {
+  tienda?: Tienda;
+  accent?: string;
+  themeConfig?: {
+    primary?: string;
+    modoOscuro?: boolean;
+  };
+}
+
+type View = 'home' | 'auth' | 'account' | 'about' | 'order';
+type NavTarget = 'inicio' | 'producto' | 'contacto' | 'sobrenosotros';
+
+// ── Constantes ────────────────────────────────────────────────
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
+
+const TIENDA_DEFAULT = {
+  nombre: 'CapZone',
+  descripcion: 'Gorras y accesorios urbanos para los que marcan tendencia en Tucumán.',
+  whatsapp: '5493812345678',
+  instagram: 'capzone.tuc',
+  facebook: 'capzonetucuman',
+  ciudad: 'Tucumán',
+  provincia: 'Tucumán',
+  pais: 'Argentina',
+};
+
+// ── Helpers puros (fuera del componente) ──────────────────────
+
+/** CSS variables del tema — se recalculan solo si cambia isDark o acento */
+function buildCssVars(isDark: boolean, acento: string): React.CSSProperties {
+  return {
+    '--gor-bg': isDark ? '#121212' : '#ffffff',
+    '--gor-bg-alpha': isDark ? 'rgba(18,18,18,0.97)' : 'rgba(255,255,255,0.97)',
+    '--gor-surface': isDark ? '#1e1e1e' : '#fafafa',
+    '--gor-surface2': isDark ? '#262626' : '#f3f4f6',
+    '--gor-txt': isDark ? '#f3f4f6' : '#111827',
+    '--gor-muted': isDark ? '#9ca3af' : '#6b7280',
+    '--gor-subtle': isDark ? '#6b7280' : '#9ca3af',
+    '--gor-border': isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+    '--gor-btn-txt': isDark ? '#111827' : '#ffffff',
+    '--gor-footer-bg': isDark ? '#000000' : '#111827',
+    '--gor-acento': acento,
+  } as React.CSSProperties;
+}
+
+/** Objeto de tema para pasar a componentes que lo necesiten */
+const THEME = {
+  bg: 'var(--gor-bg)',
+  surface: 'var(--gor-surface)',
+  surface2: 'var(--gor-surface2)',
+  txt: 'var(--gor-txt)',
+  muted: 'var(--gor-muted)',
+  subtle: 'var(--gor-subtle)',
+  border: 'var(--gor-border)',
+  acento: 'var(--gor-acento)',
+  btnTxt: 'var(--gor-btn-txt)',
+};
+
+// ── Componente ────────────────────────────────────────────────
+export default function PlantillaGorras({ tienda, accent, themeConfig }: PlantillaGorrasProps) {
+  const resolvedAccent = accent || themeConfig?.primary || '#f97316';
+  const isDark = themeConfig?.modoOscuro ?? false;
+  const cssVars = useMemo(() => buildCssVars(isDark, resolvedAccent), [isDark, resolvedAccent]);
+
+  // ── Stores ────────────────────────────────────────────────
+  const { setTiendaId } = useTiendaIDStore();
+  const { logout } = useAuthSessionStore();
+
+  useEffect(() => {
+    if (tienda?.id) setTiendaId(tienda.id);
+  }, [tienda?.id, setTiendaId]);
+
+  // ── Datos de tienda mergeados con fallback ─────────────────
+  const mergedTienda = useMemo(
+    () => ({
+      ...TIENDA_DEFAULT,
+      nombre: tienda?.nombre || tienda?.titulo || TIENDA_DEFAULT.nombre,
+      descripcion: tienda?.descripcion || TIENDA_DEFAULT.descripcion,
+      whatsapp: tienda?.whatsapp || TIENDA_DEFAULT.whatsapp,
+      instagram: tienda?.instagram || TIENDA_DEFAULT.instagram,
+      ciudad: tienda?.ciudad || TIENDA_DEFAULT.ciudad,
+      provincia: tienda?.provincia || TIENDA_DEFAULT.provincia,
+    }),
+    [tienda]
+  );
+
+  // ── Estado UI ─────────────────────────────────────────────
+  const [view, setView] = useState<View>('home');
+  const [cartOpen, setCartOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
+  const [toast, setToast] = useState<{
+    msg: string;
+    visible: boolean;
+    imagen?: string;
+    nombre?: string;
+    precio?: number | string;
+  }>({ msg: '', visible: false });
+
+  // ── Carrito ───────────────────────────────────────────────
+  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem, isVaciando, getCarrito } =
+    useCarrito(tienda?.id || 0);
+
+  // Cargar carrito al montar o cambiar tienda
+  useEffect(() => {
+    if (tienda?.id) {
+      getCarrito();
+    }
+  }, [tienda?.id, getCarrito]);
+
+  // Calcular cantidad total de items
+  const cartCount = useMemo(() => {
+    if (!carrito?.items || carrito.items.length === 0) return 0;
+    return carrito.items.reduce((acc, item) => acc + item.cantidad, 0);
+  }, [carrito?.items]);
+
+  const addToCart = async (p: Producto, qty = 1, variante?: any) => {
+    if (!tienda?.id) return;
+    try {
+      const precioUnit =
+        p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio)
+          ? p.precioOferta
+          : p.precio;
+
+      await agregarAlCarrito({
+        productoId: p.id,
+        cantidad: qty,
+        varianteId: variante?.id ?? null,
+        precioUnit: Number(precioUnit),
+        producto: p,
+      });
+      setToast({
+        visible: true,
+        msg: `${p.nombre} agregado al carrito`,
+        imagen: p.imagenPrincipalUrl || p.imagen || 'https://via.placeholder.com/80',
+        nombre: p.nombre || 'Producto',
+        precio: precioUnit,
+      });
+      setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+      // Abrir el carrito automáticamente
+      setCartOpen(true);
+    } catch (err) {
+      console.error('Error al agregar al carrito:', err);
+      setToast({
+        visible: true,
+        msg: 'Error al agregar al carrito',
+        imagen: undefined,
+        nombre: undefined,
+        precio: undefined,
+      });
+      setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+    }
+  };
+
+  // ── Navegación ────────────────────────────────────────────
+  const scrollToSection = useCallback((id: string) => {
+    const container = document.querySelector('.cz-scroll');
+    if (!container) return;
+    if (id === 'inicio') {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    (container.querySelector(`#${id}`) as HTMLElement | null)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, []);
+
+  const handleNavigate = useCallback(
+    (target: NavTarget) => {
+      if (target === 'sobrenosotros') {
+        setView('about');
+        return;
+      }
+      setView('home');
+      setTimeout(() => {
+        if (target === 'producto') scrollToSection('productos');
+        if (target === 'contacto') scrollToSection('contacto');
+        if (target === 'inicio') scrollToSection('inicio');
+      }, 100);
+    },
+    [scrollToSection]
+  );
+
+  // ── Props del Hero ────────────────────────────────────────
+  const heroProps: IHeroProps = {
+    titulo: mergedTienda.nombre,
+    descripcion: mergedTienda.descripcion,
+    imagenCarrusel: tienda?.carrusel || [],
+    tituloDos: tienda?.tituloDos,
+    acento: resolvedAccent,
+    txtColor: isDark ? '#f3f4f6' : '#111827',
+    btnTextColor: isDark ? '#111827' : '#ffffff',
+    bgColor: isDark ? '#121212' : '#ffffff',
+    mutedColor: isDark ? '#9ca3af' : '#6b7280',
+    whatsapp: mergedTienda.whatsapp,
+  };
+
+  // ── Render ────────────────────────────────────────────────
+  return (
+    <div style={cssVars}>
+      <style>{`
+        ${FONTS}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        img { display: block; }
+        .cz-scroll { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }
+        .cz-hide-mob { display: flex !important; }
+        .cz-show-mob { display: none !important; }
+        @media(max-width: 640px) {
+          .cz-hide-mob { display: none !important; }
+          .cz-show-mob { display: flex !important; }
+        }
+      `}</style>
+
+      <div className="cz-scroll" style={{ background: 'var(--gor-bg)' }}>
+        <Navbar
+          cartCount={cartCount}
+          onCart={() => setCartOpen(true)}
+          onIngresar={() => setView('auth')}
+          onMiCuenta={() => setView('account')}
+          onNavigate={handleNavigate}
+          logo={tienda?.logoUrl}
+          titulo={mergedTienda.nombre}
+        />
+
+        {/* ── HOME ── */}
+        {view === 'home' &&
+          (selectedProduct ? (
+            <ProductDetailView
+              product={selectedProduct}
+              onBack={() => setSelectedProduct(null)}
+              onCart={addToCart}
+              tienda={mergedTienda}
+              theme={THEME}
+            />
+          ) : (
+            <>
+              <div id="inicio" />
+              <Hero {...heroProps} />
+              <Marquee />
+              <div id="productos">
+                <ProductosDestacados onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+                <Productos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+              </div>
+              <div id="contacto">
+                <Contact tienda={mergedTienda} theme={THEME} />
+              </div>
+              <Footer
+                instagram={mergedTienda.instagram}
+                whatsapp={mergedTienda.whatsapp}
+                descripcion={mergedTienda.descripcion}
+                ciudad={mergedTienda.ciudad}
+                pais={mergedTienda.pais}
+                nombreTienda={mergedTienda.nombre}
+                acento="var(--gor-acento)"
+              />
+            </>
+          ))}
+
+        {/* ── ABOUT ── */}
+        {view === 'about' && (
+          <div className="px-6 py-10">
+            <button
+              onClick={() => setView('home')}
+              className="mb-6 px-4 py-2 rounded-full border-none cursor-pointer font-semibold transition-opacity hover:opacity-80"
+              style={{
+                background: 'var(--gor-acento)',
+                color: 'var(--gor-btn-txt)',
+                fontFamily: "'DM Sans',sans-serif",
+              }}
+            >
+              ← Volver a Inicio
+            </button>
+            <AboutUs
+              descripcion={mergedTienda.descripcion}
+              ciudad={mergedTienda.ciudad}
+              provincia={mergedTienda.provincia}
+              instagram={mergedTienda.instagram}
+              acento={resolvedAccent}
+              bg="var(--gor-bg)"
+              border="var(--gor-border)"
+              txt="var(--gor-txt)"
+              muted="var(--gor-muted)"
+            />
+          </div>
+        )}
+
+        {/* ── AUTH ── */}
+        {view === 'auth' && <AuthView onClose={() => setView('home')} tienda={tienda} />}
+
+        {/* ── ACCOUNT ── */}
+        {view === 'account' && (
+          <AccountView
+            onBack={() => setView('home')}
+            onLogout={() => {
+              logout();
+              setView('home');
+            }}
+          />
+        )}
+
+        {/* ── ORDER DATA ── */}
+        {view === 'order' && <OrderData carrito={carrito} tienda={mergedTienda} />}
+      </div>
+
+      {/* ── Cart Drawer ── */}
+      {cartOpen && (
+        <CartDrawer
+          carrito={carrito}
+          tienda={tienda}
+          isVaciando={isVaciando}
+          onClose={() => setCartOpen(false)}
+          onQty={(id, q) => actualizarCantidad({ itemId: id, cantidad: q })}
+          onRemove={(id) => eliminarItem(id)}
+          onConfirmar={() => {
+            setCartOpen(false);
+            setView('order');
+          }}
+          theme={THEME}
+        />
+      )}
+
+      {/* ── Toast ── */}
+      <Toast
+        msg={toast.msg}
+        visible={toast.visible}
+        imagen={toast.imagen}
+        nombre={toast.nombre}
+        precio={toast.precio}
+        bg="var(--gor-bg)"
+        txt="var(--gor-txt)"
+        acento="var(--gor-acento)"
+      />
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useSession } from '../store/useAuthSession';
+import { useAuthSessionStore } from '../modules/auth/store/useAuthSession';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1',
@@ -10,12 +10,12 @@ export const api = axios.create({
 
 // Interceptor para agregar el token de autenticación a cada solicitud
 api.interceptors.request.use((config) => {
-  const { token } = useSession.getState();
-  
+  const { token } = useAuthSessionStore.getState();
+
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
-  
+
   return config;
 });
 
@@ -23,13 +23,16 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url ?? '';
+    const isAuthLoginRequest = typeof requestUrl === 'string' && requestUrl.includes('/auth/login');
+
+    if (error.response?.status === 401 && !isAuthLoginRequest) {
       // Token expirado o inválido
-      const { logout } = useSession.getState();
+      const { logout } = useAuthSessionStore.getState();
       logout();
       window.location.href = '/login';
     }
-    
+
     return Promise.reject(error);
   }
 );
