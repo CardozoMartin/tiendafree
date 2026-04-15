@@ -17,6 +17,7 @@ import Fondo3 from '../../../assets/Fondos De Cards/Fondo3.avif';
 import Fondo4 from '../../../assets/Fondos De Cards/Fondo4.avif';
 import { BANNER_CONFIGS, BANNER_LIST } from './bannerConfigs';
 import CardBackgroundSelector from './BannerCreatorSection/CardBackgroundSelector';
+import FreeBanner from './BannerCreatorSection/FreeBanner';
 import DashboardHelp from './DashboardHelp';
 import MI from './MaterialIcon';
 
@@ -34,6 +35,7 @@ interface BannerCreatorSectionProps {
 
 export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSectionProps) {
   // ── Estado ─────────────────────────────────────────────────────────────────
+  const [editorMode, setEditorMode] = useState<'TEMPLATES' | 'FREE'>('TEMPLATES');
   const [category, setCategory] = useState<'BANNER' | 'CARD'>('BANNER');
   const [selectedBannerId, setSelectedBannerId] = useState<string>('banner1');
 
@@ -401,28 +403,54 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <DashboardHelp activeSection="banner-creator" accent={accent} />
-          <button
-            onClick={handleDownload}
-            disabled={isExporting}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-xl active:scale-95 disabled:opacity-50
-              ${
-                exportSuccess
-                  ? 'bg-emerald-500 text-white shadow-emerald-200'
-                  : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
+          <div className="bg-white rounded-2xl border border-slate-100 p-1 shadow-sm flex gap-1">
+            <button
+              onClick={() => setEditorMode('TEMPLATES')}
+              className={`px-3 py-2 rounded-xl text-[11px] font-bold transition-all ${
+                editorMode === 'TEMPLATES'
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-500 hover:bg-slate-50'
               }`}
-          >
-            {isExporting ? (
-              <MI name="sync" className="animate-spin" />
-            ) : exportSuccess ? (
-              <CheckCircle2 size={18} />
-            ) : (
-              <Download size={18} />
-            )}
-            {isExporting ? 'Exportando...' : exportSuccess ? '¡Descargado!' : 'Descargar'}
-          </button>
+            >
+              Plantillas
+            </button>
+            <button
+              onClick={() => setEditorMode('FREE')}
+              className={`px-3 py-2 rounded-xl text-[11px] font-bold transition-all ${
+                editorMode === 'FREE' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              Editor libre
+            </button>
+          </div>
+          <DashboardHelp activeSection="banner-creator" accent={accent} />
+          {editorMode === 'TEMPLATES' && (
+            <button
+              onClick={handleDownload}
+              disabled={isExporting}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-xl active:scale-95 disabled:opacity-50
+                ${
+                  exportSuccess
+                    ? 'bg-emerald-500 text-white shadow-emerald-200'
+                    : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
+                }`}
+            >
+              {isExporting ? (
+                <MI name="sync" className="animate-spin" />
+              ) : exportSuccess ? (
+                <CheckCircle2 size={18} />
+              ) : (
+                <Download size={18} />
+              )}
+              {isExporting ? 'Exportando...' : exportSuccess ? '¡Descargado!' : 'Descargar'}
+            </button>
+          )}
         </div>
       </div>
+
+      {editorMode === 'FREE' ? (
+        <FreeBanner tienda={tienda} accent={accent} />
+      ) : (
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* ══════════════════════════════════════════════════════════════════
@@ -837,6 +865,7 @@ export default function BannerCreatorSection({ accent, tienda }: BannerCreatorSe
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

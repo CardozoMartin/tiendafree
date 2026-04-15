@@ -6,6 +6,7 @@ export interface IShopData{
     whatsapp:string;
     instagram:string;
     facebook:string;
+    slug?:string;
     pais:string;
     provincia:string;
     ciudad:string;

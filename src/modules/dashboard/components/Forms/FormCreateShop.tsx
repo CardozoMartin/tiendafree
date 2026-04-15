@@ -9,6 +9,7 @@ import {
   Store as StoreIcon,
   Type,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useConfirm } from '@components/ConfirmDialog/useConfirm';
@@ -22,6 +23,7 @@ export interface IShopData {
   whatsapp: string;
   instagram: string;
   facebook: string;
+  slug: string;
   pais: string;
   provincia: string;
   ciudad: string;
@@ -65,8 +67,32 @@ const FormCreateShop = ({ accent }: FormCreateShopProps) => {
   const {
     register,
     handleSubmit: onSubmitRHF,
+    watch,
+    setValue,
     formState: { errors },
-  } = useForm<IShopData>();
+  } = useForm<IShopData>({
+    defaultValues: {
+      nombre: '',
+      slug: '',
+    },
+  });
+
+  const [slugEditedManually, setSlugEditedManually] = useState(false);
+  const nombre = watch('nombre');
+
+  useEffect(() => {
+    const suggested = (nombre ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_\s]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/--+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    if (!slugEditedManually) {
+      setValue('slug', suggested);
+    }
+  }, [nombre, setValue, slugEditedManually]);
 
   const { confirm, ConfirmModal } = useConfirm();
   const { mutateAsync: createShop, isPending } = useCreateShop();
@@ -130,6 +156,38 @@ const FormCreateShop = ({ accent }: FormCreateShopProps) => {
               />
             </IconInput>
             {errors.titulo && <p className="text-red-400 text-xs">{errors.titulo.message}</p>}
+          </div>
+
+          {/* Slug */}
+          <div className="px-5 py-4 space-y-1.5">
+            <label className="block text-xs font-medium text-gray-500">
+              Slug de la tienda <span className="text-red-400">*</span>
+            </label>
+            <IconInput icon={Globe} error={!!errors.slug}>
+              <input
+                type="text"
+                placeholder="mi-tienda"
+                className={`${inputCls} ${errors.slug ? inputErrorCls : ''}`}
+                {...register('slug', {
+                  required: 'El slug es requerido',
+                  pattern: {
+                    value: /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/,
+                    message:
+                      'El slug solo puede contener letras minúsculas, números, guiones y guiones bajos',
+                  },
+                  minLength: { value: 3, message: 'El slug debe tener al menos 3 caracteres' },
+                  maxLength: { value: 60, message: 'El slug no puede superar los 60 caracteres' },
+                  onChange: () => setSlugEditedManually(true),
+                })}
+              />
+            </IconInput>
+            {errors.slug ? (
+              <p className="text-red-400 text-xs">{errors.slug.message}</p>
+            ) : (
+              <p className="text-[11px] text-gray-400">
+                URL sugerida: <span className="font-semibold">/tienda/{watch('slug') || 'mi-tienda'}</span>
+              </p>
+            )}
           </div>
 
           {/* Descripción */}

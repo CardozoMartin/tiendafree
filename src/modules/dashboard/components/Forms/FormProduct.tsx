@@ -30,15 +30,6 @@ import {
 import { IconInput } from './IconInput';
 import { Toggle } from './Toggle';
 import type { IProduct } from '../../types/product.type';
-  useActualizarProducto,
-  useAgregarImagen,
-  useCrearProducto,
-  useCrearVariante,
-  useEliminarImagen,
-  useEliminarVariante,
-  useSubirImagenVariante,
-} from '../../hooks/useProduct';
-import type { IProduct } from '../../types/product.type';
 
 interface FormProductValues {
   nombre: string;
@@ -110,6 +101,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     },
   });
 
+  const precio = watch('precio');
   const formCategoriaId = watch('categoriaId');
   let selectedParentId: number | '' = '';
   if (typeof formCategoriaId === 'number') {
@@ -275,12 +267,15 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   };
 
   const handleSubmit = async (data: FormProductValues) => {
-    const tagsArray = data.tags
-      ? data.tags
+    const tagsArray = Array.from(
+      new Set(
+        (data.tags || '')
           .split(',')
           .map((t) => t.trim())
           .filter(Boolean)
-      : [];
+          .map((tag) => tag.toLowerCase())
+      )
+    );
 
     const payload = {
       ...data,
@@ -431,11 +426,26 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
               <input
                 type="text"
                 placeholder="ropa, verano, oferta"
-                className={inputCls}
-                {...register('tags')}
+                className={`${inputCls} ${errors.tags ? inputErrorCls : ''}`}
+                {...register('tags', {
+                  validate: (value) => {
+                    const tags = value
+                      .split(',')
+                      .map((tag) => tag.trim())
+                      .filter(Boolean);
+                    if (tags.length > 10) return 'Máximo 10 tags';
+                    if (new Set(tags.map((tag) => tag.toLowerCase())).size !== tags.length)
+                      return 'No uses tags duplicados';
+                    return true;
+                  },
+                })}
               />
             </IconInput>
-            <p className="text-[11px] text-gray-400">Separalos con comas · Máximo 10</p>
+            {errors.tags ? (
+              <p className="text-red-400 text-xs">{errors.tags.message}</p>
+            ) : (
+              <p className="text-[11px] text-gray-400">Separalos con comas · Máximo 10</p>
+            )}
           </div>
 
           {/* Categoría */}
@@ -538,10 +548,22 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                 step="0.01"
                 min="0.01"
                 placeholder="0.00"
-                className={inputCls}
-                {...register('precioOferta')}
+                className={`${inputCls} ${errors.precioOferta ? inputErrorCls : ''}`}
+                {...register('precioOferta', {
+                  validate: (value) => {
+                    if (value === '' || value === undefined || value === null) return true;
+                    if (Number(value) <= 0) return 'El precio de oferta debe ser mayor a 0';
+                    if (Number(precio) && Number(value) >= Number(precio)) {
+                      return 'El precio de oferta debe ser menor al precio original';
+                    }
+                    return true;
+                  },
+                })}
               />
             </IconInput>
+            {errors.precioOferta && (
+              <p className="text-red-400 text-xs">{errors.precioOferta.message}</p>
+            )}
           </div>
 
           {/* Moneda */}
@@ -596,9 +618,13 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                 type="number"
                 placeholder="0"
                 className={`${inputCls} ${errors.stock ? inputErrorCls : ''}`}
-                {...register('stock', { valueAsNumber: true, min: 0 })}
+                {...register('stock', {
+                  valueAsNumber: true,
+                  min: { value: 0, message: 'El stock no puede ser negativo' },
+                })}
               />
             </IconInput>
+            {errors.stock && <p className="text-red-400 text-xs">{errors.stock.message}</p>}
           </div>
         </div>
       </div>

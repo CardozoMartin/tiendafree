@@ -54,6 +54,7 @@ export const postCrearProductoFn = async (payload: ICreateProductDto) => {
   formData.append('moneda', payload.moneda);
   formData.append('disponible', payload.disponible ? 'true' : 'false');
   formData.append('destacado', payload.destacado ? 'true' : 'false');
+  formData.append('stock', (payload.stock ?? 0).toString());
 
   if (payload.descripcion) formData.append('descripcion', payload.descripcion);
   if (payload.precioOferta !== undefined && payload.precioOferta !== null) {
