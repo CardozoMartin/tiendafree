@@ -1,529 +1,565 @@
+﻿import modernaTemplate from '@/assets/img/moderna.png';
+import pinkTemplate from '@/assets/img/pink.png';
+import templateGorra from '@/assets/img/plantillagorra.png';
+import templateJoya from '@/assets/img/plantillaJoya.png';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import {
+  ArrowRight,
+  BadgeCheck,
+  ChartNoAxesCombined,
+  MessageCircleMore,
+  Palette,
+  ShieldCheck,
+  Sparkles,
+  Store,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import HomeBrands from '../components/HomeBrands';
-import HomeHero from '../components/HomeHero';
+import { Link } from 'react-router-dom';
 
-// ── Types ──────────────────────────────────────────────────────────────────
-interface Feature {
-  icon: string;
-  bg: string;
-  color: string;
-  glow: string;
+const trustPoints = [
+  'Sin comisiones por venta',
+  'Catalogo optimizado para movil',
+  'Pedidos por WhatsApp',
+  'Diseno con identidad propia',
+];
+
+const capabilities = [
+  {
+    icon: Store,
+    label: 'Presencia de marca',
+    title: 'Tu home deja de parecer una plantilla mas.',
+    text: 'Tomamos la claridad de Tiendanube y la sofisticacion de Shopify para llevarla a una estetica mas calida y propia de TiendaFree.',
+    tone: 'from-[#ffede3] via-[#fff5ef] to-white',
+  },
+  {
+    icon: MessageCircleMore,
+    label: 'Conversion simple',
+    title: 'El cliente entiende rapido y avanza mejor.',
+    text: 'Bloques con mas aire, menos ruido y llamadas a la accion repartidas con intencion para que la experiencia venda sin sentirse agresiva.',
+    tone: 'from-[#fff6d8] via-[#fffbef] to-white',
+  },
+  {
+    icon: ChartNoAxesCombined,
+    label: 'Operacion clara',
+    title: 'Producto serio, no solo una landing linda.',
+    text: 'La narrativa muestra valor real: catalogo, comunicacion, gestion y confianza. Eso eleva la percepcion del producto completo.',
+    tone: 'from-[#eaf4ff] via-[#f5faff] to-white',
+  },
+];
+
+const narrative = [
+  {
+    id: '01',
+    title: 'Hero con postura, no un encabezado generico.',
+    text: 'Texto potente, composicion editorial y una vista previa que transmite producto premium desde el primer impacto.',
+  },
+  {
+    id: '02',
+    title: 'Scroll con escenas distintas y livianas.',
+    text: 'En lugar de repetir titulo mas imagen, cada tramo cambia la energia con sticky layouts, paneles y transiciones suaves.',
+  },
+  {
+    id: '03',
+    title: 'Prueba de valor y conversion natural.',
+    text: 'Promesas concretas, lenguaje claro y CTA visibles para reflejar profesionalismo al cliente sin saturar.',
+  },
+];
+
+const cards = [
+  { image: modernaTemplate, title: 'Editorial', text: 'Aire, tipografia fuerte y sensacion premium.', accent: '#ff6b3d' },
+  { image: pinkTemplate, title: 'Expresiva', text: 'Mas energia y personalidad para marcas con estilo.', accent: '#eb5fa0' },
+  { image: templateJoya, title: 'Delicada', text: 'Texturas suaves y foco en producto.', accent: '#7c6bff' },
+  { image: templateGorra, title: 'Urbana', text: 'Mas directa, mas impacto, mas calle.', accent: '#181311' },
+];
+
+const proofItems = [
+  { value: '24 hs', label: 'para lanzar una tienda que ya se siente profesional' },
+  { value: '0%', label: 'de comision sobre tus ventas' },
+  { value: '100%', label: 'pensada primero para celular' },
+];
+
+function SectionTitle({
+  eyebrow,
+  title,
+  text,
+  light = false,
+}: {
+  eyebrow: string;
   title: string;
-  desc: string;
-}
-interface Step {
-  num: string;
-  img: string;
-  alt: string;
-  title: string;
-  desc: string;
-}
-interface PricingItem {
   text: string;
-}
-
-// ── Data ───────────────────────────────────────────────────────────────────
-const BRANDS: string[] = ['CAFÉ MARTÍNEZ', 'GRIDO', 'HAVANNA', 'MOSTRASA', 'FREDDO'];
-
-const FEATURES: Feature[] = [
-  {
-    icon: 'store',
-    bg: 'bg-violet-50',
-    color: 'text-violet-600',
-    glow: 'shadow-violet-100',
-    title: 'Tienda Gratis',
-    desc: 'Publicá productos ilimitados sin costos de mantenimiento ni comisiones por venta.',
-  },
-  {
-    icon: 'chat_bubble',
-    bg: 'bg-emerald-50',
-    color: 'text-emerald-600',
-    glow: 'shadow-emerald-100',
-    title: 'WhatsApp Directo',
-    desc: 'Recibí consultas y pedidos de tus clientes directamente en tu chat personal.',
-  },
-  {
-    icon: 'inventory_2',
-    bg: 'bg-amber-50',
-    color: 'text-amber-600',
-    glow: 'shadow-amber-100',
-    title: 'Gestión Simple',
-    desc: 'Administrá inventario, precios y fotos de forma intuitiva desde tu celular.',
-  },
-];
-
-const STEPS: Step[] = [
-  {
-    num: '01',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDTlfBRQ8f82-EFt0jSFXxvuwRRWVXNA6gww6QePDoL2PTNXfNbrq3rLvYENABwZbF5Le4WWpEexHC6Ir2UyQJNG_Z7TwwpkgdN_WsAuC34-jSr2BGz3yEE_aIlBFN8gXIOGOy9t3zJJoto6kpTli_EUKtNijCaw0qV9Cr2zhI2aWlnSTDWpm7kTlgKSiJa_T5joZ7kMKk5Mr4QsObNIdebG9Za6wypZzkD-btZNB9S2OBkF9IZvdXJKh6R2liqvgOqPX0z4fVNMdHl',
-    alt: 'Registrarse en Vitrina',
-    title: 'Registrate',
-    desc: 'Completá los datos de tu negocio y elegí tu nombre de tienda único.',
-  },
-  {
-    num: '02',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB62wEzinPB8-y_yVALGnU_CAhweff1iP1ICmgKIyv5CEkTdh2LefWMUDd-NEYVqqN5h-KLqdbdXWgpvVBORGZsBA2lSug_U4yBaBZbPuhej4zsFE9xgogejzSj6USayFozIYQ3Mrg-8VCj9F23AD7K0e-fIoKRpQSQlNAOu-7Ig-XiM5y7xtEI6dYqxdbXM8emTB-MGd13648XgrHJ3b0My5c5p7GMV2d_hg0w2zLnIgVUfadosNyEfn8ICeJJ-dqhwbXU3PtF2NS-',
-    alt: 'Subir productos',
-    title: 'Subí tus productos',
-    desc: 'Cargá fotos, descripción y precios. Tan fácil como postear en redes.',
-  },
-  {
-    num: '03',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDbXp4BgpZJYrLe3JLUYY23D5vWSSGXPMBB-sCykc5KpqWYRLjEMIumnLkvSQ8ToH8d_GrzD2GFGdwMKBqd8UYlinINp6mGdrwDPMRFD8eWYGZBdAyqFi0UFI7uFZ_YgKIpjWN3FLl6jvnFYQ1-QxE1MlRFBGgm5_pf6hmKJRxS3Vn84t0e6GNn7_EUAiAXkkV-K95RhtAf6JZHI7zG2PEYLC3NZz3lgAsjG63thvJigjkdEmkJ19hTR_78o7Of9fYjKgOeymAglgji',
-    alt: 'Vender y conectar',
-    title: 'Vendé y Conectá',
-    desc: 'Compartí tu link y empezá a recibir pedidos. Los clientes te encuentran por cercanía.',
-  },
-];
-
-const PRICING_ITEMS: PricingItem[] = [
-  { text: 'Productos ilimitados' },
-  { text: 'Link personalizado de tienda' },
-  { text: 'Botón de pedido por WhatsApp' },
-  { text: 'Ubicación en el Marketplace' },
-  { text: 'Soporte por comunidad' },
-];
-
-const STATS = [
-  { value: '12K+', label: 'Tiendas activas' },
-  { value: '$0', label: 'Costo mensual' },
-  { value: '98%', label: 'Satisfacción' },
-];
-
-// ── Hooks ──────────────────────────────────────────────────────────────────
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setInView(true);
-          obs.disconnect();
-        }
-      },
-      { threshold }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, inView };
-}
-
-// ── Shared ─────────────────────────────────────────────────────────────────
-const MI = ({ name, className = '' }: { name: string; className?: string }) => (
-  <span className={`material-symbols-outlined ${className}`}>{name}</span>
-);
-
-// ── Header ─────────────────────────────────────────────────────────────────
-
-// ── Features ───────────────────────────────────────────────────────────────
-const Features = () => {
-  const { ref, inView } = useInView();
+  light?: boolean;
+}) {
   return (
-    <section ref={ref} className="mx-auto max-w-7xl px-6 py-24 lg:px-10" id="explorar">
-      <div
-        className={`mb-16 text-center transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+    <div className="mx-auto max-w-3xl text-center">
+      <span
+        className={`inline-flex rounded-full border px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] ${
+          light
+            ? 'border-white/12 bg-white/5 text-white/60'
+            : 'border-[#23190f]/10 bg-white/70 text-[#7b5b44]'
+        }`}
       >
-        <span className="inline-block rounded-full bg-[#6344ee]/8 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#6344ee] mb-4">
-          Funcionalidades
-        </span>
-        <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-          Todo lo que necesitás para crecer
-        </h2>
-        <p className="mt-3 text-slate-500 max-w-lg mx-auto">
-          Herramientas simples pero poderosas, pensadas para el comercio de barrio argentino.
-        </p>
-      </div>
+        {eyebrow}
+      </span>
+      <h2
+        className={`mt-6 text-4xl font-black leading-none tracking-[-0.05em] sm:text-5xl ${
+          light ? 'text-white' : 'text-[#16120f]'
+        }`}
+      >
+        {title}
+      </h2>
+      <p className={`mx-auto mt-5 max-w-2xl text-base leading-8 sm:text-lg ${light ? 'text-white/68' : 'text-[#64584f]'}`}>
+        {text}
+      </p>
+    </div>
+  );
+}
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {FEATURES.map((f, i) => (
-          <div
-            key={f.title}
-            className={`group relative flex flex-col gap-5 rounded-3xl border border-slate-200/80 bg-white p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:border-[#6344ee]/20 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-            style={{ transitionDelay: `${i * 120}ms` }}
+function HeaderBar({ compact = false }: { compact?: boolean }) {
+  return (
+    <div
+      className={`mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-b-[2.75rem] border border-[#20150d]/8 bg-[rgba(248,241,232,0.95)] px-6 py-${compact ? '3' : '4'} shadow-[0_18px_50px_rgba(58,37,20,0.06)] backdrop-blur-xl sm:px-8 lg:px-10`}
+    >
+      <Link to="/" className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#181311] text-white">
+          <Store className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
+        </div>
+      </Link>
+      <Link
+        to="/register"
+        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white"
+      >
+        Crear tienda
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  );
+}
+
+function StickyNavbar({ show }: { show: boolean }) {
+  return (
+    <div
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        show ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+      }`}
+      style={{ backdropFilter: 'blur(18px)' }}
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-10">
+        <div className="rounded-b-[2.75rem] border border-[#20150d]/8 bg-[rgba(248,241,232,0.95)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]">
+          <HeaderBar compact />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative overflow-visible pb-0 pt-0">
+      <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_top_left,_rgba(255,122,62,0.20),_transparent_38%),radial-gradient(circle_at_80%_20%,_rgba(124,107,255,0.15),_transparent_30%),linear-gradient(180deg,_#f8f1e8_0%,_#f4eee8_46%,_#f7f4ef_100%)]" />
+      <div className="relative">
+        <div className="overflow-hidden rounded-b-[2.75rem] bg-[linear-gradient(180deg,rgba(203,183,255,0.92)_0%,rgba(184,154,255,0.94)_100%)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 sm:px-8 lg:px-10">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-[#181311] text-white">
+                <Store className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
+                <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/register"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white"
+            >
+              Crear tienda
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="pb-14 pt-12 sm:pb-16 sm:pt-20"
           >
-            {/* Hover gradient bg */}
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#6344ee]/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-            <div
-              className={`relative flex h-14 w-14 items-center justify-center rounded-2xl ${f.bg} ${f.color} shadow-lg ${f.glow} transition-transform group-hover:scale-110`}
-            >
-              <MI name={f.icon} className="!text-2xl" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">{f.title}</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">{f.desc}</p>
-            </div>
-            <a
-              href="#"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-[#6344ee] hover:gap-2 transition-all mt-auto"
-            >
-              Saber más <MI name="arrow_forward" className="!text-sm" />
-            </a>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-// ── How It Works ───────────────────────────────────────────────────────────
-const HowItWorks = () => {
-  const { ref, inView } = useInView();
-  return (
-    <section ref={ref} className="relative overflow-hidden py-28" id="como-funciona">
-      {/* Background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#f6f6f8] via-[#6344ee]/5 to-[#f6f6f8]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-[#6344ee]/6 blur-[100px] -z-10" />
-
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div
-          className={`mb-16 text-center transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <span className="inline-block rounded-full bg-[#6344ee]/8 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#6344ee] mb-4">
-            Proceso
-          </span>
-          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-            Empezás a vender en 3 pasos
-          </h2>
-          <p className="mt-3 text-slate-500 max-w-md mx-auto">
-            Sin conocimientos técnicos. Sin configuraciones complicadas.
-          </p>
-        </div>
-
-        <div className="relative grid gap-8 lg:grid-cols-3">
-          {/* Connector line desktop */}
-          <div className="hidden lg:block absolute top-[88px] left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px border-t-2 border-dashed border-[#6344ee]/20 z-0" />
-
-          {STEPS.map((step, i) => (
-            <div
-              key={step.num}
-              className={`relative flex flex-col items-center text-center transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-              style={{ transitionDelay: `${i * 150}ms` }}
-            >
-              {/* Step badge */}
-              <div className="relative z-10 mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-[#6344ee]/20 shadow-xl shadow-[#6344ee]/10">
-                <span className="text-xl font-black text-[#6344ee]">{step.num}</span>
+            <div className="mx-auto max-w-6xl px-6 text-center sm:px-8 lg:px-10">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#24170d]/10 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#7d5d48] backdrop-blur">
+                <Sparkles className="h-4 w-4 text-[#ff6b3d]" />
+                Disenada para vender mejor
               </div>
-
-              {/* Image */}
-              <div className="mb-6 w-full overflow-hidden rounded-2xl bg-slate-100 aspect-video shadow-lg">
-                <img
-                  src={step.img}
-                  alt={step.alt}
-                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-              </div>
-
-              <h3 className="text-xl font-bold text-slate-900">{step.title}</h3>
-              <p className="mt-2 text-slate-500 text-sm leading-relaxed max-w-[240px]">
-                {step.desc}
+              <h1 className="mt-8 text-4xl font-black leading-[0.9] tracking-[-0.07em] text-[#15110e] sm:text-5xl lg:text-[5.35rem]">
+                La plataforma para vender
+                <span className="text-[#ff6b3d]"> con presencia, claridad</span>
+                <span> y estilo propio.</span>
+              </h1>
+              <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f554f] sm:text-xl">
+                TiendaFree convierte tu primera impresion en una ventaja: una home mas limpia,
+                mas profesional y mas recordable, inspirada en grandes referentes pero con
+                personalidad propia.
               </p>
+              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link
+                  to="/register"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#181311] px-8 text-sm font-bold uppercase tracking-[0.16em] text-white"
+                >
+                  Crear mi tienda
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href="#plataforma"
+                  className="inline-flex h-14 items-center justify-center rounded-full border border-[#20150d]/10 bg-white/70 px-8 text-sm font-semibold text-[#1c1613]"
+                >
+                  Ver la propuesta
+                </a>
+              </div>
             </div>
-          ))}
+          </motion.div>
         </div>
 
-        {/* CTA inside section */}
-        <div
-          className={`mt-16 text-center transition-all duration-700 delay-500 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="relative z-30 -mt-10 -mb-16 mx-auto grid max-w-6xl gap-3 px-4 sm:px-0 sm:grid-cols-2 xl:grid-cols-4"
         >
-          <button className="inline-flex items-center gap-2 h-14 rounded-2xl bg-[#6344ee] px-10 text-base font-bold text-white shadow-xl shadow-[#6344ee]/30 transition-all hover:-translate-y-1 active:scale-95">
-            Empezá ahora, es gratis
-            <MI name="rocket_launch" className="!text-base" />
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// ── Testimonial / Social Proof ──────────────────────────────────────────────
-const Testimonials = () => {
-  const { ref, inView } = useInView();
-  const testimonials = [
-    {
-      name: 'Laura M.',
-      role: 'Dueña de ropa femenina, Córdoba',
-      avatar: 'LM',
-      text: 'En menos de 20 minutos tenía mi tienda funcionando. Los pedidos me llegan directo al WhatsApp y mis clientas pueden ver el catálogo completo antes de llamar.',
-    },
-    {
-      name: 'Diego R.',
-      role: 'Ferretería barrial, Rosario',
-      avatar: 'DR',
-      text: 'Antes mandaba fotos por el grupo de WhatsApp. Ahora tengo un link que comparto y los clientes eligen solos. Ahorro tiempo y vendo más.',
-    },
-    {
-      name: 'Caro S.',
-      role: 'Pastelería artesanal, CABA',
-      avatar: 'CS',
-      text: 'Mis pedidos de tortas personalizadas se triplicaron desde que uso Vitrina. El botón de WhatsApp es una genialidad.',
-    },
-  ];
-
-  return (
-    <section ref={ref} className="bg-white py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div
-          className={`mb-14 text-center transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <span className="inline-block rounded-full bg-[#6344ee]/8 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#6344ee] mb-4">
-            Testimonios
-          </span>
-          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-            Lo dicen quienes ya venden
-          </h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <div
-              key={t.name}
-              className={`flex flex-col gap-5 rounded-3xl border border-slate-100 bg-[#f6f6f8] p-7 transition-all duration-700 hover:shadow-lg ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-              style={{ transitionDelay: `${i * 120}ms` }}
+          {trustPoints.map((item) => (
+            <article
+              key={item}
+              className="rounded-[1.6rem] border border-[#23180f]/8 bg-white/90 p-4 shadow-[0_16px_35px_rgba(58,37,20,0.08)] backdrop-blur"
             >
-              {/* Stars */}
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, j) => (
-                  <MI key={j} name="star" className="text-amber-400 !text-base" />
-                ))}
-              </div>
-              <p className="text-slate-600 text-sm leading-relaxed flex-1">"{t.text}"</p>
-              <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
-                <div className="size-10 rounded-full bg-[#6344ee] flex items-center justify-center text-white text-xs font-bold shrink-0">
-                  {t.avatar}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">{t.name}</p>
-                  <p className="text-xs text-slate-500">{t.role}</p>
-                </div>
-              </div>
-            </div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#7d5d48]">
+                TiendaFree
+              </p>
+              <p className="mt-3 text-base font-black leading-tight tracking-[-0.04em] text-[#17120f]">
+                {item}
+              </p>
+            </article>
           ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function Capabilities() {
+  return (
+    <section id="plataforma" className="relative z-0 px-6 pb-24 pt-56 lg:px-10 lg:pt-60">
+      <div className="mx-auto max-w-7xl">
+        <SectionTitle
+          eyebrow="Que tomamos de la referencia"
+          title="Claridad comercial de Tiendanube. Ambicion visual de Shopify. ADN propio para TiendaFree."
+          text="La idea no es copiarles la identidad. Es aprender de su estructura, su jerarquia y su capacidad para transmitir confianza, y traducir eso a una landing mucho mas propia."
+        />
+        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+          {capabilities.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <motion.article
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{ duration: 0.6, delay: index * 0.08 }}
+                className={`rounded-[2rem] border border-[#22170d]/8 bg-gradient-to-br ${item.tone} p-8 shadow-[0_20px_60px_rgba(61,40,26,0.06)]`}
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#181311] text-white">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7a5b45]">{item.label}</p>
+                <h3 className="mt-3 text-3xl font-black leading-tight tracking-[-0.04em] text-[#16120f]">{item.title}</h3>
+                <p className="mt-5 text-base leading-8 text-[#5f554f]">{item.text}</p>
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>
   );
-};
+}
 
-// ── Pricing ────────────────────────────────────────────────────────────────
-const Pricing = () => {
-  const { ref, inView } = useInView();
+function Story() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: wrapperRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const panelY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, -50]);
+
   return (
-    <section ref={ref} className="mx-auto max-w-7xl px-6 py-24 lg:px-10" id="precios">
-      <div
-        className={`mb-16 text-center transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      >
-        <span className="inline-block rounded-full bg-[#6344ee]/8 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#6344ee] mb-4">
-          Precios
-        </span>
-        <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-          Sin sorpresas. Sin letras chicas.
-        </h2>
-        <p className="mt-3 text-slate-500">Un solo plan. Todo incluido. Para siempre gratis.</p>
-      </div>
-
-      <div
-        className={`mx-auto max-w-md transition-all duration-700 delay-200 ${inView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-      >
-        {/* Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200/60">
-          {/* Top glow */}
-          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-violet-400 via-[#6344ee] to-violet-500" />
-
-          {/* Header */}
-          <div className="relative px-8 py-10 text-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#6344ee] to-violet-700" />
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)',
-                backgroundSize: '30px 30px',
-              }}
-            />
-            <div className="relative">
-              <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white/90 mb-4">
-                Plan actual
-              </span>
-              <div className="flex items-end justify-center gap-1 mb-1">
-                <span className="text-6xl font-black text-white leading-none">$0</span>
-                <span className="text-white/70 text-lg mb-1">/mes</span>
-              </div>
-              <p className="text-2xl font-black uppercase text-white tracking-widest">GRATIS</p>
-            </div>
-          </div>
-
-          {/* Body */}
-          <div className="p-8">
-            <ul className="space-y-4 mb-8">
-              {PRICING_ITEMS.map((item) => (
-                <li key={item.text} className="flex items-center gap-3.5">
-                  <div className="size-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                    <MI name="check" className="text-green-600 !text-sm font-bold" />
-                  </div>
-                  <span className="text-slate-700 font-medium">{item.text}</span>
-                </li>
-              ))}
-            </ul>
-
-            <button className="w-full rounded-2xl bg-[#6344ee] py-4 text-base font-bold text-white shadow-lg shadow-[#6344ee]/25 transition-all hover:-translate-y-0.5 hover:shadow-[#6344ee]/40 active:scale-[0.98]">
-              Empezar ahora — gratis
-            </button>
-
-            <p className="mt-4 text-center text-xs text-slate-400 flex items-center justify-center gap-1">
-              <MI name="lock" className="!text-xs" />
-              Sin tarjeta · Sin contratos · Sin trampas
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// ── CTA Banner ─────────────────────────────────────────────────────────────
-const CTABanner = () => {
-  const { ref, inView } = useInView();
-  return (
-    <section ref={ref} className="mx-auto max-w-7xl px-6 pb-24 lg:px-10">
-      <div
-        className={`relative overflow-hidden rounded-3xl bg-[#6344ee] px-8 py-14 text-center transition-all duration-700 ${inView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-      >
-        {/* Decoration */}
-        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 translate-x-1/4 translate-y-1/4" />
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
+    <section ref={wrapperRef} id="experiencia" className="relative bg-[#181311] px-6 py-24 text-white lg:px-10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,107,61,0.17),_transparent_30%),radial-gradient(circle_at_85%_50%,_rgba(124,107,255,0.15),_transparent_24%)]" />
+      <div className="relative mx-auto max-w-7xl">
+        <SectionTitle
+          eyebrow="Scroll con intencion"
+          title="Una narrativa mas memorable sin animaciones pesadas."
+          text="En vez de llenar todo de efectos, conviene apoyar la experiencia en cambios de foco, sticky layouts y transiciones suaves. Eso hace que se vea premium y siga sintiendose liviana."
+          light
         />
 
-        <div className="relative">
-          <p className="text-white/70 text-sm font-bold uppercase tracking-widest mb-3">
-            ¿Esperando qué?
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
-            Tu tienda puede estar online
-            <br className="hidden sm:block" /> hoy mismo.
-          </h2>
-          <p className="text-white/70 max-w-md mx-auto mb-8">
-            Unite a más de 12.000 comerciantes que ya digitalizaron su negocio con Vitrina. Gratis,
-            siempre.
-          </p>
-          <button className="inline-flex items-center gap-2 rounded-2xl bg-white px-10 py-4 text-base font-black text-[#6344ee] shadow-2xl transition-all hover:-translate-y-1 active:scale-95">
-            Crear mi tienda gratis
-            <MI name="storefront" className="!text-base" />
-          </button>
+        <div className="mt-20 grid gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="sticky top-28 h-fit rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
+            <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,#2a1f1a_0%,#16110e_100%)] p-6">
+              <motion.div style={{ y: panelY }} className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[1.4rem] bg-[#f5ede4] p-5 text-[#17120f]">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#7b5b44]">Hero</p>
+                  <p className="mt-3 text-2xl font-black leading-tight tracking-[-0.04em]">Impacto visual, no ruido.</p>
+                </div>
+                <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">Conversion</p>
+                  <p className="mt-3 text-2xl font-black leading-tight">CTA visible sin gritar.</p>
+                </div>
+                <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5 sm:col-span-2">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">Ritmo</p>
+                  <p className="mt-3 max-w-md text-3xl font-black leading-tight tracking-[-0.05em]">
+                    Menos bloques repetidos. Mas escenas con proposito.
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {narrative.map((item, index) => (
+              <motion.article
+                key={item.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.45 }}
+                transition={{ duration: 0.55, delay: index * 0.08 }}
+                className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur"
+              >
+                <span className="inline-flex rounded-full bg-[#ff6b3d]/14 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-[#ffb08f]">
+                  Paso {item.id}
+                </span>
+                <h3 className="mt-5 text-3xl font-black leading-tight tracking-[-0.04em] text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-base leading-8 text-white/68">{item.text}</p>
+              </motion.article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
-};
+}
 
-// ── Footer ─────────────────────────────────────────────────────────────────
-const Footer = () => (
-  <footer className="border-t border-slate-200 bg-white py-14">
-    <div className="mx-auto max-w-7xl px-6 lg:px-10">
-      <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="sm:col-span-2 lg:col-span-2">
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="size-9 rounded-xl bg-[#6344ee] flex items-center justify-center text-white">
-              <MI name="storefront" className="!text-[18px]" />
+function Design() {
+  return (
+    <section id="diseno" className="px-6 py-24 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <SectionTitle
+          eyebrow="Sistema visual"
+          title="Disenos que no dependen de una sola formula."
+          text="La homepage tiene que demostrar flexibilidad real. Eso transmite que TiendaFree puede adaptarse a distintos negocios sin perder coherencia de marca."
+        />
+
+        <div className="mt-16 grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+          <motion.article
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            className="overflow-hidden rounded-[2.2rem] border border-[#20150d]/8 bg-[#181311] p-5 text-white shadow-[0_30px_80px_rgba(34,20,10,0.18)]"
+          >
+            <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+              <div className="flex flex-col justify-between rounded-[1.7rem] bg-[linear-gradient(180deg,#2b2019_0%,#17120f_100%)] p-7">
+                <div>
+                  <span className="inline-flex rounded-full bg-white/8 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white/60">
+                    Direccion recomendada
+                  </span>
+                  <h3 className="mt-6 text-4xl font-black leading-[0.92] tracking-[-0.05em]">
+                    Calida, editorial y enfocada en negocio real.
+                  </h3>
+                  <p className="mt-5 text-base leading-8 text-white/68">
+                    Menos estetica startup generica. Mas mezcla de sofisticacion, cercania y
+                    claridad comercial para que TiendaFree se sienta seria y usable a la vez.
+                  </p>
+                </div>
+                <div className="mt-8 grid gap-3">
+                  {[
+                    { icon: Palette, text: 'Paleta neutra con acento calido principal' },
+                    { icon: Sparkles, text: 'Tipografia con mas presencia y mejor ritmo' },
+                    { icon: ShieldCheck, text: 'Senales de confianza visibles, sin saturar' },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.text} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
+                        <Icon className="h-4 w-4 text-[#ff6b3d]" />
+                        <span className="text-sm text-white/80">{item.text}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {cards.map((card, index) => (
+                  <motion.div
+                    key={card.title}
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.45, delay: index * 0.06 }}
+                    className="overflow-hidden rounded-[1.7rem] border border-white/8 bg-white/5"
+                  >
+                    <div className="aspect-[0.92] overflow-hidden">
+                      <img src={card.image} alt={card.title} className="h-full w-full object-cover" />
+                    </div>
+                    <div className="p-5">
+                      <div className="mb-3 h-1.5 w-16 rounded-full" style={{ backgroundColor: card.accent }} />
+                      <h4 className="text-xl font-black tracking-[-0.03em] text-white">{card.title}</h4>
+                      <p className="mt-2 text-sm leading-7 text-white/65">{card.text}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-            <span className="text-xl font-black text-slate-900">Vitrina</span>
+          </motion.article>
+
+          <div className="grid gap-6">
+            <div className="rounded-[2rem] border border-[#20150d]/8 bg-white p-8 shadow-[0_18px_50px_rgba(58,37,20,0.08)]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#7d5d48]">Lo que evita este rediseño</p>
+              <h3 className="mt-4 text-3xl font-black leading-tight tracking-[-0.04em] text-[#17120f]">
+                Repetir el mismo bloque una y otra vez.
+              </h3>
+              <p className="mt-4 text-base leading-8 text-[#605650]">
+                Cada tramo del scroll cambia la energia: hero, propuesta, narrativa sticky, showcase,
+                prueba social y cierre. Eso mejora recuerdo de marca y calidad percibida.
+              </p>
+            </div>
+            <div className="rounded-[2rem] border border-[#20150d]/8 bg-[linear-gradient(180deg,#fff7ef_0%,#ffffff_100%)] p-8 shadow-[0_18px_50px_rgba(58,37,20,0.08)]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#7d5d48]">Enfoque UX/UI</p>
+              <p className="mt-4 text-3xl font-black leading-tight tracking-[-0.04em] text-[#17120f]">
+                Menos decoracion gratuita. Mas claridad, mas jerarquia y mejor sensacion de producto.
+              </p>
+            </div>
           </div>
-          <p className="text-slate-500 text-sm leading-relaxed max-w-xs mb-6">
-            La plataforma que conecta a los comerciantes locales con sus vecinos. Hecho con ❤️ en
-            Argentina.
-          </p>
-          <div className="flex gap-3">
-            {['public', 'share', 'alternate_email'].map((icon) => (
-              <a
-                key={icon}
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-all hover:bg-[#6344ee] hover:text-white hover:-translate-y-0.5"
-              >
-                <MI name={icon} className="!text-base" />
-              </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Proof() {
+  return (
+    <section id="precios" className="px-6 pb-24 pt-8 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr]">
+          <div className="rounded-[2rem] border border-[#1e130d]/8 bg-[#181311] p-8 text-white shadow-[0_24px_70px_rgba(27,18,12,0.18)]">
+            <span className="inline-flex rounded-full bg-white/8 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-white/60">
+              Profesionalismo percibido
+            </span>
+            <h2 className="mt-6 text-4xl font-black leading-none tracking-[-0.05em]">
+              La confianza tambien se diseña.
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-8 text-white/68">
+              Shopify y Tiendanube insisten mucho en prueba social y promesas concretas. Tu landing
+              tambien tiene que hacerlo, pero con una voz mas propia.
+            </p>
+            <Link to="/register" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#ff6b3d] px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] text-white">
+              Empezar gratis
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {proofItems.map((item) => (
+              <div key={item.label} className="rounded-[2rem] border border-[#20150d]/8 bg-white p-8 shadow-[0_18px_50px_rgba(58,37,20,0.08)]">
+                <BadgeCheck className="h-6 w-6 text-[#ff6b3d]" />
+                <p className="mt-8 text-5xl font-black tracking-[-0.06em] text-[#17120f]">{item.value}</p>
+                <p className="mt-3 text-base leading-8 text-[#5e544e]">{item.label}</p>
+              </div>
             ))}
           </div>
         </div>
 
-        {[
-          { title: 'Plataforma', items: ['Explorar Tiendas', 'Cómo Funciona', 'Precios', 'Blog'] },
-          { title: 'Legal', items: ['Términos y condiciones', 'Privacidad', 'Cookies', 'Ayuda'] },
-        ].map((col) => (
-          <div key={col.title}>
-            <h4 className="mb-5 text-xs font-black uppercase tracking-widest text-slate-900">
-              {col.title}
-            </h4>
-            <ul className="space-y-3">
-              {col.items.map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="text-sm text-slate-500 hover:text-[#6344ee] transition-colors"
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
+        <div className="mt-6 overflow-hidden rounded-[2.6rem] border border-[#20150d]/8 bg-[linear-gradient(180deg,#1a1310_0%,#0f0b09_100%)] p-6 text-white shadow-[0_32px_90px_rgba(18,11,7,0.22)] sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+            <div>
+              <span className="inline-flex rounded-full bg-white/8 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.26em] text-white/60">
+                Proximo paso
+              </span>
+              <h2 className="mt-6 text-4xl font-black leading-[0.94] tracking-[-0.05em] sm:text-5xl">
+                Una landing que haga ver a TiendaFree como plataforma, no como experimento.
+              </h2>
+              <p className="mt-5 max-w-xl text-base leading-8 text-white/68 sm:text-lg">
+                Esta primera version ya marca esa direccion: mejor ritmo, mejor percepcion, mejor marca.
+              </p>
+            </div>
+            <div className="grid gap-4 rounded-[2rem] border border-white/8 bg-white/5 p-6 md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">Plan inicial</p>
+                <p className="mt-3 text-5xl font-black tracking-[-0.06em]">$0</p>
+                <p className="mt-3 max-w-md text-base leading-8 text-white/65">
+                  Sin comision por venta. Sin ruido visual. Sin depender de una plantilla generica.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Link to="/register" className="inline-flex h-14 items-center justify-center rounded-full bg-[#ff6b3d] px-8 text-sm font-bold uppercase tracking-[0.16em] text-white">
+                  Crear tienda gratis
+                </Link>
+                <a href="#plataforma" className="inline-flex h-14 items-center justify-center rounded-full border border-white/12 px-8 text-sm font-semibold text-white/85">
+                  Revisar la propuesta
+                </a>
+              </div>
+            </div>
           </div>
-        ))}
+        </div>
       </div>
+    </section>
+  );
+}
 
-      <div className="mt-12 border-t border-slate-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-        <p>© 2024 Vitrina Software S.A. Todos los derechos reservados.</p>
-        <p className="flex items-center gap-1">
-          <MI name="favorite" className="text-red-400 !text-xs" />
-          Hecho en Argentina
-        </p>
+const Footer = () => (
+  <footer className="border-t border-[#20150d]/8 bg-[#f7f4ef] px-6 py-10 lg:px-10">
+    <div className="mx-auto flex max-w-7xl flex-col gap-5 text-sm text-[#675b54] md:flex-row md:items-center md:justify-between">
+      <div>
+        <p className="text-lg font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
+        <p className="mt-1">Diseno, claridad y una experiencia mejor para vender online.</p>
+      </div>
+      <div className="flex flex-wrap gap-4">
+        <a href="#plataforma" className="hover:text-[#17120f]">Plataforma</a>
+        <a href="#experiencia" className="hover:text-[#17120f]">Experiencia</a>
+        <a href="#diseno" className="hover:text-[#17120f]">Diseno</a>
       </div>
     </div>
   </footer>
 );
 
-// ── Main ───────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const [showStickyNav, setShowStickyNav] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShowStickyNav(window.scrollY > 180);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
+      <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-8px); }
-        }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 500; }
+        html { scroll-behavior: smooth; }
+        body { background: #f7f4ef; font-family: 'Manrope', sans-serif; }
       `}</style>
-
-      <div
-        className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#f6f6f8] text-slate-900"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      >
-        <main className="flex-1">
-          <HomeHero />
-          <HomeBrands />
-          <Features />
-          <HowItWorks />
-          <Testimonials />
-          <Pricing />
-          <CTABanner />
+      <div className="min-h-screen overflow-x-hidden bg-[#f7f4ef] text-[#17120f]">
+        <main>
+          <StickyNavbar show={showStickyNav} />
+          <StickyNavbar show={showStickyNav} />
+          <Hero />
+          <Capabilities />
+          <Story />
+          <Design />
+          <Proof />
         </main>
         <Footer />
       </div>
