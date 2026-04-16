@@ -2,7 +2,7 @@
 import pinkTemplate from '@/assets/img/pink.png';
 import templateGorra from '@/assets/img/plantillagorra.png';
 import templateJoya from '@/assets/img/plantillaJoya.png';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowRight,
   BadgeCheck,
@@ -13,7 +13,7 @@ import {
   Sparkles,
   Store,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const trustPoints = [
@@ -114,55 +114,29 @@ function SectionTitle({
   );
 }
 
-function HeaderBar({ compact = false }: { compact?: boolean }) {
-  return (
-    <div
-      className={`mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-b-[2.75rem] border border-[#20150d]/8 bg-[rgba(248,241,232,0.95)] px-6 py-${compact ? '3' : '4'} shadow-[0_18px_50px_rgba(58,37,20,0.06)] backdrop-blur-xl sm:px-8 lg:px-10`}
-    >
-      <Link to="/" className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#181311] text-white">
-          <Store className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
-          <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
-        </div>
-      </Link>
-      <Link
-        to="/register"
-        className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white"
-      >
-        Crear tienda
-        <ArrowRight className="h-4 w-4" />
-      </Link>
-    </div>
-  );
-}
-
-function StickyNavbar({ show }: { show: boolean }) {
-  return (
-    <div
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        show ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-      }`}
-      style={{ backdropFilter: 'blur(18px)' }}
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-10">
-        <div className="rounded-b-[2.75rem] border border-[#20150d]/8 bg-[rgba(248,241,232,0.95)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]">
-          <HeaderBar compact />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function Hero() {
+  const { scrollY } = useScroll();
+  const headerY = useTransform(scrollY, [0, 220], [0, -38]);
+  const headerScale = useTransform(scrollY, [0, 220], [1, 0.985]);
+  const headerOpacity = useTransform(scrollY, [0, 220], [1, 0.95]);
+
+  // Hero collapse transformations
+  const heroY = useTransform(scrollY, [0, 500], [0, -150]);
+  const heroScale = useTransform(scrollY, [0, 500], [1, 0.9]);
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+
   return (
     <section className="relative overflow-visible pb-0 pt-0">
       <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_top_left,_rgba(255,122,62,0.20),_transparent_38%),radial-gradient(circle_at_80%_20%,_rgba(124,107,255,0.15),_transparent_30%),linear-gradient(180deg,_#f8f1e8_0%,_#f4eee8_46%,_#f7f4ef_100%)]" />
       <div className="relative">
-        <div className="overflow-hidden rounded-b-[2.75rem] bg-[linear-gradient(180deg,rgba(203,183,255,0.92)_0%,rgba(184,154,255,0.94)_100%)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 sm:px-8 lg:px-10">
+        <motion.div 
+          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
+          className="overflow-hidden rounded-b-[2.75rem] bg-[linear-gradient(180deg,rgba(203,183,255,0.92)_0%,rgba(184,154,255,0.94)_100%)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]"
+        >
+          <motion.div
+            style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}
+            className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 sm:px-8 lg:px-10"
+          >
             <Link to="/" className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-xl bg-[#181311] text-white">
                 <Store className="h-5 w-5" />
@@ -180,7 +154,7 @@ function Hero() {
               Crear tienda
               <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 28 }}
@@ -203,7 +177,12 @@ function Hero() {
                 mas profesional y mas recordable, inspirada en grandes referentes pero con
                 personalidad propia.
               </p>
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <motion.div
+                initial={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+              >
                 <Link
                   to="/register"
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#181311] px-8 text-sm font-bold uppercase tracking-[0.16em] text-white"
@@ -217,12 +196,13 @@ function Hero() {
                 >
                   Ver la propuesta
                 </a>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         <motion.div
+          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.15 }}
@@ -248,37 +228,88 @@ function Hero() {
 }
 
 function Capabilities() {
+  const { scrollY } = useScroll();
+  const sectionOpacity = useTransform(scrollY, [100, 450], [0, 1]);
+  const sectionY = useTransform(scrollY, [100, 500], [40, 0]);
+
   return (
     <section id="plataforma" className="relative z-0 px-6 pb-24 pt-56 lg:px-10 lg:pt-60">
-      <div className="mx-auto max-w-7xl">
+      <motion.div style={{ opacity: sectionOpacity, y: sectionY }} className="mx-auto max-w-7xl">
         <SectionTitle
-          eyebrow="Que tomamos de la referencia"
-          title="Claridad comercial de Tiendanube. Ambicion visual de Shopify. ADN propio para TiendaFree."
-          text="La idea no es copiarles la identidad. Es aprender de su estructura, su jerarquia y su capacidad para transmitir confianza, y traducir eso a una landing mucho mas propia."
+          eyebrow="Como empezar"
+          title="Tu tienda lista para vender en solo tres pasos."
+          text="No necesitas conocimientos tecnicos. Hemos diseñado el proceso para que sea tan intuitivo como publicar en redes sociales, pero con el impacto de una marca profesional."
         />
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
-          {capabilities.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.article
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.35 }}
-                transition={{ duration: 0.6, delay: index * 0.08 }}
-                className={`rounded-[2rem] border border-[#22170d]/8 bg-gradient-to-br ${item.tone} p-8 shadow-[0_20px_60px_rgba(61,40,26,0.06)]`}
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#181311] text-white">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7a5b45]">{item.label}</p>
-                <h3 className="mt-3 text-3xl font-black leading-tight tracking-[-0.04em] text-[#16120f]">{item.title}</h3>
-                <p className="mt-5 text-base leading-8 text-[#5f554f]">{item.text}</p>
-              </motion.article>
-            );
-          })}
+
+        <div className="mt-20 grid gap-8 md:grid-cols-3">
+          {[
+            {
+              step: '01',
+              title: 'Crea tu cuenta',
+              desc: 'En menos de un minuto, configura tu perfil y el nombre de tu tienda.',
+              icon: Store,
+              color: 'bg-orange-100 text-orange-600',
+            },
+            {
+              step: '02',
+              title: 'Sube tus productos',
+              desc: 'Carga fotos, precios y descripciones. Nosotros nos encargamos del diseño.',
+              icon: Palette,
+              color: 'bg-purple-100 text-purple-600',
+            },
+            {
+              step: '03',
+              title: 'Empieza a vender',
+              desc: 'Comparte tu link y recibe pedidos directamente en tu WhatsApp.',
+              icon: MessageCircleMore,
+              color: 'bg-green-100 text-green-600',
+            },
+          ].map((item, idx) => (
+            <div key={idx} className="relative rounded-[2.5rem] bg-white p-8 shadow-sm border border-black/5">
+              <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-2xl ${item.color}`}>
+                <item.icon className="h-6 w-6" />
+              </div>
+              <span className="text-4xl font-black opacity-10 absolute top-8 right-8">
+                {item.step}
+              </span>
+              <h3 className="text-xl font-black text-[#16120f]">{item.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-[#5f554f]">
+                {item.desc}
+              </p>
+            </div>
+          ))}
         </div>
-      </div>
+
+        <div className="mt-40">
+          <SectionTitle
+            eyebrow="Que tomamos de la referencia"
+            title="Claridad comercial de Tiendanube. Ambicion visual de Shopify."
+            text="La idea no es copiarles la identidad. Es aprender de su estructura, su jerarquia y su capacidad para transmitir confianza."
+          />
+          <div className="mt-16 grid gap-6 lg:grid-cols-3">
+            {capabilities.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.article
+                  key={item.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  transition={{ duration: 0.6, delay: index * 0.08 }}
+                  className={`rounded-[2rem] border border-[#22170d]/8 bg-gradient-to-br ${item.tone} p-8 shadow-[0_20px_60px_rgba(61,40,26,0.06)]`}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#181311] text-white">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7a5b45]">{item.label}</p>
+                  <h3 className="mt-3 text-3xl font-black leading-tight tracking-[-0.04em] text-[#16120f]">{item.title}</h3>
+                  <p className="mt-5 text-base leading-8 text-[#5f554f]">{item.text}</p>
+                </motion.article>
+              );
+            })}
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 }
@@ -533,17 +564,44 @@ const Footer = () => (
     </div>
   </footer>
 );
+function FloatingNav() {
+  const { scrollY } = useScroll();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 200);
+  });
+
+  return (
+    <motion.header
+      initial={{ y: '-100%', opacity: 0 }}
+      animate={{ y: isScrolled ? '0%' : '-100%', opacity: isScrolled ? 1 : 0 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-x-0 top-0 z-[100] px-4 py-4 pointer-events-none"
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-3xl border border-white/40 bg-white/80 px-4 py-3 shadow-[0_16px_40px_rgba(58,37,20,0.12)] backdrop-blur-xl sm:px-6 pointer-events-auto">
+        <Link to="/" className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-[#181311] text-white">
+            <Store className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
+          </div>
+        </Link>
+        <Link
+          to="/register"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#2c241f]"
+        >
+          Crear tienda
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </motion.header>
+  );
+}
 
 export default function HomePage() {
-  const [showStickyNav, setShowStickyNav] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setShowStickyNav(window.scrollY > 180);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -552,9 +610,8 @@ export default function HomePage() {
         body { background: #f7f4ef; font-family: 'Manrope', sans-serif; }
       `}</style>
       <div className="min-h-screen overflow-x-hidden bg-[#f7f4ef] text-[#17120f]">
+        <FloatingNav />
         <main>
-          <StickyNavbar show={showStickyNav} />
-          <StickyNavbar show={showStickyNav} />
           <Hero />
           <Capabilities />
           <Story />

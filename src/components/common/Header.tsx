@@ -25,6 +25,8 @@ const Header = ({
   const location = useLocation();
   const isHome = location.pathname === '/';
 
+  if (isHome) return null;
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener('scroll', onScroll);
@@ -33,15 +35,14 @@ const Header = ({
 
   return (
     <header
-      className={`z-50 w-full transition-all duration-300 ${
-        isHome
+      className={`z-50 w-full transition-all duration-300 ${isHome
           ? scrolled
             ? 'fixed inset-x-0 top-0 translate-y-0 border-b border-[#20150d]/8 bg-[#f7f4ef]/88 opacity-100 backdrop-blur-md'
             : 'pointer-events-none fixed inset-x-0 top-0 -translate-y-full opacity-0'
           : scrolled
             ? 'sticky top-0 border-b border-slate-100 bg-white/95 backdrop-blur-md shadow-sm'
             : 'sticky top-0 bg-transparent'
-      }`}
+        }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
         <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
@@ -96,7 +97,7 @@ const Header = ({
                 to="/register"
                 className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#181311] px-6 text-sm font-bold text-white shadow-lg shadow-black/10 transition-transform hover:-translate-y-0.5 active:scale-95"
               >
-                Crear tienda
+                Crear tiendas
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </>
