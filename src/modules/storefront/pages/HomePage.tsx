@@ -13,38 +13,16 @@ import {
   Sparkles,
   Store,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
+const words = ['Rapido', 'Facil', 'Gratis', 'Profesional'];
 
 const trustPoints = [
   'Sin comisiones por venta',
   'Catalogo optimizado para movil',
   'Pedidos por WhatsApp',
   'Diseno con identidad propia',
-];
-
-const capabilities = [
-  {
-    icon: Store,
-    label: 'Presencia de marca',
-    title: 'Tu home deja de parecer una plantilla mas.',
-    text: 'Tomamos la claridad de Tiendanube y la sofisticacion de Shopify para llevarla a una estetica mas calida y propia de TiendaFree.',
-    tone: 'from-[#ffede3] via-[#fff5ef] to-white',
-  },
-  {
-    icon: MessageCircleMore,
-    label: 'Conversion simple',
-    title: 'El cliente entiende rapido y avanza mejor.',
-    text: 'Bloques con mas aire, menos ruido y llamadas a la accion repartidas con intencion para que la experiencia venda sin sentirse agresiva.',
-    tone: 'from-[#fff6d8] via-[#fffbef] to-white',
-  },
-  {
-    icon: ChartNoAxesCombined,
-    label: 'Operacion clara',
-    title: 'Producto serio, no solo una landing linda.',
-    text: 'La narrativa muestra valor real: catalogo, comunicacion, gestion y confianza. Eso eleva la percepcion del producto completo.',
-    tone: 'from-[#eaf4ff] via-[#f5faff] to-white',
-  },
 ];
 
 const narrative = [
@@ -116,21 +94,51 @@ function SectionTitle({
 
 function Hero() {
   const { scrollY } = useScroll();
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % words.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
   const headerY = useTransform(scrollY, [0, 220], [0, -38]);
   const headerScale = useTransform(scrollY, [0, 220], [1, 0.985]);
   const headerOpacity = useTransform(scrollY, [0, 220], [1, 0.95]);
 
-  // Hero collapse transformations
-  const heroY = useTransform(scrollY, [0, 500], [0, -150]);
-  const heroScale = useTransform(scrollY, [0, 500], [1, 0.9]);
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+  // Hero collapse transformations - more "deconstructed" feel
+  const heroY = useTransform(scrollY, [0, 500], [0, -100]);
+  const heroScale = useTransform(scrollY, [0, 500], [1, 0.95]);
+  
+  // Staggered exit for internal elements
+  const badgeY = useTransform(scrollY, [0, 150], [0, -50]);
+  const badgeOpacity = useTransform(scrollY, [0, 100], [1, 0]);
+  
+  const titleY = useTransform(scrollY, [50, 250], [0, -80]);
+  const titleOpacity = useTransform(scrollY, [50, 200], [1, 0]);
+  const titleScale = useTransform(scrollY, [50, 300], [1, 0.9]);
+  
+  const textY = useTransform(scrollY, [100, 350], [0, -100]);
+  const textOpacity = useTransform(scrollY, [100, 300], [1, 0]);
+  
+  const buttonsY = useTransform(scrollY, [150, 450], [0, -120]);
+  const buttonsOpacity = useTransform(scrollY, [150, 400], [1, 0]);
+  const buttonsScale = useTransform(scrollY, [150, 450], [1, 0.85]);
+
+  // Second Hero (Tiendzi) Transformations - Spaced out to avoid overlap
+  const tiendziOpacity = useTransform(scrollY, [600, 900, 1600, 1900], [0, 1, 1, 0]);
+  const tiendziY = useTransform(scrollY, [600, 900, 1600, 1900], [100, 0, 0, -100]);
+  const tiendziScale = useTransform(scrollY, [600, 900], [0.9, 1]);
 
   return (
     <section className="relative overflow-visible pb-0 pt-0">
       <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_top_left,_rgba(255,122,62,0.20),_transparent_38%),radial-gradient(circle_at_80%_20%,_rgba(124,107,255,0.15),_transparent_30%),linear-gradient(180deg,_#f8f1e8_0%,_#f4eee8_46%,_#f7f4ef_100%)]" />
+      
       <div className="relative">
+        {/* FIRST HERO SECTION */}
         <motion.div 
-          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
+          style={{ y: heroY, scale: heroScale }}
           className="overflow-hidden rounded-b-[2.75rem] bg-[linear-gradient(180deg,rgba(203,183,255,0.92)_0%,rgba(184,154,255,0.94)_100%)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]"
         >
           <motion.div
@@ -163,21 +171,31 @@ function Hero() {
             className="pb-14 pt-12 sm:pb-16 sm:pt-20"
           >
             <div className="mx-auto max-w-6xl px-6 text-center sm:px-8 lg:px-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#24170d]/10 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#7d5d48] backdrop-blur">
+              <motion.div 
+                style={{ y: badgeY, opacity: badgeOpacity }}
+                className="inline-flex items-center gap-2 rounded-full border border-[#24170d]/10 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#7d5d48] backdrop-blur"
+              >
                 <Sparkles className="h-4 w-4 text-[#ff6b3d]" />
                 Disenada para vender mejor
-              </div>
-              <h1 className="mt-8 text-4xl font-black leading-[0.9] tracking-[-0.07em] text-[#15110e] sm:text-5xl lg:text-[5.35rem]">
+              </motion.div>
+              <motion.h1 
+                style={{ y: titleY, opacity: titleOpacity, scale: titleScale }}
+                className="mt-8 text-4xl font-black leading-[0.9] tracking-[-0.07em] text-[#15110e] sm:text-5xl lg:text-[5.35rem]"
+              >
                 La plataforma para vender
                 <span className="text-[#ff6b3d]"> con presencia, claridad</span>
                 <span> y estilo propio.</span>
-              </h1>
-              <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f554f] sm:text-xl">
+              </motion.h1>
+              <motion.p 
+                style={{ y: textY, opacity: textOpacity }}
+                className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f554f] sm:text-xl"
+              >
                 TiendaFree convierte tu primera impresion en una ventaja: una home mas limpia,
                 mas profesional y mas recordable, inspirada en grandes referentes pero con
                 personalidad propia.
-              </p>
+              </motion.p>
               <motion.div
+                style={{ y: buttonsY, opacity: buttonsOpacity, scale: buttonsScale }}
                 initial={{ opacity: 1, y: 0 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
@@ -201,112 +219,201 @@ function Hero() {
           </motion.div>
         </motion.div>
 
+        {/* TRUST CARDS (Part of the first section) */}
         <motion.div
-          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
+          style={{ y: buttonsY, opacity: buttonsOpacity, scale: buttonsScale }}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.15 }}
-          className="relative z-30 -mt-10 -mb-16 mx-auto grid max-w-6xl gap-3 px-4 sm:px-0 sm:grid-cols-2 xl:grid-cols-4"
+          className="relative z-30 -mt-8 -mb-16 mx-auto flex flex-wrap justify-center gap-3 px-4 max-w-5xl"
         >
           {trustPoints.map((item) => (
             <article
               key={item}
-              className="rounded-[1.6rem] border border-[#23180f]/8 bg-white/90 p-4 shadow-[0_16px_35px_rgba(58,37,20,0.08)] backdrop-blur"
+              className="rounded-2xl border border-[#23180f]/8 bg-white/90 px-4 py-2.5 shadow-[0_12px_30px_rgba(58,37,20,0.06)] backdrop-blur flex items-center gap-2"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#7d5d48]">
-                TiendaFree
-              </p>
-              <p className="mt-3 text-base font-black leading-tight tracking-[-0.04em] text-[#17120f]">
+              <div className="size-1.5 rounded-full bg-[#ff6b3d]" />
+              <p className="text-[11px] font-bold tracking-tight text-[#17120f] whitespace-nowrap">
                 {item}
               </p>
             </article>
           ))}
         </motion.div>
       </div>
+
+      {/* SECOND DYNAMIC HERO (TIENDZI) SECTION - Full Width Immersive Effect */}
+      <div className="relative h-[800px] mt-24 overflow-hidden">
+        <motion.div
+          style={{ 
+            opacity: tiendziOpacity, 
+            y: tiendziY, 
+            scale: tiendziScale,
+            position: 'sticky',
+            top: 0
+          }}
+          className="h-[800px] bg-[#181311] flex items-center justify-center text-center px-6 w-full shadow-2xl"
+        >
+          <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80')] bg-cover bg-center" />
+          <div className="relative z-20">
+            <h2 className="text-white text-3xl font-bold uppercase tracking-[0.3em] mb-4 opacity-30">Tiendzi</h2>
+            <h1 className="text-5xl sm:text-7xl lg:text-[7rem] font-black text-white leading-[0.9] tracking-[-0.05em]">
+              Tu tienda <br/>
+              <motion.span
+                key={wordIndex}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-[#ff6b3d] inline-block min-w-[300px]"
+              >
+                {words[wordIndex]}
+              </motion.span>
+            </h1>
+            <p className="mt-10 text-white/50 text-xl font-medium tracking-wide">La evolucion de tu negocio empieza aca.</p>
+          </div>
+        </motion.div>
+      </div>
     </section>
+  );
+}
+
+function BenefitCard({ card }: { card: any }) {
+  return (
+    <div className={`group relative overflow-hidden rounded-3xl border border-black/5 ${card.color} p-6 flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}>
+      <div className="mb-6 h-48 w-full overflow-hidden rounded-2xl">
+        <img 
+          src={card.image} 
+          alt={card.title}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+      </div>
+      <div className="flex flex-col flex-1">
+        <span className="mb-3 inline-block w-fit rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm">
+          {card.tag}
+        </span>
+        <h3 className="mb-3 text-xl font-bold text-[#16120f]">
+          {card.title}
+        </h3>
+        <p className="text-sm leading-relaxed text-[#5f554f]">
+          {card.desc}
+        </p>
+      </div>
+    </div>
   );
 }
 
 function Capabilities() {
   const { scrollY } = useScroll();
-  const sectionOpacity = useTransform(scrollY, [100, 450], [0, 1]);
-  const sectionY = useTransform(scrollY, [100, 500], [40, 0]);
+  const sectionOpacity = useTransform(scrollY, [800, 1100], [0, 1]);
+  const sectionY = useTransform(scrollY, [800, 1100], [100, 0]);
+
+  const benefitCards = [
+    {
+      title: 'Tu marca, tus reglas',
+      desc: 'Personaliza colores, tipografías y banners. No es solo una tienda, es tu identidad digital reflejada en cada píxel.',
+      image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80',
+      tag: 'Diseño Pro',
+      color: 'bg-purple-50',
+    },
+    {
+      title: 'Ventas por WhatsApp',
+      desc: 'Recibe los pedidos listos para procesar. Sin fricciones, directo al grano y con la calidez del trato humano.',
+      image: 'https://images.unsplash.com/photo-1520923642038-b4259ace9439?auto=format&fit=crop&q=80',
+      tag: 'Conversión',
+      color: 'bg-green-50',
+    },
+    {
+      title: 'Control total',
+      desc: 'Gestiona stock, categorías y precios desde un panel intuitivo. Pensado para que lo hagas todo desde tu celular.',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80',
+      tag: 'Gestión',
+      color: 'bg-blue-50',
+    },
+    {
+      title: 'Sin Comisiones',
+      desc: 'Lo que vendes es 100% para vos. Sin letras chicas ni cargos sorpresa al final del mes. Crecemos con vos.',
+      image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80',
+      tag: 'Libertad',
+      color: 'bg-orange-50',
+    },
+  ];
 
   return (
-    <section id="plataforma" className="relative z-0 px-6 pb-24 pt-56 lg:px-10 lg:pt-60">
+    <section id="plataforma" className="relative z-0 px-6 pb-32 pt-32 lg:px-10">
       <motion.div style={{ opacity: sectionOpacity, y: sectionY }} className="mx-auto max-w-7xl">
-        <SectionTitle
-          eyebrow="Como empezar"
-          title="Tu tienda lista para vender en solo tres pasos."
-          text="No necesitas conocimientos tecnicos. Hemos diseñado el proceso para que sea tan intuitivo como publicar en redes sociales, pero con el impacto de una marca profesional."
-        />
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-20">
+          <div className="max-w-2xl">
+            <span className="inline-flex rounded-full border border-[#23190f]/10 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7b5b44]">
+              ¿Por qué elegir TiendaFree?
+            </span>
+            <h2 className="mt-6 text-4xl font-black leading-[1.1] tracking-[-0.05em] sm:text-6xl text-[#16120f]">
+              Todo lo que necesitás <br/>
+              <span className="text-[#ff6b3d]">para escalar tu negocio.</span>
+            </h2>
+          </div>
+          <p className="max-w-md text-lg leading-relaxed text-[#64584f]">
+            Diseñamos cada función pensando en la simplicidad y el impacto visual. 
+            Menos configuración, más ventas.
+          </p>
+        </div>
 
-        <div className="mt-20 grid gap-8 md:grid-cols-3">
-          {[
-            {
-              step: '01',
-              title: 'Crea tu cuenta',
-              desc: 'En menos de un minuto, configura tu perfil y el nombre de tu tienda.',
-              icon: Store,
-              color: 'bg-orange-100 text-orange-600',
-            },
-            {
-              step: '02',
-              title: 'Sube tus productos',
-              desc: 'Carga fotos, precios y descripciones. Nosotros nos encargamos del diseño.',
-              icon: Palette,
-              color: 'bg-purple-100 text-purple-600',
-            },
-            {
-              step: '03',
-              title: 'Empieza a vender',
-              desc: 'Comparte tu link y recibe pedidos directamente en tu WhatsApp.',
-              icon: MessageCircleMore,
-              color: 'bg-green-100 text-green-600',
-            },
-          ].map((item, idx) => (
-            <div key={idx} className="relative rounded-[2.5rem] bg-white p-8 shadow-sm border border-black/5">
-              <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-2xl ${item.color}`}>
-                <item.icon className="h-6 w-6" />
-              </div>
-              <span className="text-4xl font-black opacity-10 absolute top-8 right-8">
-                {item.step}
-              </span>
-              <h3 className="text-xl font-black text-[#16120f]">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-[#5f554f]">
-                {item.desc}
-              </p>
-            </div>
+        {/* Reverted to a functional grid with clean cards */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {benefitCards.map((card, idx) => (
+            <BenefitCard key={idx} card={card} />
           ))}
         </div>
 
-        <div className="mt-40">
-          <SectionTitle
-            eyebrow="Que tomamos de la referencia"
-            title="Claridad comercial de Tiendanube. Ambicion visual de Shopify."
-            text="La idea no es copiarles la identidad. Es aprender de su estructura, su jerarquia y su capacidad para transmitir confianza."
-          />
-          <div className="mt-16 grid gap-6 lg:grid-cols-3">
-            {capabilities.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <motion.article
-                  key={item.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.35 }}
-                  transition={{ duration: 0.6, delay: index * 0.08 }}
-                  className={`rounded-[2rem] border border-[#22170d]/8 bg-gradient-to-br ${item.tone} p-8 shadow-[0_20px_60px_rgba(61,40,26,0.06)]`}
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#181311] text-white">
-                    <Icon className="h-5 w-5" />
+        {/* HOW TO USE WRAPPER */}
+        <div className="mt-40 bg-[#181311] rounded-[4rem] p-12 lg:p-24 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#ff6b3d_0%,_transparent_70%)]" />
+          </div>
+          
+          <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <span className="text-[#ff6b3d] font-bold uppercase tracking-[0.3em] text-xs">Paso a paso</span>
+              <h2 className="mt-6 text-4xl lg:text-6xl font-black tracking-tight leading-none">
+                Tu tienda lista <br/>
+                en minutos.
+              </h2>
+              <p className="mt-8 text-white/60 text-lg leading-relaxed max-w-sm">
+                Sin complicaciones técnicas. Seguí estos 3 pasos y empezá a recibir pedidos hoy mismo.
+              </p>
+              
+              <div className="mt-12 space-y-8">
+                {[
+                  { n: '01', t: 'Regístrate gratis', d: 'Creá tu cuenta con tu email y elegí el nombre de tu marca.' },
+                  { n: '02', t: 'Publicá tus productos', d: 'Subí fotos y precios. Nosotros armamos el catálogo por vos.' },
+                  { n: '03', t: 'Difundí y vendé', d: 'Compartí el link en tu bio de Instagram o estados de WhatsApp.' }
+                ].map((step, i) => (
+                  <div key={i} className="flex gap-6 items-start group">
+                    <span className="text-2xl font-black text-white/20 group-hover:text-[#ff6b3d] transition-colors">{step.n}</span>
+                    <div>
+                      <h4 className="text-xl font-bold mb-1">{step.t}</h4>
+                      <p className="text-white/40 text-sm">{step.d}</p>
+                    </div>
                   </div>
-                  <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7a5b45]">{item.label}</p>
-                  <h3 className="mt-3 text-3xl font-black leading-tight tracking-[-0.04em] text-[#16120f]">{item.title}</h3>
-                  <p className="mt-5 text-base leading-8 text-[#5f554f]">{item.text}</p>
-                </motion.article>
-              );
-            })}
+                ))}
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="aspect-[4/5] rounded-[3rem] bg-gradient-to-br from-[#2a1f1a] to-[#16110e] border border-white/10 p-4 shadow-2xl rotate-3">
+                <div className="w-full h-full rounded-[2rem] bg-white/5 backdrop-blur-3xl border border-white/5 flex items-center justify-center">
+                   <div className="text-center">
+                      <div className="size-16 bg-[#ff6b3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#ff6b3d]/20">
+                        <Store className="text-white size-8" />
+                      </div>
+                      <p className="text-white/40 uppercase tracking-widest text-[10px] font-bold">Preview de tu tienda</p>
+                   </div>
+                </div>
+              </div>
+              {/* Floating element */}
+              <div className="absolute -bottom-10 -left-10 bg-[#ff6b3d] p-8 rounded-[2rem] shadow-2xl -rotate-6 hidden lg:block">
+                <p className="text-4xl font-black text-white">100%</p>
+                <p className="text-white/80 text-xs font-bold uppercase tracking-wider mt-1">Gratis siempre</p>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
