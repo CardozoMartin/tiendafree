@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import BenefitStack from './Benefitstack';
+import Hero from './Hero';
 
 const words = ['Rapido', 'Facil', 'Gratis', 'Profesional'];
 
@@ -92,196 +94,196 @@ function SectionTitle({
   );
 }
 
-function Hero() {
-  const { scrollY } = useScroll();
-  const [wordIndex, setWordIndex] = useState(0);
+// function Hero() {
+//   const { scrollY } = useScroll();
+//   const [wordIndex, setWordIndex] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % words.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       setWordIndex((prev) => (prev + 1) % words.length);
+//     }, 2500);
+//     return () => clearInterval(interval);
+//   }, []);
 
-  const headerY = useTransform(scrollY, [0, 220], [0, -38]);
-  const headerScale = useTransform(scrollY, [0, 220], [1, 0.985]);
-  const headerOpacity = useTransform(scrollY, [0, 220], [1, 0.95]);
+//   const headerY = useTransform(scrollY, [0, 220], [0, -38]);
+//   const headerScale = useTransform(scrollY, [0, 220], [1, 0.985]);
+//   const headerOpacity = useTransform(scrollY, [0, 220], [1, 0.95]);
 
-  // Hero collapse transformations - more "deconstructed" feel
-  const heroY = useTransform(scrollY, [0, 500], [0, -100]);
-  const heroScale = useTransform(scrollY, [0, 500], [1, 0.95]);
-  
-  // Staggered exit for internal elements
-  const badgeY = useTransform(scrollY, [0, 150], [0, -50]);
-  const badgeOpacity = useTransform(scrollY, [0, 100], [1, 0]);
-  
-  const titleY = useTransform(scrollY, [50, 250], [0, -80]);
-  const titleOpacity = useTransform(scrollY, [50, 200], [1, 0]);
-  const titleScale = useTransform(scrollY, [50, 300], [1, 0.9]);
-  
-  const textY = useTransform(scrollY, [100, 350], [0, -100]);
-  const textOpacity = useTransform(scrollY, [100, 300], [1, 0]);
-  
-  const buttonsY = useTransform(scrollY, [150, 450], [0, -120]);
-  const buttonsOpacity = useTransform(scrollY, [150, 400], [1, 0]);
-  const buttonsScale = useTransform(scrollY, [150, 450], [1, 0.85]);
+//   // Hero collapse transformations - more "deconstructed" feel
+//   const heroY = useTransform(scrollY, [0, 500], [0, -100]);
+//   const heroScale = useTransform(scrollY, [0, 500], [1, 0.95]);
 
-  // Second Hero (Tiendzi) Transformations - Spaced out to avoid overlap
-  const tiendziOpacity = useTransform(scrollY, [600, 900, 1600, 1900], [0, 1, 1, 0]);
-  const tiendziY = useTransform(scrollY, [600, 900, 1600, 1900], [100, 0, 0, -100]);
-  const tiendziScale = useTransform(scrollY, [600, 900], [0.9, 1]);
+//   // Staggered exit for internal elements
+//   const badgeY = useTransform(scrollY, [0, 150], [0, -50]);
+//   const badgeOpacity = useTransform(scrollY, [0, 100], [1, 0]);
 
-  return (
-    <section className="relative overflow-visible pb-0 pt-0">
-      <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_top_left,_rgba(255,122,62,0.20),_transparent_38%),radial-gradient(circle_at_80%_20%,_rgba(124,107,255,0.15),_transparent_30%),linear-gradient(180deg,_#f8f1e8_0%,_#f4eee8_46%,_#f7f4ef_100%)]" />
-      
-      <div className="relative">
-        {/* FIRST HERO SECTION */}
-        <motion.div 
-          style={{ y: heroY, scale: heroScale }}
-          className="overflow-hidden rounded-b-[2.75rem] bg-[linear-gradient(180deg,rgba(203,183,255,0.92)_0%,rgba(184,154,255,0.94)_100%)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]"
-        >
-          <motion.div
-            style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}
-            className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 sm:px-8 lg:px-10"
-          >
-            <Link to="/" className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-[#181311] text-white">
-                <Store className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
-                <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
-              </div>
-            </Link>
+//   const titleY = useTransform(scrollY, [50, 250], [0, -80]);
+//   const titleOpacity = useTransform(scrollY, [50, 200], [1, 0]);
+//   const titleScale = useTransform(scrollY, [50, 300], [1, 0.9]);
 
-            <Link
-              to="/register"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white"
-            >
-              Crear tienda
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </motion.div>
+//   const textY = useTransform(scrollY, [100, 350], [0, -100]);
+//   const textOpacity = useTransform(scrollY, [100, 300], [1, 0]);
 
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="pb-14 pt-12 sm:pb-16 sm:pt-20"
-          >
-            <div className="mx-auto max-w-6xl px-6 text-center sm:px-8 lg:px-10">
-              <motion.div 
-                style={{ y: badgeY, opacity: badgeOpacity }}
-                className="inline-flex items-center gap-2 rounded-full border border-[#24170d]/10 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#7d5d48] backdrop-blur"
-              >
-                <Sparkles className="h-4 w-4 text-[#ff6b3d]" />
-                Disenada para vender mejor
-              </motion.div>
-              <motion.h1 
-                style={{ y: titleY, opacity: titleOpacity, scale: titleScale }}
-                className="mt-8 text-4xl font-black leading-[0.9] tracking-[-0.07em] text-[#15110e] sm:text-5xl lg:text-[5.35rem]"
-              >
-                La plataforma para vender
-                <span className="text-[#ff6b3d]"> con presencia, claridad</span>
-                <span> y estilo propio.</span>
-              </motion.h1>
-              <motion.p 
-                style={{ y: textY, opacity: textOpacity }}
-                className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f554f] sm:text-xl"
-              >
-                TiendaFree convierte tu primera impresion en una ventaja: una home mas limpia,
-                mas profesional y mas recordable, inspirada en grandes referentes pero con
-                personalidad propia.
-              </motion.p>
-              <motion.div
-                style={{ y: buttonsY, opacity: buttonsOpacity, scale: buttonsScale }}
-                initial={{ opacity: 1, y: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
-              >
-                <Link
-                  to="/register"
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#181311] px-8 text-sm font-bold uppercase tracking-[0.16em] text-white"
-                >
-                  Crear mi tienda
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href="#plataforma"
-                  className="inline-flex h-14 items-center justify-center rounded-full border border-[#20150d]/10 bg-white/70 px-8 text-sm font-semibold text-[#1c1613]"
-                >
-                  Ver la propuesta
-                </a>
-              </motion.div>
-            </div>
-          </motion.div>
-        </motion.div>
+//   const buttonsY = useTransform(scrollY, [150, 450], [0, -120]);
+//   const buttonsOpacity = useTransform(scrollY, [150, 400], [1, 0]);
+//   const buttonsScale = useTransform(scrollY, [150, 450], [1, 0.85]);
 
-        {/* TRUST CARDS (Part of the first section) */}
-        <motion.div
-          style={{ y: buttonsY, opacity: buttonsOpacity, scale: buttonsScale }}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="relative z-30 -mt-8 -mb-16 mx-auto flex flex-wrap justify-center gap-3 px-4 max-w-5xl"
-        >
-          {trustPoints.map((item) => (
-            <article
-              key={item}
-              className="rounded-2xl border border-[#23180f]/8 bg-white/90 px-4 py-2.5 shadow-[0_12px_30px_rgba(58,37,20,0.06)] backdrop-blur flex items-center gap-2"
-            >
-              <div className="size-1.5 rounded-full bg-[#ff6b3d]" />
-              <p className="text-[11px] font-bold tracking-tight text-[#17120f] whitespace-nowrap">
-                {item}
-              </p>
-            </article>
-          ))}
-        </motion.div>
-      </div>
+//   // Second Hero (Tiendzi) Transformations - Spaced out to avoid overlap
+//   const tiendziOpacity = useTransform(scrollY, [600, 900, 1600, 1900], [0, 1, 1, 0]);
+//   const tiendziY = useTransform(scrollY, [600, 900, 1600, 1900], [100, 0, 0, -100]);
+//   const tiendziScale = useTransform(scrollY, [600, 900], [0.9, 1]);
 
-      {/* SECOND DYNAMIC HERO (TIENDZI) SECTION - Full Width Immersive Effect */}
-      <div className="relative h-[800px] mt-24 overflow-hidden">
-        <motion.div
-          style={{ 
-            opacity: tiendziOpacity, 
-            y: tiendziY, 
-            scale: tiendziScale,
-            position: 'sticky',
-            top: 0
-          }}
-          className="h-[800px] bg-[#181311] flex items-center justify-center text-center px-6 w-full shadow-2xl"
-        >
-          <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80')] bg-cover bg-center" />
-          <div className="relative z-20">
-            <h2 className="text-white text-3xl font-bold uppercase tracking-[0.3em] mb-4 opacity-30">Tiendzi</h2>
-            <h1 className="text-5xl sm:text-7xl lg:text-[7rem] font-black text-white leading-[0.9] tracking-[-0.05em]">
-              Tu tienda <br/>
-              <motion.span
-                key={wordIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="text-[#ff6b3d] inline-block min-w-[300px]"
-              >
-                {words[wordIndex]}
-              </motion.span>
-            </h1>
-            <p className="mt-10 text-white/50 text-xl font-medium tracking-wide">La evolucion de tu negocio empieza aca.</p>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
+//   return (
+//     <section className="relative overflow-visible pb-0 pt-0">
+//       <div className="absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_top_left,_rgba(255,122,62,0.20),_transparent_38%),radial-gradient(circle_at_80%_20%,_rgba(124,107,255,0.15),_transparent_30%),linear-gradient(180deg,_#f8f1e8_0%,_#f4eee8_46%,_#f7f4ef_100%)]" />
+
+//       <div className="relative">
+//         {/* FIRST HERO SECTION */}
+//         <motion.div
+//           style={{ y: heroY, scale: heroScale }}
+//           className="overflow-hidden rounded-b-[2.75rem] bg-[linear-gradient(180deg,rgba(203,183,255,0.92)_0%,rgba(184,154,255,0.94)_100%)] shadow-[0_18px_50px_rgba(58,37,20,0.06)]"
+//         >
+//           <motion.div
+//             style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}
+//             className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 sm:px-8 lg:px-10"
+//           >
+//             <Link to="/" className="flex items-center gap-3">
+//               <div className="flex size-10 items-center justify-center rounded-xl bg-[#181311] text-white">
+//                 <Store className="h-5 w-5" />
+//               </div>
+//               <div>
+//                 <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
+//                 <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
+//               </div>
+//             </Link>
+
+//             <Link
+//               to="/register"
+//               className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white"
+//             >
+//               Crear tienda
+//               <ArrowRight className="h-4 w-4" />
+//             </Link>
+//           </motion.div>
+
+//           <motion.div
+//             initial={{ opacity: 0, y: 28 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             transition={{ duration: 0.7 }}
+//             className="pb-14 pt-12 sm:pb-16 sm:pt-20"
+//           >
+//             <div className="mx-auto max-w-6xl px-6 text-center sm:px-8 lg:px-10">
+//               <motion.div
+//                 style={{ y: badgeY, opacity: badgeOpacity }}
+//                 className="inline-flex items-center gap-2 rounded-full border border-[#24170d]/10 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#7d5d48] backdrop-blur"
+//               >
+//                 <Sparkles className="h-4 w-4 text-[#ff6b3d]" />
+//                 Disenada para vender mejor
+//               </motion.div>
+//               <motion.h1
+//                 style={{ y: titleY, opacity: titleOpacity, scale: titleScale }}
+//                 className="mt-8 text-4xl font-black leading-[0.9] tracking-[-0.07em] text-[#15110e] sm:text-5xl lg:text-[5.35rem]"
+//               >
+//                 La plataforma para vender
+//                 <span className="text-[#ff6b3d]"> con presencia, claridad</span>
+//                 <span> y estilo propio.</span>
+//               </motion.h1>
+//               <motion.p
+//                 style={{ y: textY, opacity: textOpacity }}
+//                 className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f554f] sm:text-xl"
+//               >
+//                 TiendaFree convierte tu primera impresion en una ventaja: una home mas limpia,
+//                 mas profesional y mas recordable, inspirada en grandes referentes pero con
+//                 personalidad propia.
+//               </motion.p>
+//               <motion.div
+//                 style={{ y: buttonsY, opacity: buttonsOpacity, scale: buttonsScale }}
+//                 initial={{ opacity: 1, y: 0 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.4 }}
+//                 className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+//               >
+//                 <Link
+//                   to="/register"
+//                   className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#181311] px-8 text-sm font-bold uppercase tracking-[0.16em] text-white"
+//                 >
+//                   Crear mi tienda
+//                   <ArrowRight className="h-4 w-4" />
+//                 </Link>
+//                 <a
+//                   href="#plataforma"
+//                   className="inline-flex h-14 items-center justify-center rounded-full border border-[#20150d]/10 bg-white/70 px-8 text-sm font-semibold text-[#1c1613]"
+//                 >
+//                   Ver la propuesta
+//                 </a>
+//               </motion.div>
+//             </div>
+//           </motion.div>
+//         </motion.div>
+
+//         {/* TRUST CARDS (Part of the first section) */}
+//         <motion.div
+//           style={{ y: buttonsY, opacity: buttonsOpacity, scale: buttonsScale }}
+//           initial={{ opacity: 0, y: 24 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ duration: 0.7, delay: 0.15 }}
+//           className="relative z-30 -mt-8 -mb-16 mx-auto flex flex-wrap justify-center gap-3 px-4 max-w-5xl"
+//         >
+//           {trustPoints.map((item) => (
+//             <article
+//               key={item}
+//               className="rounded-2xl border border-[#23180f]/8 bg-white/90 px-4 py-2.5 shadow-[0_12px_30px_rgba(58,37,20,0.06)] backdrop-blur flex items-center gap-2"
+//             >
+//               <div className="size-1.5 rounded-full bg-[#ff6b3d]" />
+//               <p className="text-[11px] font-bold tracking-tight text-[#17120f] whitespace-nowrap">
+//                 {item}
+//               </p>
+//             </article>
+//           ))}
+//         </motion.div>
+//       </div>
+
+//       {/* SECOND DYNAMIC HERO (TIENDZI) SECTION - Full Width Immersive Effect */}
+//       <div className="relative h-[800px] mt-24 overflow-hidden">
+//         <motion.div
+//           style={{
+//             opacity: tiendziOpacity,
+//             y: tiendziY,
+//             scale: tiendziScale,
+//             position: 'sticky',
+//             top: 0
+//           }}
+//           className="h-[800px] bg-[#181311] flex items-center justify-center text-center px-6 w-full shadow-2xl"
+//         >
+//           <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80')] bg-cover bg-center" />
+//           <div className="relative z-20">
+//             <h2 className="text-white text-3xl font-bold uppercase tracking-[0.3em] mb-4 opacity-30">Tiendzi</h2>
+//             <h1 className="text-5xl sm:text-7xl lg:text-[7rem] font-black text-white leading-[0.9] tracking-[-0.05em]">
+//               Tu tienda <br/>
+//               <motion.span
+//                 key={wordIndex}
+//                 initial={{ opacity: 0, y: 20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 exit={{ opacity: 0, y: -20 }}
+//                 className="text-[#ff6b3d] inline-block min-w-[300px]"
+//               >
+//                 {words[wordIndex]}
+//               </motion.span>
+//             </h1>
+//             <p className="mt-10 text-white/50 text-xl font-medium tracking-wide">La evolucion de tu negocio empieza aca.</p>
+//           </div>
+//         </motion.div>
+//       </div>
+//     </section>
+//   );
+// }
 
 function BenefitCard({ card }: { card: any }) {
   return (
     <div className={`group relative overflow-hidden rounded-3xl border border-black/5 ${card.color} p-6 flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}>
       <div className="mb-6 h-48 w-full overflow-hidden rounded-2xl">
-        <img 
-          src={card.image} 
+        <img
+          src={card.image}
           alt={card.title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
@@ -301,125 +303,125 @@ function BenefitCard({ card }: { card: any }) {
   );
 }
 
-function Capabilities() {
-  const { scrollY } = useScroll();
-  const sectionOpacity = useTransform(scrollY, [800, 1100], [0, 1]);
-  const sectionY = useTransform(scrollY, [800, 1100], [100, 0]);
+// function Capabilities() {
+//   const { scrollY } = useScroll();
+//   const sectionOpacity = useTransform(scrollY, [800, 1100], [0, 1]);
+//   const sectionY = useTransform(scrollY, [800, 1100], [100, 0]);
 
-  const benefitCards = [
-    {
-      title: 'Tu marca, tus reglas',
-      desc: 'Personaliza colores, tipografías y banners. No es solo una tienda, es tu identidad digital reflejada en cada píxel.',
-      image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80',
-      tag: 'Diseño Pro',
-      color: 'bg-purple-50',
-    },
-    {
-      title: 'Ventas por WhatsApp',
-      desc: 'Recibe los pedidos listos para procesar. Sin fricciones, directo al grano y con la calidez del trato humano.',
-      image: 'https://images.unsplash.com/photo-1520923642038-b4259ace9439?auto=format&fit=crop&q=80',
-      tag: 'Conversión',
-      color: 'bg-green-50',
-    },
-    {
-      title: 'Control total',
-      desc: 'Gestiona stock, categorías y precios desde un panel intuitivo. Pensado para que lo hagas todo desde tu celular.',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80',
-      tag: 'Gestión',
-      color: 'bg-blue-50',
-    },
-    {
-      title: 'Sin Comisiones',
-      desc: 'Lo que vendes es 100% para vos. Sin letras chicas ni cargos sorpresa al final del mes. Crecemos con vos.',
-      image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80',
-      tag: 'Libertad',
-      color: 'bg-orange-50',
-    },
-  ];
+//   const benefitCards = [
+//     {
+//       title: 'Tu marca, tus reglas',
+//       desc: 'Personaliza colores, tipografías y banners. No es solo una tienda, es tu identidad digital reflejada en cada píxel.',
+//       image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80',
+//       tag: 'Diseño Pro',
+//       color: 'bg-purple-50',
+//     },
+//     {
+//       title: 'Ventas por WhatsApp',
+//       desc: 'Recibe los pedidos listos para procesar. Sin fricciones, directo al grano y con la calidez del trato humano.',
+//       image: 'https://images.unsplash.com/photo-1520923642038-b4259ace9439?auto=format&fit=crop&q=80',
+//       tag: 'Conversión',
+//       color: 'bg-green-50',
+//     },
+//     {
+//       title: 'Control total',
+//       desc: 'Gestiona stock, categorías y precios desde un panel intuitivo. Pensado para que lo hagas todo desde tu celular.',
+//       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80',
+//       tag: 'Gestión',
+//       color: 'bg-blue-50',
+//     },
+//     {
+//       title: 'Sin Comisiones',
+//       desc: 'Lo que vendes es 100% para vos. Sin letras chicas ni cargos sorpresa al final del mes. Crecemos con vos.',
+//       image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80',
+//       tag: 'Libertad',
+//       color: 'bg-orange-50',
+//     },
+//   ];
 
-  return (
-    <section id="plataforma" className="relative z-0 px-6 pb-32 pt-32 lg:px-10">
-      <motion.div style={{ opacity: sectionOpacity, y: sectionY }} className="mx-auto max-w-7xl">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-20">
-          <div className="max-w-2xl">
-            <span className="inline-flex rounded-full border border-[#23190f]/10 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7b5b44]">
-              ¿Por qué elegir TiendaFree?
-            </span>
-            <h2 className="mt-6 text-4xl font-black leading-[1.1] tracking-[-0.05em] sm:text-6xl text-[#16120f]">
-              Todo lo que necesitás <br/>
-              <span className="text-[#ff6b3d]">para escalar tu negocio.</span>
-            </h2>
-          </div>
-          <p className="max-w-md text-lg leading-relaxed text-[#64584f]">
-            Diseñamos cada función pensando en la simplicidad y el impacto visual. 
-            Menos configuración, más ventas.
-          </p>
-        </div>
+//   return (
+//     <section id="plataforma" className="relative z-0 px-6 pb-32 pt-32 lg:px-10">
+//       <motion.div style={{ opacity: sectionOpacity, y: sectionY }} className="mx-auto max-w-7xl">
+//         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-20">
+//           <div className="max-w-2xl">
+//             <span className="inline-flex rounded-full border border-[#23190f]/10 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7b5b44]">
+//               ¿Por qué elegir TiendaFree?
+//             </span>
+//             <h2 className="mt-6 text-4xl font-black leading-[1.1] tracking-[-0.05em] sm:text-6xl text-[#16120f]">
+//               Todo lo que necesitás <br/>
+//               <span className="text-[#ff6b3d]">para escalar tu negocio.</span>
+//             </h2>
+//           </div>
+//           <p className="max-w-md text-lg leading-relaxed text-[#64584f]">
+//             Diseñamos cada función pensando en la simplicidad y el impacto visual.
+//             Menos configuración, más ventas.
+//           </p>
+//         </div>
 
-        {/* Reverted to a functional grid with clean cards */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {benefitCards.map((card, idx) => (
-            <BenefitCard key={idx} card={card} />
-          ))}
-        </div>
+//         {/* Reverted to a functional grid with clean cards */}
+//         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+//           {benefitCards.map((card, idx) => (
+//             <BenefitCard key={idx} card={card} />
+//           ))}
+//         </div>
 
-        {/* HOW TO USE WRAPPER */}
-        <div className="mt-40 bg-[#181311] rounded-[4rem] p-12 lg:p-24 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#ff6b3d_0%,_transparent_70%)]" />
-          </div>
-          
-          <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <span className="text-[#ff6b3d] font-bold uppercase tracking-[0.3em] text-xs">Paso a paso</span>
-              <h2 className="mt-6 text-4xl lg:text-6xl font-black tracking-tight leading-none">
-                Tu tienda lista <br/>
-                en minutos.
-              </h2>
-              <p className="mt-8 text-white/60 text-lg leading-relaxed max-w-sm">
-                Sin complicaciones técnicas. Seguí estos 3 pasos y empezá a recibir pedidos hoy mismo.
-              </p>
-              
-              <div className="mt-12 space-y-8">
-                {[
-                  { n: '01', t: 'Regístrate gratis', d: 'Creá tu cuenta con tu email y elegí el nombre de tu marca.' },
-                  { n: '02', t: 'Publicá tus productos', d: 'Subí fotos y precios. Nosotros armamos el catálogo por vos.' },
-                  { n: '03', t: 'Difundí y vendé', d: 'Compartí el link en tu bio de Instagram o estados de WhatsApp.' }
-                ].map((step, i) => (
-                  <div key={i} className="flex gap-6 items-start group">
-                    <span className="text-2xl font-black text-white/20 group-hover:text-[#ff6b3d] transition-colors">{step.n}</span>
-                    <div>
-                      <h4 className="text-xl font-bold mb-1">{step.t}</h4>
-                      <p className="text-white/40 text-sm">{step.d}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="aspect-[4/5] rounded-[3rem] bg-gradient-to-br from-[#2a1f1a] to-[#16110e] border border-white/10 p-4 shadow-2xl rotate-3">
-                <div className="w-full h-full rounded-[2rem] bg-white/5 backdrop-blur-3xl border border-white/5 flex items-center justify-center">
-                   <div className="text-center">
-                      <div className="size-16 bg-[#ff6b3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#ff6b3d]/20">
-                        <Store className="text-white size-8" />
-                      </div>
-                      <p className="text-white/40 uppercase tracking-widest text-[10px] font-bold">Preview de tu tienda</p>
-                   </div>
-                </div>
-              </div>
-              {/* Floating element */}
-              <div className="absolute -bottom-10 -left-10 bg-[#ff6b3d] p-8 rounded-[2rem] shadow-2xl -rotate-6 hidden lg:block">
-                <p className="text-4xl font-black text-white">100%</p>
-                <p className="text-white/80 text-xs font-bold uppercase tracking-wider mt-1">Gratis siempre</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </section>
-  );
-}
+//         {/* HOW TO USE WRAPPER */}
+//         <div className="mt-40 bg-[#181311] rounded-[4rem] p-12 lg:p-24 text-white relative overflow-hidden">
+//           <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+//             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#ff6b3d_0%,_transparent_70%)]" />
+//           </div>
+
+//           <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+//             <div>
+//               <span className="text-[#ff6b3d] font-bold uppercase tracking-[0.3em] text-xs">Paso a paso</span>
+//               <h2 className="mt-6 text-4xl lg:text-6xl font-black tracking-tight leading-none">
+//                 Tu tienda lista <br/>
+//                 en minutos.
+//               </h2>
+//               <p className="mt-8 text-white/60 text-lg leading-relaxed max-w-sm">
+//                 Sin complicaciones técnicas. Seguí estos 3 pasos y empezá a recibir pedidos hoy mismo.
+//               </p>
+
+//               <div className="mt-12 space-y-8">
+//                 {[
+//                   { n: '01', t: 'Regístrate gratis', d: 'Creá tu cuenta con tu email y elegí el nombre de tu marca.' },
+//                   { n: '02', t: 'Publicá tus productos', d: 'Subí fotos y precios. Nosotros armamos el catálogo por vos.' },
+//                   { n: '03', t: 'Difundí y vendé', d: 'Compartí el link en tu bio de Instagram o estados de WhatsApp.' }
+//                 ].map((step, i) => (
+//                   <div key={i} className="flex gap-6 items-start group">
+//                     <span className="text-2xl font-black text-white/20 group-hover:text-[#ff6b3d] transition-colors">{step.n}</span>
+//                     <div>
+//                       <h4 className="text-xl font-bold mb-1">{step.t}</h4>
+//                       <p className="text-white/40 text-sm">{step.d}</p>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+
+//             <div className="relative">
+//               <div className="aspect-[4/5] rounded-[3rem] bg-gradient-to-br from-[#2a1f1a] to-[#16110e] border border-white/10 p-4 shadow-2xl rotate-3">
+//                 <div className="w-full h-full rounded-[2rem] bg-white/5 backdrop-blur-3xl border border-white/5 flex items-center justify-center">
+//                    <div className="text-center">
+//                       <div className="size-16 bg-[#ff6b3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#ff6b3d]/20">
+//                         <Store className="text-white size-8" />
+//                       </div>
+//                       <p className="text-white/40 uppercase tracking-widest text-[10px] font-bold">Preview de tu tienda</p>
+//                    </div>
+//                 </div>
+//               </div>
+//               {/* Floating element */}
+//               <div className="absolute -bottom-10 -left-10 bg-[#ff6b3d] p-8 rounded-[2rem] shadow-2xl -rotate-6 hidden lg:block">
+//                 <p className="text-4xl font-black text-white">100%</p>
+//                 <p className="text-white/80 text-xs font-bold uppercase tracking-wider mt-1">Gratis siempre</p>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </motion.div>
+//     </section>
+//   );
+// }
 
 function Story() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -674,6 +676,7 @@ const Footer = () => (
 function FloatingNav() {
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 200);
@@ -686,24 +689,59 @@ function FloatingNav() {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-x-0 top-0 z-[100] px-4 py-4 pointer-events-none"
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-3xl border border-white/40 bg-white/80 px-4 py-3 shadow-[0_16px_40px_rgba(58,37,20,0.12)] backdrop-blur-xl sm:px-6 pointer-events-auto">
+      <nav
+        ref={navRef}
+        className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-3xl border border-white/40 bg-white/80 px-4 py-3 shadow-[0_16px_40px_rgba(58,37,20,0.12)] backdrop-blur-xl sm:px-6 pointer-events-auto"
+      >
         <Link to="/" className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-[#181311] text-white">
             <Store className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendaFree</p>
-            <p className="text-xs uppercase tracking-[0.24em] text-[#7d5d48]">Tu negocio con presencia</p>
+            <p className="text-base font-black tracking-[-0.04em] text-[#17120f]">TiendiZi</p>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#7d5d48]">
+              Tu negocio online
+            </p>
           </div>
         </Link>
-        <Link
-          to="/register"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#181311] px-6 text-sm font-bold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#2c241f]"
-        >
-          Crear tienda
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+
+        <div className="hidden items-center gap-8 sm:flex">
+          <a
+            href="#plataforma"
+            className="text-sm font-semibold text-[#5f554f] hover:text-[#17120f] transition-colors"
+          >
+            Funciones
+          </a>
+          <a
+            href="#diseno"
+            className="text-sm font-semibold text-[#5f554f] hover:text-[#17120f] transition-colors"
+          >
+            Diseños
+          </a>
+          <a
+            href="#precios"
+            className="text-sm font-semibold text-[#5f554f] hover:text-[#17120f] transition-colors"
+          >
+            Precios
+          </a>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            to="/login"
+            className="hidden text-sm font-bold text-[#17120f] sm:block hover:opacity-70 transition-opacity"
+          >
+            Iniciar sesión
+          </Link>
+          <Link
+            to="/register"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-[#181311] px-5 text-sm font-bold uppercase tracking-[0.12em] text-white hover:bg-[#2c241f] transition-colors"
+          >
+            Crear tienda
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </nav>
     </motion.header>
   );
 }
@@ -720,7 +758,7 @@ export default function HomePage() {
         <FloatingNav />
         <main>
           <Hero />
-          <Capabilities />
+         <BenefitStack></BenefitStack>
           <Story />
           <Design />
           <Proof />
