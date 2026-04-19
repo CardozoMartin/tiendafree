@@ -1,76 +1,91 @@
 /**
  * BenefitStack.tsx
- *
- * Reemplaza la sección de benefitCards en Capabilities.
- * Requiere: npm install gsap
- *
- * Uso:
- *   import BenefitStack from '@/components/BenefitStack';
- *   // Dentro de <Capabilities /> o directo en HomePage:
- *   <BenefitStack />
+ * Slide stack con animación GSAP.
+ * Mobile: imagen arriba + texto con fondo abajo.
+ * Desktop: imagen full-screen con texto superpuesto a la izquierda.
  */
 
-import { useEffect, useRef } from 'react';
+import { ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+
+import img1 from '@/assets/CardsHome/imagen 1.png';
+import img2 from '@/assets/CardsHome/Imagen 2.png';
+import img3 from '@/assets/CardsHome/Imagen 3.png';
+import img4 from '@/assets/CardsHome/Imagen 4.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // ─── Datos ────────────────────────────────────────────────────────────────────
-
+// position: where text sits on the desktop image
+// align: text alignment within the block
 const slides = [
   {
-    tag: 'Diseño Pro',
-    title: 'Tu marca,',
-    titleAccent: 'tus reglas.',
+    id: 'slide-1',
+    image: img1,
     accentColor: '#ff6b3d',
-    description:
-      'Personalizá colores, tipografías y banners. No es solo una tienda, es tu identidad digital reflejada en cada píxel.',
-    bg: 'linear-gradient(135deg, #ff6b3d 0%, #e04a1a 100%)',
-    image:
-      'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=60&w=1200',
-    num: '01',
+    bg: '#181311',
+    badge: 'Plataforma todo en uno',
+    title: 'Maneja toda tu tienda',
+    titleAccent: 'desde un solo sitio.',
+    desc: 'Productos, pedidos, catálogos y diseño. Todo bajo control desde tu celular.',
+    // Desktop: centrado verticalmente, izquierda
+    desktopClass: 'items-center',
+    textPad: 'px-16 xl:px-24',
+    textAlign: 'text-left',
+    gradientDir: 'to right',
   },
   {
-    tag: 'Conversión',
-    title: 'Ventas por',
-    titleAccent: 'WhatsApp.',
-    accentColor: '#25d366',
-    description:
-      'Recibí pedidos listos para procesar. Sin fricciones, directo al grano y con la calidez del trato humano.',
-    bg: 'linear-gradient(135deg, #181311 0%, #2b1e17 100%)',
-    image:
-      'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=60&w=1200',
-    num: '02',
+    id: 'slide-2',
+    image: img2,
+    accentColor: '#28c840',
+    bg: '#0f1a12',
+    badge: 'Logística flexible',
+    title: 'Gestioná los envíos',
+    titleAccent: 'como más se adapten a tu negocio.',
+    desc: 'Configurá tus propios costos y métodos de envío según tu zona y cliente.',
+    // Desktop: inferior izquierda, texto más chico
+    desktopClass: 'items-end pb-16',
+    textPad: 'px-10 xl:px-16',
+    textAlign: 'text-left',
+    gradientDir: 'to right',
+    textSmall: true,
   },
   {
-    tag: 'Gestión',
-    title: 'Control',
-    titleAccent: 'total.',
+    id: 'slide-3',
+    image: img3,
     accentColor: '#7c6bff',
-    description:
-      'Gestioná stock, categorías y precios desde un panel intuitivo. Pensado para hacerlo todo desde tu celular.',
-    bg: 'linear-gradient(135deg, #7c6bff 0%, #5244cc 100%)',
-    image:
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=60&w=1200',
-    num: '03',
+    bg: '#100e1a',
+    badge: 'Mobile first',
+    title: 'Tu tienda desde el minuto 0',
+    titleAccent: 'adaptada para mobile.',
+    desc: 'Diseñada para que tus clientes compren desde el celular sin ninguna fricción.',
+    // Desktop: inferior izquierda, cerca del borde
+    desktopClass: 'items-end pb-16',
+    textPad: 'px-10 xl:px-16',
+    textAlign: 'text-left',
+    gradientDir: 'to right',
   },
   {
-    tag: 'Libertad',
-    title: '0% de',
-    titleAccent: 'comisión.',
-    accentColor: '#ffd166',
-    description:
-      'Lo que vendés es 100% para vos. Sin letras chicas ni cargos sorpresa al final del mes. Crecemos juntos.',
-    bg: 'linear-gradient(135deg, #181311 0%, #2a1c14 100%)',
-    image:
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=60&w=1200',
-    num: '04',
+    id: 'slide-4',
+    image: img4,
+    accentColor: '#ff6b3d',
+    bg: '#18130e',
+    badge: '0% comisiones',
+    title: 'Vendé sin pagar',
+    titleAccent: 'ninguna comisión.',
+    desc: 'Sin cargos ocultos ni letras chicas. TiendaFree no cobra comisiones, nunca.',
+    // Desktop: centrado verticalmente, izquierda
+    desktopClass: 'items-center',
+    textPad: 'px-16 xl:px-24',
+    textAlign: 'text-left',
+    gradientDir: 'to right',
   },
 ];
 
 // ─── Componente ───────────────────────────────────────────────────────────────
-
 export default function BenefitStack() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -78,8 +93,6 @@ export default function BenefitStack() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const panels = gsap.utils.toArray<HTMLElement>('.benefit-slide');
-
-      // El último slide no se pina (no hay siguiente que lo empuje)
       const pinned = panels.slice(0, -1);
 
       pinned.forEach((panel, i) => {
@@ -91,8 +104,6 @@ export default function BenefitStack() {
         const diff = panelH - winH;
         const fakeScrollRatio = diff > 0 ? diff / (diff + winH) : 0;
 
-        // Si el contenido es más alto que la ventana, le damos margen extra
-        // para que el usuario pueda terminar de leerlo antes del scale out
         if (fakeScrollRatio) {
           panel.style.marginBottom = `${panelH * fakeScrollRatio}px`;
         }
@@ -101,12 +112,10 @@ export default function BenefitStack() {
           scrollTrigger: {
             trigger: panel,
             start: 'bottom bottom',
-            end: () =>
-              fakeScrollRatio ? `+=${inner.offsetHeight}` : 'bottom top',
+            end: () => fakeScrollRatio ? `+=${inner.offsetHeight}` : 'bottom top',
             pinSpacing: false,
             pin: true,
             scrub: true,
-            // Actualiza el dot activo
             onUpdate: (self) => {
               if (self.progress > 0.05) activateDot(i + 1);
               else activateDot(i);
@@ -114,7 +123,6 @@ export default function BenefitStack() {
           },
         });
 
-        // Fake scroll si el panel es muy alto
         if (fakeScrollRatio) {
           tl.to(inner, {
             yPercent: -100,
@@ -124,14 +132,10 @@ export default function BenefitStack() {
           });
         }
 
-        // Scale + fade out (igual a GSAP demo)
-        tl.fromTo(panel, { scale: 1, opacity: 1 }, { scale: 0.88, opacity: 0.5, duration: 0.9 }).to(
-          panel,
-          { opacity: 0, duration: 0.1 }
-        );
+        tl.fromTo(panel, { scale: 1, opacity: 1 }, { scale: 0.88, opacity: 0.5, duration: 0.9 })
+          .to(panel, { opacity: 0, duration: 0.1 });
       });
 
-      // Dot del primer slide al inicio
       activateDot(0);
     }, wrapperRef);
 
@@ -147,104 +151,163 @@ export default function BenefitStack() {
 
   return (
     <section id="plataforma" className="relative">
-      {/* ── Encabezado ───────────────────────────────────────── */}
+
+      {/* ── Encabezado ────────────────────────────────────────────── */}
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-32 lg:px-10">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <span className="inline-flex rounded-full border border-[#23190f]/10 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-[#7b5b44]">
-              ¿Por qué elegir Vitrina?
+            <span
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em]"
+              style={{
+                background: 'rgba(203,183,255,0.20)',
+                border: '1px solid rgba(124,107,255,0.18)',
+                color: '#5a4acc',
+              }}
+            >
+              ¿Por qué elegir TiendiZi?
             </span>
-            <h2 className="mt-6 text-4xl font-black leading-[1.1] tracking-[-0.05em] text-[#16120f] sm:text-6xl">
+            <h2 className="mt-6 text-4xl font-black leading-[1.05] tracking-[-0.05em] text-[#15110e] sm:text-5xl">
               Todo lo que necesitás{' '}
               <span className="text-[#ff6b3d]">para escalar tu negocio.</span>
             </h2>
           </div>
-          <p className="max-w-md text-lg leading-relaxed text-[#64584f]">
-            Cada función pensada en la simplicidad y el impacto visual. Menos
-            configuración, más ventas.
+          <p className="max-w-md text-lg leading-8 text-[#64584f]">
+            Cada función pensada en la simplicidad y el impacto visual. Menos configuración, más ventas.
           </p>
         </div>
       </div>
 
-      {/* ── Dots de navegación ───────────────────────────────── */}
+      {/* ── Dots de navegación ─────────────────────────────────────── */}
       <div
         className="fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-2.5 lg:flex"
         aria-hidden="true"
       >
-        {slides.map((_, i) => (
+        {slides.map((s, i) => (
           <button
             key={i}
             ref={(el) => { dotsRef.current[i] = el; }}
             className="bs-dot h-2 w-2 rounded-full bg-[#17120f]/20 transition-all duration-300"
-            style={{ ['--accent' as string]: slides[i].accentColor }}
+            style={{ ['--accent' as string]: s.accentColor }}
           />
         ))}
       </div>
 
-      {/* ── Stack de slides ──────────────────────────────────── */}
+      {/* ── Stack de slides ────────────────────────────────────────── */}
       <div ref={wrapperRef} className="slides-wrapper">
         {slides.map((s, i) => (
           <div
-            key={i}
+            key={s.id}
             className="benefit-slide relative overflow-hidden"
             style={{ borderRadius: '1.75rem', marginBottom: '2px' }}
           >
-            {/* Imagen de fondo con overlay */}
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url('${s.image}')` }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: s.bg, opacity: 0.93 }}
-            />
 
-            {/* Número decorativo */}
-            <span
-              className="pointer-events-none absolute bottom-8 right-8 select-none text-[clamp(5rem,12vw,10rem)] font-black leading-none text-white/[0.08]"
-              aria-hidden="true"
-            >
-              {s.num}
-            </span>
-
-            {/* Contenido */}
+            {/* ─── MOBILE: imagen arriba + texto con fondo abajo ─── */}
             <div
-              className="bs-inner relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center"
+              className="bs-inner flex flex-col lg:hidden"
+              style={{ background: s.bg }}
             >
-              {/* Tag */}
-              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.24em] text-white backdrop-blur-md">
+              {/* Imagen top */}
+              <img
+                src={s.image}
+                alt={s.badge}
+                className="w-full object-cover object-top"
+                style={{ height: '56vw', maxHeight: '360px', minHeight: '220px' }}
+              />
+
+              {/* Bloque de texto inferior */}
+              <div className="px-7 py-10 flex flex-col gap-5">
+                {/* Badge */}
                 <span
-                  className="inline-block h-1.5 w-1.5 rounded-full"
+                  className="self-start inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em]"
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: 'rgba(255,255,255,0.7)',
+                  }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: s.accentColor }} />
+                  {s.badge}
+                </span>
+
+                {/* Título */}
+                <h2 className="text-[2rem] font-black leading-[0.95] tracking-[-0.05em] text-white">
+                  {s.title}<br />
+                  <span style={{ color: s.accentColor }}>{s.titleAccent}</span>
+                </h2>
+
+                {/* Descripción */}
+                <p className="text-[16px] leading-7 text-white/65">{s.desc}</p>
+
+                {/* CTA */}
+                <Link
+                  to="/register"
+                  className="self-start mt-2 inline-flex h-12 items-center gap-2 rounded-full px-6 text-sm font-bold uppercase tracking-[0.12em] text-white"
                   style={{ background: s.accentColor }}
-                />
-                {s.tag}
-              </span>
-
-              {/* Título */}
-              <h2 className="text-[clamp(3rem,9vw,7rem)] font-black leading-[0.92] tracking-[-0.06em] text-white">
-                {s.title}
-                <br />
-                <span style={{ color: s.accentColor }}>{s.titleAccent}</span>
-              </h2>
-
-              {/* Descripción */}
-              <p className="mx-auto mt-8 max-w-lg text-[clamp(1rem,2vw,1.25rem)] leading-8 text-white/75">
-                {s.description}
-              </p>
-
-              {/* Pill CTA */}
-              <div className="mt-10 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-8 py-4 text-sm font-bold uppercase tracking-[0.16em] text-white backdrop-blur-md">
-                Saber más
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                >
+                  Empezar gratis
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
             </div>
+
+            {/* ─── DESKTOP: imagen full-screen + texto superpuesto ─── */}
+            <div className="bs-inner min-h-screen w-full relative hidden lg:block">
+              <img
+                src={s.image}
+                alt={s.badge}
+                className="h-screen w-full object-cover"
+              />
+
+              {/* Gradiente dinámico para legibilidad */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(${s.gradientDir}, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.15) 50%, transparent 80%)`,
+                }}
+              />
+
+              {/* Texto con posición dinámica por slide */}
+              <div className={`absolute inset-0 flex pointer-events-none ${s.desktopClass}`}>
+                <div className={`max-w-xl ${s.textPad} ${s.textAlign}`}>
+                  <span
+                    className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] mb-6"
+                    style={{
+                      background: 'rgba(255,255,255,0.12)',
+                      border: '1px solid rgba(255,255,255,0.22)',
+                      color: 'rgba(255,255,255,0.85)',
+                      backdropFilter: 'blur(8px)',
+                    }}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: s.accentColor }} />
+                    {s.badge}
+                  </span>
+
+                  <h2
+                    className="font-black leading-[0.92] tracking-[-0.05em] text-white"
+                    style={{
+                      fontSize: s.textSmall ? 'clamp(1.8rem,2.8vw,3rem)' : 'clamp(2.8rem,4.5vw,5rem)',
+                      textShadow: '0 2px 32px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    {s.title}<br />
+                    <span style={{ color: s.accentColor }}>{s.titleAccent}</span>
+                  </h2>
+
+                  <p
+                    className="mt-6 text-lg leading-8 text-white/75 max-w-sm"
+                    style={{ textShadow: '0 1px 12px rgba(0,0,0,0.3)' }}
+                  >
+                    {s.desc}
+                  </p>
+                </div>
+              </div>
+            </div>
+
           </div>
         ))}
       </div>
 
-      {/* ── Estilos del dot activo ───────────────────────────── */}
+      {/* ── Estilos del dot activo ─────────────────────────────────── */}
       <style>{`
         .bs-dot--active {
           background: var(--accent, #ff6b3d) !important;
