@@ -8,7 +8,6 @@ import {
   Package,
   Palette,
   ShoppingBag,
-  Sparkles,
   Star,
   Store,
 } from 'lucide-react';
@@ -19,8 +18,6 @@ import ICON from './../../../assets/Logo.svg';
 // ─── Datos ────────────────────────────────────────────────────────────────────
 
 const words = ['Rapida', 'Gratis', 'Tuya', 'Unica'];
-
-const trustPoints = ['Sin comisiones', 'Pedidos por WhatsApp', 'Diseño propio', 'Mobile first'];
 
 // Productos de demo — simulan una tienda real
 const demoProducts = [
@@ -532,7 +529,7 @@ function DemoWindow() {
                     {storeThemes.map((t, i) => (
                       <div
                         key={t.hex}
-                        ref={(el) => (colorRefs.current[i] = el)}
+                        ref={(el) => { colorRefs.current[i] = el; }}
                         className="w-7 h-7 rounded-full transition-all"
                         style={{
                           background: t.hex,
@@ -959,7 +956,7 @@ function DemoWindow() {
                 {demoProducts.map((p, i) => (
                   <button
                     key={i}
-                    ref={(el) => (thumbRefs.current[i] = el)}
+                    ref={(el) => { thumbRefs.current[i] = el; }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',

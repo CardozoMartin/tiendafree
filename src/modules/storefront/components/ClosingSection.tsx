@@ -220,6 +220,25 @@ export default function ClosingSection() {
               'radial-gradient(ellipse 60% 50% at 75% 55%, rgba(124,107,255,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 15% 20%, rgba(255,107,61,0.08) 0%, transparent 60%)',
           }}
         />
+
+        <div className="relative mx-auto max-w-7xl px-6 py-20 lg:px-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <p className="text-4xl font-black tracking-[-0.05em]">{stat.value}</p>
+                <p className="mt-3 text-sm leading-6 text-white/70">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center">
+            <p className="text-sm uppercase tracking-[0.25em] text-white/60">Listo para vender</p>
+            <h3 className="mt-4 text-3xl font-black text-white">Lanzá tu tienda con diseño profesional hoy mismo</h3>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/70">
+              TiendaFree te acompaña con una tienda móvil-primero, pagos y envíos integrados, y una interfaz pensada para el comercio local.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );

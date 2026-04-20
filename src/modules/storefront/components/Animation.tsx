@@ -16,7 +16,6 @@ import {
   Check,
   FileText,
   Package,
-  Palette,
   ShoppingBag,
   Sparkles,
   Store,
