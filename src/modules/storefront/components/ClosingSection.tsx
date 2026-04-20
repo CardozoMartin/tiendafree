@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import imagen1 from '../../../assets/HomeInfo/Imagen 1.png';
 import imagen2 from '../../../assets/HomeInfo/Imagen 2.png';
 import imagen3 from '../../../assets/HomeInfo/Imagen 3.png';
-import imagen4 from '../../../assets/HomeInfo/Imagen 4.png';
+import imagen4 from '../../../assets/HomeInfo/imagen 4.png';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
