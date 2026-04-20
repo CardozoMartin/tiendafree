@@ -111,8 +111,8 @@ export default function BenefitStack() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: panel,
-            start: 'bottom bottom',
-            end: () => fakeScrollRatio ? `+=${inner.offsetHeight}` : 'bottom top',
+            start: 'top top+=110', // Inicia justo debajo del navbar (padding offset)
+            end: () => fakeScrollRatio ? `+=${inner.offsetHeight}` : '+=100%',
             pinSpacing: false,
             pin: true,
             scrub: true,

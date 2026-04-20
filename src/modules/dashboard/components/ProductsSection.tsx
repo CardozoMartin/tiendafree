@@ -145,7 +145,7 @@ const ProductsSection = () => {
   return (
     <div className="min-h-0 space-y-6 pb-6">
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Productos</h1>
           <p className="text-sm text-slate-500 mt-0.5">
@@ -154,13 +154,15 @@ const ProductsSection = () => {
               : 'Gestioná tu catálogo'}
           </p>
         </div>
-        <div className="flex items-center gap-2 self-start flex-wrap">
+
+        {/* Botones — scroll horizontal en mobile, wrap en tablet+ */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-end shrink-0">
           {/* Menú de Tema PDF */}
-          <div className="relative group">
+          <div className="relative shrink-0">
             <select
               value={pdfTheme}
               onChange={(e) => setPdfTheme(e.target.value as any)}
-              className="appearance-none bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm px-3 py-2.5 pr-8 focus:outline-none focus:border-gray-400 cursor-pointer"
+              className="appearance-none bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm px-3 py-2.5 pr-8 focus:outline-none focus:border-gray-400 cursor-pointer whitespace-nowrap"
               title="Elegir diseño del PDF"
             >
               <option value="minimal">Minimalista</option>
@@ -182,7 +184,7 @@ const ProductsSection = () => {
           <button
             onClick={handleDownloadPdf}
             disabled={isGeneratingPdf}
-            className={`flex items-center gap-1.5 px-3 py-2.5 bg-gray-900 text-white hover:bg-gray-800 text-sm font-bold rounded-xl transition-all shadow-sm ${isGeneratingPdf ? 'opacity-75 cursor-wait' : ''}`}
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-gray-900 text-white hover:bg-gray-800 text-sm font-bold rounded-xl transition-all shadow-sm whitespace-nowrap ${isGeneratingPdf ? 'opacity-75 cursor-wait' : ''}`}
             title="Descargar catálogo de productos en PDF"
           >
             {isGeneratingPdf ? (
@@ -190,52 +192,15 @@ const ProductsSection = () => {
             ) : (
               <FileText className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">
-              {isGeneratingPdf ? 'Generando...' : 'Descargar PDF'}
-            </span>
+            <span>{isGeneratingPdf ? 'Generando...' : 'PDF'}</span>
           </button>
 
-          {/* Exportar */}
-          <button
-            onClick={() => exportar.mutate()}
-            disabled={exportar.isPending}
-            className="flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm disabled:opacity-50"
-            title="Exportar catálogo a Excel"
-          >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Exportar Excel</span>
-          </button>
 
-          {/* Importar */}
-          <label
-            className={`flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm cursor-pointer ${importar.isPending ? 'opacity-50 pointer-events-none' : ''}`}
-          >
-            <Upload className="w-4 h-4" />
-            <span className="hidden sm:inline">Importar</span>
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              className="hidden"
-              disabled={importar.isPending}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  console.debug('[ProductsSection] archivo elegido para importación', {
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                  });
-                  importar.mutate(file);
-                  e.target.value = ''; // Reset para poder subir el mismo archivo
-                }
-              }}
-            />
-          </label>
 
           {/* Agregar */}
           <button
             onClick={toggleCreate}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold rounded-xl transition-all shadow-sm"
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold rounded-xl transition-all shadow-sm whitespace-nowrap"
           >
             {expandedId === 'create' ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {expandedId === 'create' ? 'Cancelar' : 'Agregar'}
@@ -271,19 +236,6 @@ const ProductsSection = () => {
         }}
       />
 
-      {/* ══════════════════════════
-          BUSCADOR
-      ══════════════════════════ */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          type="text"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          placeholder="Buscar por nombre o descripción..."
-          className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] text-sm text-gray-800 placeholder:text-gray-300 outline-none focus:ring-2 focus:ring-gray-900/10 transition-shadow"
-        />
-      </div>
 
       {/* ══════════════════════════
           ESTADO VACÍO
@@ -327,11 +279,12 @@ const ProductsSection = () => {
               return (
                 <div key={producto.id} className="flex flex-col">
                   {/* ── Fila principal ── */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-5">
+                  <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 sm:gap-4">
+
                     {/* Grupo de Identificación */}
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       {/* Thumbnail */}
-                      <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100/50 overflow-hidden shrink-0 flex items-center justify-center">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gray-50 border border-gray-100/50 overflow-hidden shrink-0 flex items-center justify-center">
                         {producto.imagenPrincipalUrl ? (
                           <img
                             src={producto.imagenPrincipalUrl}
@@ -345,40 +298,39 @@ const ProductsSection = () => {
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-medium text-gray-800 truncate">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-sm font-semibold text-gray-800 truncate max-w-[180px] sm:max-w-none">
                             {producto.nombre}
                           </p>
                           {producto.destacado && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
-                              <Star className="w-2.5 h-2.5 fill-amber-500 stroke-none" /> Destacado
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100 shrink-0">
+                              <Star className="w-2.5 h-2.5 fill-amber-500 stroke-none" /> Dest.
                             </span>
                           )}
                           {!producto.disponible && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500 border border-gray-200">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500 border border-gray-200 shrink-0">
                               Oculto
                             </span>
                           )}
-                          {/* Stock Badges */}
                           {producto.stock <= 0 && (
-                            <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-red-50 text-red-600 border border-red-100">
+                            <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-red-50 text-red-600 border border-red-100 shrink-0">
                               <AlertCircle className="w-2.5 h-2.5" /> Sin Stock
                             </span>
                           )}
                           {producto.stock > 0 && producto.stock <= 5 && (
-                            <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
-                              Bajo Stock: {producto.stock}
+                            <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100 shrink-0">
+                              Stock: {producto.stock}
                             </span>
                           )}
                           {producto.stock > 5 && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100 shrink-0">
                               Stock: {producto.stock}
                             </span>
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <p className="text-xs text-gray-400 font-medium">
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <p className="text-xs text-gray-500 font-semibold">
                             {formatPrice(producto.precio, producto.moneda)}
                           </p>
                           {producto.precioOferta && (
@@ -387,121 +339,65 @@ const ProductsSection = () => {
                             </p>
                           )}
                           {producto.tags?.length > 0 && (
-                            <>
-                              <span className="text-gray-200">·</span>
-                              <p className="text-xs text-gray-400 truncate hidden sm:block">
-                                {producto.tags
-                                  .slice(0, 2)
-                                  .map((t) => `#${t.nombre}`)
-                                  .join(' ')}
-                                {producto.tags.length > 2 && ' ...'}
-                              </p>
-                            </>
+                            <p className="text-xs text-gray-400 truncate hidden sm:block">
+                              {producto.tags.slice(0, 2).map((t) => `#${t.nombre}`).join(' ')}
+                              {producto.tags.length > 2 && ' ...'}
+                            </p>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Acciones Rápidas */}
-                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 sm:pr-2 border-t border-gray-50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
-                      {/* Destacado Toggle */}
-                      <div className="flex flex-col items-center gap-1.5">
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider ${producto.destacado ? 'text-amber-600' : 'text-slate-500'}`}
-                        >
-                          Destacado
-                        </span>
+                    {/* ── Acciones Rápidas ── */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:shrink-0">
+
+                      {/* Grupo Destacado + Visible */}
+                      <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 overflow-hidden divide-x divide-gray-200 flex-1 sm:flex-none">
+
+                        {/* Destacado */}
                         <button
-                          onClick={() =>
-                            actualizar.mutate({
-                              id: producto.id,
-                              payload: { destacado: !producto.destacado },
-                            })
-                          }
+                          onClick={() => actualizar.mutate({ id: producto.id, payload: { destacado: !producto.destacado } })}
                           disabled={actualizar.isPending}
-                          className={`relative w-11 h-6 rounded-full border transition-all duration-200 disabled:opacity-50 ${
+                          title={producto.destacado ? 'Quitar destacado' : 'Marcar como destacado'}
+                          className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all duration-150 disabled:opacity-50 flex-1 sm:flex-none justify-center ${
                             producto.destacado
-                              ? 'bg-amber-50 border-amber-200'
-                              : 'bg-slate-100 border-slate-300'
+                              ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                              : 'text-slate-500 hover:bg-white hover:text-slate-700'
                           }`}
                         >
-                          <span
-                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white border shadow-sm transition-all duration-200 flex items-center justify-center ${
-                              producto.destacado
-                                ? 'left-[calc(100%-1.375rem)] border-amber-300'
-                                : 'left-0.5 border-slate-300'
-                            }`}
-                          >
-                            <Star
-                              className={`w-2.5 h-2.5 transition-colors ${
-                                producto.destacado
-                                  ? 'stroke-amber-600 fill-none'
-                                  : 'stroke-slate-400 fill-none'
-                              }`}
-                            />
-                          </span>
+                          <Star className={`w-3.5 h-3.5 shrink-0 ${producto.destacado ? 'fill-amber-400 stroke-amber-500' : 'stroke-slate-400 fill-none'}`} />
+                          <span className="hidden sm:inline">Dest.</span>
                         </button>
-                      </div>
 
-                      {/* Divisor */}
-                      <div className="w-px h-8 bg-gray-100" />
-
-                      {/* Visible Toggle */}
-                      <div className="flex flex-col items-center gap-1.5">
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider ${producto.disponible ? 'text-emerald-600' : 'text-slate-500'}`}
-                        >
-                          Visible
-                        </span>
+                        {/* Visible */}
                         <button
-                          onClick={() =>
-                            actualizar.mutate({
-                              id: producto.id,
-                              payload: { disponible: !producto.disponible },
-                            })
-                          }
+                          onClick={() => actualizar.mutate({ id: producto.id, payload: { disponible: !producto.disponible } })}
                           disabled={actualizar.isPending}
-                          className={`relative w-11 h-6 rounded-full border transition-all duration-200 disabled:opacity-50 ${
+                          title={producto.disponible ? 'Ocultar producto' : 'Mostrar producto'}
+                          className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all duration-150 disabled:opacity-50 flex-1 sm:flex-none justify-center ${
                             producto.disponible
-                              ? 'bg-emerald-50 border-emerald-200'
-                              : 'bg-slate-100 border-slate-300'
+                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                              : 'text-slate-500 hover:bg-white hover:text-slate-700'
                           }`}
                         >
-                          <span
-                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white border shadow-sm transition-all duration-200 flex items-center justify-center ${
-                              producto.disponible
-                                ? 'left-[calc(100%-1.375rem)] border-emerald-300'
-                                : 'left-0.5 border-slate-300'
-                            }`}
-                          >
-                            <Package
-                              className={`w-2.5 h-2.5 transition-colors ${producto.disponible ? 'stroke-emerald-600' : 'stroke-slate-400'}`}
-                            />
-                          </span>
+                          <Package className={`w-3.5 h-3.5 shrink-0 ${producto.disponible ? 'stroke-emerald-600' : 'stroke-slate-400'}`} />
+                          <span className="hidden sm:inline">Visible</span>
                         </button>
                       </div>
 
-                      {/* Botón editar */}
-                      <div className="flex flex-col items-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                          {isEditing ? 'Cerrar' : 'Editar'}
-                        </span>
-                        <button
-                          onClick={() => toggleEdit(producto.id)}
-                          className={`p-2 rounded-xl transition-all border ${
-                            isEditing
-                              ? 'text-gray-900 bg-gray-100 border-gray-200 shadow-inner'
-                              : 'text-gray-600 bg-white border-gray-200 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm'
-                          }`}
-                          title={isEditing ? 'Cerrar edición' : 'Editar producto'}
-                        >
-                          {isEditing ? (
-                            <ChevronUp className="w-4 h-4" />
-                          ) : (
-                            <Pencil className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
+                      {/* Botón Editar — separado y destacado */}
+                      <button
+                        onClick={() => toggleEdit(producto.id)}
+                        title={isEditing ? 'Cerrar edición' : 'Editar producto'}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all duration-150 shrink-0 ${
+                          isEditing
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-900 hover:text-white hover:border-gray-900'
+                        }`}
+                      >
+                        {isEditing ? <ChevronUp className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
+                        <span>{isEditing ? 'Cerrar' : 'Editar'}</span>
+                      </button>
                     </div>
                   </div>
 
@@ -522,15 +418,15 @@ const ProductsSection = () => {
 
       {/* ── Paginación ── */}
       {totalPaginas > 1 && (
-        <div className="flex items-center justify-between pt-1">
-          <p className="text-xs text-gray-400 font-medium">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1">
+          <p className="text-xs text-gray-400 font-medium text-center sm:text-left">
             Página {pagina} de {totalPaginas}
           </p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPagina((p) => Math.max(1, p - 1))}
               disabled={pagina === 1}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 px-4 py-2 text-xs font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
               Anterior
@@ -538,7 +434,7 @@ const ProductsSection = () => {
             <button
               onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
               disabled={pagina === totalPaginas}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 px-4 py-2 text-xs font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Siguiente
               <ChevronRight className="w-3.5 h-3.5" />

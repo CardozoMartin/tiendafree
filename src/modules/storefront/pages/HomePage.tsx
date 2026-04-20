@@ -4,10 +4,10 @@ import { ArrowRight } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ICON from './../../../assets/Logo.svg';
-import BenefitStack from './Benefitstack';
-import ClosingSection from './ClosingSection';
-import Hero from './Hero';
-import SectionProducts from './SectionProducts';
+import BenefitStack from '../components/Benefitstack';
+import ClosingSection from '../components/ClosingSection';
+import Hero from '../components/Hero';
+import SectionProducts from '../components/SectionProducts';
 
 function FloatingNav() {
   const { scrollY } = useScroll();

@@ -135,7 +135,6 @@ const SectionProducts = () => {
     <section
       style={{
         width: '100%',
-        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -144,7 +143,7 @@ const SectionProducts = () => {
         position: 'relative',
         overflow: 'hidden',
       }}
-      className="relative overflow-hidden"
+      className="relative overflow-hidden py-12 sm:py-20 md:min-h-screen"
     >
       <div
         className="pointer-events-none absolute inset-0"
