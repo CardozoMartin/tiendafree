@@ -1,30 +1,30 @@
 import LoginForm from "../components/LoginForm";
+import loginTiendizi from '../../../assets/tiendiziLogin.png'
 
 // ── Right Panel (solo desktop) ─────────────────────────────────────────────
 const RightPanel = () => (
-  <div className="hidden lg:flex w-1/2 relative bg-[#6344ee]/10 overflow-hidden items-center justify-center">
-    <div className="absolute inset-0 bg-gradient-to-br from-[#6344ee]/5 via-transparent to-[#6344ee]/20" />
-
-    <div className="relative z-10 w-full max-w-xl px-12">
-      <div className="bg-white p-2 rounded-2xl shadow-2xl rotate-3">
+  <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-[#fafafa]">
+    <div className="absolute inset-0 flex items-center justify-center p-12">
+      <div className="relative w-full h-full rounded-[32px] overflow-hidden shadow-2xl">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4Wp2IMtcnMVKqJaICJ3_QTvrC21MO8q_ASNGLHXLZ12eEx_S8o1BZihLmAhuowFdgeevex_Y_Da1XO0ud-hGwJ9VV_jznzAULY5rIx4-JbAEMj7uf2nJ4wp0Mw4MT59m9HMnCDchwOVeUnXgA1F-WYjDjlakuP1Q4_VBwmejrWRKQ0HAKNKlhGZ50Ym-lix2pztCw0hE7HhopQjzUOTLYDF2B9znKsAk11ZMqScLdusjN0pVyQW5BM-Xz7UoDJNRFHdqq09RwDjAR"
-          alt="Beautiful modern minimalist local boutique interior with plants"
-          className="rounded-xl w-full h-[500px] object-cover"
+          src={loginTiendizi}
+          alt="TiendiZi Shop"
+          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
         />
-      </div>
-      <div className="mt-16 text-center">
-        <h2 className="text-3xl font-extrabold text-slate-900 mb-4">Muestra tu local al mundo</h2>
-        <p className="text-lg text-slate-600">
-          La plataforma digital diseñada para que el comercio local brille más que nunca.
-        </p>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#6344ee]/40 via-transparent to-transparent" />
+
+        <div className="absolute bottom-10 left-10 right-10 p-8 rounded-2xl border border-white/20 backdrop-blur-md bg-white/10">
+          <h2 className="text-white text-2xl font-extrabold mb-2">Impulsá tu comercio local</h2>
+          <p className="text-white/90 text-sm font-medium">La plataforma definitiva para vender más y mejor en tu barrio.</p>
+        </div>
       </div>
     </div>
 
-    <div className="absolute top-20 right-20 w-16 h-16 bg-[#6344ee] rounded-full blur-3xl opacity-20" />
-    <div className="absolute bottom-20 left-20 w-32 h-32 bg-[#6344ee] rounded-full blur-[80px] opacity-10" />
+    <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#6344ee] rounded-full blur-[120px] opacity-20" />
+    <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#6344ee] rounded-full blur-[120px] opacity-10" />
   </div>
 );
+
 // ── Main component ─────────────────────────────────────────────────────────
 export default function LoginPage() {
   return (
@@ -33,19 +33,13 @@ export default function LoginPage() {
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
       />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
 
+      {/* overflow-x-hidden en el root para cortar cualquier desborde */}
       <div
-        className="flex flex-row min-h-screen bg-[#f6f6f8] text-slate-900"
+        className="flex flex-col lg:flex-row min-h-screen w-full overflow-x-hidden bg-[#f6f6f8] text-slate-900"
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
-        {/* Form ocupa toda la pantalla en mobile, mitad en desktop */}
         <LoginForm />
-
-        {/* Panel derecho solo desktop */}
         <RightPanel />
       </div>
     </>

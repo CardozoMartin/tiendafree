@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import ICON from '@/assets/Logo.svg';
 
 interface HeaderProps {
   isAuthenticated?: boolean;
@@ -10,9 +11,9 @@ interface HeaderProps {
 }
 
 const NAV_LINKS = [
-  { label: 'Plataforma', href: '#plataforma' },
-  { label: 'Experiencia', href: '#experiencia' },
-  { label: 'Diseno', href: '#diseno' },
+  { label: 'Funciones', href: '/#plataforma' },
+  { label: 'Diseños', href: '/#diseno' },
+  { label: 'Precios', href: '/#precios' },
 ];
 
 const Header = ({
@@ -45,23 +46,56 @@ const Header = ({
         }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-[#181311] text-white">
-            <ArrowRight className="h-4 w-4" />
+        <Link to="/" className="flex items-center gap-1 sm:gap-2 flex-shrink-0 transition-opacity hover:opacity-80">
+          <img
+            src={ICON}
+            alt="TiendiZi"
+            className="w-12 h-16 sm:w-16 sm:h-[80px] object-contain"
+          />
+          <div>
+            <p className="text-lg sm:text-2xl font-black tracking-[-0.04em] flex items-center">
+              <span className="relative inline-flex items-center justify-center isolate">
+                <svg
+                  className="absolute inset-0 -z-10 mx-auto w-[150%] h-[160%] -translate-x-3 -translate-y-2"
+                  viewBox="0 0 100 48"
+                  fill="none"
+                  stroke="#fca326"
+                  strokeWidth="14"
+                  strokeLinecap="round"
+                >
+                  <path
+                    className="opacity-95"
+                    d="M92,24 L10,24"
+                    pathLength="100"
+                    strokeDasharray="100"
+                    strokeDashoffset="0"
+                  />
+                  <path
+                    className="opacity-90"
+                    d="M8,38 L95,34"
+                    pathLength="100"
+                    strokeDasharray="100"
+                    strokeDashoffset="0"
+                  />
+                </svg>
+                <div className="relative z-10 text-[#15110e] px-1 flex items-center">
+                  <span className="text-purple-600">TiendiZi</span>
+                </div>
+              </span>
+            </p>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">TiendaFree</h2>
         </Link>
 
-        {variant === 'public' && isHome && (
+        {variant === 'public' && (
           <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                to={link.href}
                 className="text-sm font-semibold text-slate-600 transition-colors hover:text-[#ff6b3d]"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         )}
