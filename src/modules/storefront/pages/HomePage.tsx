@@ -39,7 +39,7 @@ function FloatingNav() {
             <p className="text-lg sm:text-2xl font-black tracking-[-0.04em] flex items-center">
               <span className="relative inline-flex items-center justify-center isolate">
                 <svg
-                  className="absolute inset-0 -z-10 mx-auto w-[150%] h-[160%] -translate-x-3 -translate-y-2"
+                  className="absolute inset-0 -z-10 mx-auto w-[150%] h-[160%] lg:-translate-x-3 lg:-translate-y-2 -translate-x-[0.6rem] -translate-y-[0.4rem]"
                   viewBox="0 0 100 48"
                   fill="none"
                   stroke="#fca326"

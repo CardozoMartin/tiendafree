@@ -1193,11 +1193,11 @@ export default function Hero() {
             className="w-12 h-16 sm:w-20 sm:h-[100px] object-contain"
           />
           <div>
-            <p className="text-lg sm:text-2xl font-black tracking-[-0.04em] flex items-center">
+            <p className="text-lg sm:text-2xl   font-black tracking-[-0.04em] flex items-center">
               <span className="relative inline-flex items-center justify-center isolate">
                 {/* 3 Diagonal Brush Strokes */}
                 <svg
-                  className="absolute inset-0 -z-10 mx-auto w-[150%] h-[160%] -translate-x-3 -translate-y-2"
+                  className="absolute inset-0 -z-10 mx-auto w-[150%] h-[160%] lg:-translate-x-3 lg:-translate-y-2 -translate-x-[0.6rem] -translate-y-2"
                   viewBox="0 0 100 48"
                   fill="none"
                   stroke="#fca326"
@@ -1225,7 +1225,7 @@ export default function Hero() {
                     strokeDashoffset="100"
                   />
                 </svg>
-                <p className="relative z-10 text-[#15110e] px-1">
+                <p className="relative z-10 text-[#15110e] px-1  ">
                   <span className="text-purple-600">TiendiZi</span>
                 </p>
               </span>
@@ -1274,7 +1274,6 @@ export default function Hero() {
       {/* ── Copy central ───────────────────────────────────────────────────── */}
       <div className="mx-auto max-w-5xl px-6 pt-8 pb-10 text-center sm:px-8 lg:px-10 relative">
         {/* Badge */}
-
 
         {/* Título */}
         <h1

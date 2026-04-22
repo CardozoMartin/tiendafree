@@ -345,15 +345,15 @@ const SectionProducts = () => {
         <span className="text-[#7c3aed]">”</span> con{' '}
         <span className="relative inline-flex items-center justify-center isolate">
           <svg
-            className="absolute inset-0 -z-10 mx-auto w-[150%] h-[160%] -translate-x-4 -translate-y-2"
+            className="absolute inset-0 -z-10 mx-auto w-[145%] h-[160%] -translate-x-4 -translate-y-2"
             viewBox="0 0 100 48"
             fill="none"
             stroke="#fca326"
             strokeWidth="14"
             strokeLinecap="round"
           >
-            <path d="M98,25 L10,24" className="opacity-95" />
-            <path d="M10,38 L99,38" className="opacity-90" />
+            <path d="M110,25 L10,24" className="opacity-95" />
+            <path d="M10,38 L110,38" className="opacity-90" />
           </svg>
           <span className="relative z-10 text-purple-600 font-black">TiendiZi</span>
         </span>
