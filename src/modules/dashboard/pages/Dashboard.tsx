@@ -43,10 +43,6 @@ export default function Dashboard() {
   return (
     <>
       <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet"
-      />
-      <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet"
       />
@@ -60,10 +56,7 @@ export default function Dashboard() {
         .nav-item-active { background: var(--accent-bg); color: var(--accent); }
       `}</style>
 
-      <div
-        className="flex h-screen bg-[#f6f6f8] overflow-hidden"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      >
+      <div className="flex h-screen bg-[#f6f6f8] overflow-hidden">
         {/* ── SIDEBAR (desktop) ── */}
         <DashboardSidebar
           myShop={myShop}

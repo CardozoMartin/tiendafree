@@ -1,5 +1,5 @@
-import LoginForm from "../components/LoginForm";
-import loginTiendizi from '../../../assets/tiendiziLogin.png'
+import loginTiendizi from '../../../assets/tiendiziLogin.png';
+import LoginForm from '../components/LoginForm';
 
 // ── Right Panel (solo desktop) ─────────────────────────────────────────────
 const RightPanel = () => (
@@ -9,14 +9,11 @@ const RightPanel = () => (
         <img
           src={loginTiendizi}
           alt="TiendiZi Shop"
-          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+          className="w-full h-full object-cover object-[50%_60%] transition-transform duration-700 hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#6344ee]/40 via-transparent to-transparent" />
 
-        <div className="absolute bottom-10 left-10 right-10 p-8 rounded-2xl border border-white/20 backdrop-blur-md bg-white/10">
-          <h2 className="text-white text-2xl font-extrabold mb-2">Impulsá tu comercio local</h2>
-          <p className="text-white/90 text-sm font-medium">La plataforma definitiva para vender más y mejor en tu barrio.</p>
-        </div>
+       
       </div>
     </div>
 
@@ -29,16 +26,8 @@ const RightPanel = () => (
 export default function LoginPage() {
   return (
     <>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-      />
-
       {/* overflow-x-hidden en el root para cortar cualquier desborde */}
-      <div
-        className="flex flex-col lg:flex-row min-h-screen w-full overflow-x-hidden bg-[#f6f6f8] text-slate-900"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      >
+      <div className="flex flex-col lg:flex-row min-h-screen w-full overflow-x-hidden bg-[#f7f4ef] text-slate-900">
         <LoginForm />
         <RightPanel />
       </div>

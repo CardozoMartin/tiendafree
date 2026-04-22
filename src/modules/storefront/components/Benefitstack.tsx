@@ -5,16 +5,18 @@
  * Desktop: imagen full-screen con texto superpuesto a la izquierda.
  */
 
-import { ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 
+import img1Mobile from '@/assets/CardsHome/image1-mobile.png';
 import img1 from '@/assets/CardsHome/imagen 1.png';
 import img2 from '@/assets/CardsHome/Imagen 2.png';
 import img3 from '@/assets/CardsHome/Imagen 3.png';
 import img4 from '@/assets/CardsHome/Imagen 4.png';
+import img2Mobile from '@/assets/CardsHome/imagen2-mobile.png';
+import img3Mobile from '@/assets/CardsHome/imagen3-mobile.png';
+import img4Mobile from '@/assets/CardsHome/imagen4-mobile.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,6 +27,7 @@ const slides = [
   {
     id: 'slide-1',
     image: img1,
+    mobileImage: img1Mobile,
     accentColor: '#ff6b3d',
     bg: '#181311',
     badge: 'Plataforma todo en uno',
@@ -36,10 +39,13 @@ const slides = [
     textPad: 'px-16 xl:px-24',
     textAlign: 'text-left',
     gradientDir: 'to right',
+    mobileObjectPosition: 'center 0%',
+    desktopObjectPosition: 'center 30%',
   },
   {
     id: 'slide-2',
     image: img2,
+    mobileImage: img2Mobile,
     accentColor: '#28c840',
     bg: '#0f1a12',
     badge: 'Logística flexible',
@@ -56,6 +62,7 @@ const slides = [
   {
     id: 'slide-3',
     image: img3,
+    mobileImage: img3Mobile,
     accentColor: '#7c6bff',
     bg: '#100e1a',
     badge: 'Mobile first',
@@ -71,6 +78,7 @@ const slides = [
   {
     id: 'slide-4',
     image: img4,
+    mobileImage: img4Mobile,
     accentColor: '#ff6b3d',
     bg: '#18130e',
     badge: '0% comisiones',
@@ -111,8 +119,8 @@ export default function BenefitStack() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: panel,
-            start: 'top top+=110', // Inicia justo debajo del navbar (padding offset)
-            end: () => fakeScrollRatio ? `+=${inner.offsetHeight}` : '+=100%',
+            start: 'top top', // El panel inicia alineado al borde superior de la pantalla
+            end: () => (fakeScrollRatio ? `+=${inner.offsetHeight}` : '+=100%'),
             pinSpacing: false,
             pin: true,
             scrub: true,
@@ -132,8 +140,10 @@ export default function BenefitStack() {
           });
         }
 
-        tl.fromTo(panel, { scale: 1, opacity: 1 }, { scale: 0.88, opacity: 0.5, duration: 0.9 })
-          .to(panel, { opacity: 0, duration: 0.1 });
+        tl.fromTo(panel, { scale: 1, opacity: 1 }, { scale: 0.88, opacity: 0.5, duration: 0.9 }).to(
+          panel,
+          { opacity: 0, duration: 0.1 }
+        );
       });
 
       activateDot(0);
@@ -151,7 +161,6 @@ export default function BenefitStack() {
 
   return (
     <section id="plataforma" className="relative">
-
       {/* ── Encabezado ────────────────────────────────────────────── */}
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-32 lg:px-10">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -167,12 +176,12 @@ export default function BenefitStack() {
               ¿Por qué elegir TiendiZi?
             </span>
             <h2 className="mt-6 text-4xl font-black leading-[1.05] tracking-[-0.05em] text-[#15110e] sm:text-5xl">
-              Todo lo que necesitás{' '}
-              <span className="text-[#ff6b3d]">para escalar tu negocio.</span>
+              Todo lo que necesitás <span className="text-[#ff6b3d]">para escalar tu negocio.</span>
             </h2>
           </div>
           <p className="max-w-md text-lg leading-8 text-[#64584f]">
-            Cada función pensada en la simplicidad y el impacto visual. Menos configuración, más ventas.
+            Cada función pensada en la simplicidad y el impacto visual. Menos configuración, más
+            ventas.
           </p>
         </div>
       </div>
@@ -185,7 +194,9 @@ export default function BenefitStack() {
         {slides.map((s, i) => (
           <button
             key={i}
-            ref={(el) => { dotsRef.current[i] = el; }}
+            ref={(el) => {
+              dotsRef.current[i] = el;
+            }}
             className="bs-dot h-2 w-2 rounded-full bg-[#17120f]/20 transition-all duration-300"
             style={{ ['--accent' as string]: s.accentColor }}
           />
@@ -200,53 +211,45 @@ export default function BenefitStack() {
             className="benefit-slide relative overflow-hidden"
             style={{ borderRadius: '1.75rem', marginBottom: '2px' }}
           >
-
-            {/* ─── MOBILE: imagen arriba + texto con fondo abajo ─── */}
+            {/* ─── MOBILE: imagen arriba + texto superpuesto dentro de la imagen ─── */}
             <div
-              className="bs-inner flex flex-col lg:hidden"
+              className="bs-inner flex min-h-[110vh] w-full flex-col lg:hidden"
               style={{ background: s.bg }}
             >
-              {/* Imagen top */}
-              <img
-                src={s.image}
-                alt={s.badge}
-                className="w-full object-cover object-top"
-                style={{ height: '56vw', maxHeight: '360px', minHeight: '220px' }}
-              />
+              <div className="relative w-full h-[94vh] overflow-hidden">
+                <img
+                  src={s.mobileImage ?? s.image}
+                  alt={s.badge}
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: s.mobileObjectPosition ?? 'top' }}
+                />
+              </div>
 
-              {/* Bloque de texto inferior */}
-              <div className="px-7 py-10 flex flex-col gap-5">
-                {/* Badge */}
-                <span
-                  className="self-start inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em]"
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    color: 'rgba(255,255,255,0.7)',
-                  }}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: s.accentColor }} />
-                  {s.badge}
-                </span>
+              <div className="w-full bg-[#090b10] px-7 py-8">
+                <div className="mx-auto flex max-w-5xl flex-col gap-4">
+                  <span
+                    className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em]"
+                    style={{
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.14)',
+                      color: 'rgba(255,255,255,0.95)',
+                    }}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                      style={{ background: s.accentColor }}
+                    />
+                    {s.badge}
+                  </span>
 
-                {/* Título */}
-                <h2 className="text-[2rem] font-black leading-[0.95] tracking-[-0.05em] text-white">
-                  {s.title}<br />
-                  <span style={{ color: s.accentColor }}>{s.titleAccent}</span>
-                </h2>
+                  <h2 className="text-[2rem] font-black leading-[0.95] tracking-[-0.05em] text-white">
+                    {s.title}
+                    <br />
+                    <span style={{ color: s.accentColor }}>{s.titleAccent}</span>
+                  </h2>
 
-                {/* Descripción */}
-                <p className="text-[16px] leading-7 text-white/65">{s.desc}</p>
-
-                {/* CTA */}
-                <Link
-                  to="/register"
-                  className="self-start mt-2 inline-flex h-12 items-center gap-2 rounded-full px-6 text-sm font-bold uppercase tracking-[0.12em] text-white"
-                  style={{ background: s.accentColor }}
-                >
-                  Empezar gratis
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                  <p className="text-[16px] leading-7 text-white/80">{s.desc}</p>
+                </div>
               </div>
             </div>
 
@@ -256,6 +259,7 @@ export default function BenefitStack() {
                 src={s.image}
                 alt={s.badge}
                 className="h-screen w-full object-cover"
+                style={{ objectPosition: s.desktopObjectPosition ?? 'center' }}
               />
 
               {/* Gradiente dinámico para legibilidad */}
@@ -278,18 +282,24 @@ export default function BenefitStack() {
                       backdropFilter: 'blur(8px)',
                     }}
                   >
-                    <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: s.accentColor }} />
+                    <span
+                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                      style={{ background: s.accentColor }}
+                    />
                     {s.badge}
                   </span>
 
                   <h2
                     className="font-black leading-[0.92] tracking-[-0.05em] text-white"
                     style={{
-                      fontSize: s.textSmall ? 'clamp(1.8rem,2.8vw,3rem)' : 'clamp(2.8rem,4.5vw,5rem)',
+                      fontSize: s.textSmall
+                        ? 'clamp(1.8rem,2.8vw,3rem)'
+                        : 'clamp(2.8rem,4.5vw,5rem)',
                       textShadow: '0 2px 32px rgba(0,0,0,0.3)',
                     }}
                   >
-                    {s.title}<br />
+                    {s.title}
+                    <br />
                     <span style={{ color: s.accentColor }}>{s.titleAccent}</span>
                   </h2>
 
@@ -302,7 +312,6 @@ export default function BenefitStack() {
                 </div>
               </div>
             </div>
-
           </div>
         ))}
       </div>

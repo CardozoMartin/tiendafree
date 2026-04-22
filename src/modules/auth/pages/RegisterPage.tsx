@@ -1,5 +1,5 @@
-import RegisterForm from "../components/RegisterForm";
-import registerTiendizi from '../../../assets/tiendiziregister.png'
+import registerTiendizi from '../../../assets/tiendiziregister.png';
+import RegisterForm from '../components/RegisterForm';
 
 // ── Right Panel (solo desktop) ─────────────────────────────────────────────
 const RightPanel = () => (
@@ -12,11 +12,13 @@ const RightPanel = () => (
           className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#6344ee]/40 via-transparent to-transparent" />
-        
+
         {/* Floating cards or elements for "premium" feel */}
         <div className="absolute bottom-10 left-10 right-10 p-8 glass-morphism rounded-2xl border border-white/20 backdrop-blur-md bg-white/10">
           <h2 className="text-white text-2xl font-extrabold mb-2">Unite a la revolución local</h2>
-          <p className="text-white/90 text-sm font-medium">Miles de comerciantes ya están transformando sus ventas con TiendiZi.</p>
+          <p className="text-white/90 text-sm font-medium">
+            Miles de comerciantes ya están transformando sus ventas con TiendiZi.
+          </p>
         </div>
       </div>
     </div>
@@ -39,18 +41,11 @@ export default function RegisterPage() {
         }
       `}</style>
       <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-      />
-      <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet"
       />
 
-      <div
-        className="flex flex-col lg:flex-row min-h-screen bg-[#f6f6f8] text-slate-900"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      >
+      <div className="flex flex-col lg:flex-row min-h-screen bg-[#f7f4ef] text-slate-900">
         {/* Form ocupa toda la pantalla en mobile, mitad en desktop */}
         <RegisterForm />
 

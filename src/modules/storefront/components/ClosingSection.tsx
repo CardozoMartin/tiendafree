@@ -1,11 +1,3 @@
-/**
- * ClosingSection.tsx
- *
- * Sección de cierre unificada que reemplaza Story + Design + Proof.
- * Estética 100% alineada con el Hero: fondo crema #f7f4ef, palette cálida,
- * glow morado/naranja, tipografía black con tracking negativo.
- */
-
 import { AnimatePresence, motion } from 'framer-motion';
 import { BadgeCheck, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -24,19 +16,6 @@ interface FloatingCard {
   accent: string;
 }
 
-interface Stat {
-  value: string;
-  label: string;
-}
-
-// ─── Datos ────────────────────────────────────────────────────────────────────
-
-const stats: Stat[] = [
-  { value: '24 hs', label: 'para lanzar una tienda que ya se siente profesional' },
-  { value: '0%', label: 'de comisión sobre tus ventas. Siempre.' },
-  { value: '100%', label: 'pensada primero para celular' },
-];
-
 const floatingCards: FloatingCard[] = [
   { id: 'editorial', image: imagen1, label: 'Expresiva', accent: '#eb5fa0' },
   { id: 'joya', image: imagen2, label: 'Delicada', accent: '#7c6bff' },
@@ -44,13 +23,7 @@ const floatingCards: FloatingCard[] = [
   { id: 'moderna', image: imagen4, label: 'Editorial', accent: '#ff6b3d' },
 ];
 
-/**
- * Rotaciones base por índice de posición en la grilla 2x2.
- * Se mantienen consistentes entre renders para evitar saltos de animación.
- */
 const BASE_ROTATIONS = ['-2.5deg', '2deg', '-1.5deg', '2.5deg'] as const;
-
-// ─── Componente principal ──────────────────────────────────────────────────────
 
 export default function ClosingSection() {
   const [activeCard, setActiveCard] = useState<number>(0);
@@ -65,7 +38,7 @@ export default function ClosingSection() {
 
   return (
     <section id="precios" className="relative bg-[#f7f4ef] overflow-hidden">
-      {/* ── Glow de fondo — mismo del Hero ─────────────────────────────── */}
+      {/*Glow de fondo — mismo del Hero*/}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -74,9 +47,7 @@ export default function ClosingSection() {
         }}
       />
 
-      {/* ─────────────────────────────────────────────────────────────────
-          BLOQUE 1 · Showcase de plantillas flotantes + titular
-      ───────────────────────────────────────────────────────────────── */}
+      {/*Showcase de plantillas flotantes + titular*/}
       <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-10">
         {/* Grilla: plantillas a la izq, texto a la der */}
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
@@ -204,39 +175,6 @@ export default function ClosingSection() {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────────────
-          BLOQUE 2 · Stats + CTA final (fondo oscuro #181311)
-      ───────────────────────────────────────────────────────────────── */}
-      <div className="relative bg-[#181311] overflow-hidden">
-        {/* Glow morado/naranja */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 50% at 75% 55%, rgba(124,107,255,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 15% 20%, rgba(255,107,61,0.08) 0%, transparent 60%)',
-          }}
-        />
-
-        <div className="relative mx-auto max-w-7xl px-6 py-20 lg:px-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <p className="text-4xl font-black tracking-[-0.05em]">{stat.value}</p>
-                <p className="mt-3 text-sm leading-6 text-white/70">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center">
-            <p className="text-sm uppercase tracking-[0.25em] text-white/60">Listo para vender</p>
-            <h3 className="mt-4 text-3xl font-black text-white">Lanzá tu tienda con diseño profesional hoy mismo</h3>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/70">
-              TiendaFree te acompaña con una tienda móvil-primero, pagos y envíos integrados, y una interfaz pensada para el comercio local.
-            </p>
           </div>
         </div>
       </div>

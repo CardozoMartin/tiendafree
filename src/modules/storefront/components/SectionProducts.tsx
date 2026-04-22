@@ -8,6 +8,7 @@ import product5 from '../../../assets/sectonProductos/img5.png';
 import product6 from '../../../assets/sectonProductos/img6.png';
 import product7 from '../../../assets/sectonProductos/img7.png';
 import product8 from '../../../assets/sectonProductos/img8.png';
+import Tittle from '@/components/common/Tittle';
 
 const PRODUCT_IMAGES = [
   product1,
@@ -20,17 +21,13 @@ const PRODUCT_IMAGES = [
   product8,
 ];
 
-// ─── Centro del SVG ───
+
 const CX = 400;
 const CY = 400;
-const IMG_R = 148; // radio de la imagen circular central
-const NODE_R = 46; // radio de cada ícono satélite
+const IMG_R = 148;
+const NODE_R = 46;
 
-// ─── Nodos satélite ───────────────────────────────────────────────────
-// cx/cy     → centro del círculo del ícono en el viewBox (0 0 800 800)
-// edgeX/edgeY → punto exacto en el borde de la imagen circular donde nace la línea
-// bend      → coordenada intermedia del quiebre en L (puede haber 0, 1 o 2 quiebres)
-//             formato: array de puntos {x, y} que forman los segmentos rectos
+
 const nodes = [
   {
     id: 1,
@@ -342,20 +339,9 @@ const SectionProducts = () => {
       <p className="relative z-10 px-1 text-center text-[1.4rem] sm:text-2xl font-semibold text-[#15110e] leading-tight">
         <span className="text-[#7c3aed]">“</span>
         Todo lo que necesitás para vender online.
-        <span className="text-[#7c3aed]">”</span> con{' '}
+        <span className="text-[#7c3aed]">”</span> <span className='pr-3 lg:pr-0'>con</span>
         <span className="relative inline-flex items-center justify-center isolate">
-          <svg
-            className="absolute inset-0 -z-10 mx-auto w-[145%] h-[160%] -translate-x-4 -translate-y-2"
-            viewBox="0 0 100 48"
-            fill="none"
-            stroke="#fca326"
-            strokeWidth="14"
-            strokeLinecap="round"
-          >
-            <path d="M110,25 L10,24" className="opacity-95" />
-            <path d="M10,38 L110,38" className="opacity-90" />
-          </svg>
-          <span className="relative z-10 text-purple-600 font-black">TiendiZi</span>
+          <Tittle />
         </span>
       </p>
     </section>
