@@ -5,7 +5,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { Link } from 'react-router-dom';
 import type { IErrorResponse } from '../../../types/api.type';
 import { useAuthLogin } from '../hooks/useAuth';
 import Input from '@/components/inputs/inputs';

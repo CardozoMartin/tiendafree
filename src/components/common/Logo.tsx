@@ -2,7 +2,12 @@ import { useEffect, useRef } from 'react'
 import ICON from '../../assets/Logo.svg'
 import gsap from 'gsap';
 
-const Logo = () => {
+interface LogoProps {
+  wrapperClassName?: string;
+  imgClassName?: string;
+}
+
+const Logo = ({ wrapperClassName = 'flex items-center gap-1 sm:gap-2 flex-shrink-0 transition-opacity hover:opacity-80', imgClassName = 'w-12 h-16 sm:w-16 sm:h-[80px] object-contain' }: LogoProps) => {
   const logoBrushRefs = useRef<SVGPathElement[]>([]);
   useEffect(() => {
     gsap.to(logoBrushRefs.current, {
@@ -14,8 +19,8 @@ const Logo = () => {
     });
   }, []);
   return (
-    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 transition-opacity hover:opacity-80">
-      <img src={ICON} alt="TiendiZi" className="w-12 h-16 sm:w-16 sm:h-[80px] object-contain" />
+    <div className={wrapperClassName}>
+      <img src={ICON} alt="TiendiZi" className={imgClassName} />
       <div>
         <div className="text-lg sm:text-2xl font-black tracking-[-0.04em] flex items-center">
           <span className="relative inline-flex items-center justify-center isolate">

@@ -5,6 +5,7 @@ import type { AxiosError } from 'axios';
 import type { IErrorResponse } from '../../../types/api.type';
 import type { RegisterFormValues } from '../../../types/IUser.type';
 import { useAuthRegister } from '../hooks/useAuth';
+import TextAnimated from '@/components/inputs/TextAnimated';
 
 const MaterialIcon = ({ name, className = '' }: { name: string; className?: string }) => (
   <span className={`material-symbols-outlined ${className}`}>{name}</span>
@@ -149,9 +150,16 @@ const RegisterForm = () => {
 
           <p className="text-center text-sm font-bold text-slate-500 mt-6">
             ¿Ya tenés una cuenta?{' '}
-            <a href="/login" className="text-[#6344ee] hover:underline">
-              Iniciá sesión
-            </a>
+            <TextAnimated
+              to="/login"
+              label="Iniciá sesión"
+              svgWidth="w-[150%]"
+              svgHeight="h-[180%]"
+              svgTranslateX="-translate-x-[12%]"
+              svgTranslateY="-translate-y-[20%]"
+              linea1="M125,24 L1,25"
+              linea2="M125,34 L6,38"
+            />
           </p>
         </form>
       </div>

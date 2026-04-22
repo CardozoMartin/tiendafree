@@ -14,12 +14,12 @@ const RightPanel = () => (
         <div className="absolute inset-0 bg-gradient-to-t from-[#6344ee]/40 via-transparent to-transparent" />
 
         {/* Floating cards or elements for "premium" feel */}
-        <div className="absolute bottom-10 left-10 right-10 p-8 glass-morphism rounded-2xl border border-white/20 backdrop-blur-md bg-white/10">
+        {/* <div className="absolute bottom-10 left-10 right-10 p-8 glass-morphism rounded-2xl border border-white/20 backdrop-blur-md bg-white/10">
           <h2 className="text-white text-2xl font-extrabold mb-2">Unite a la revolución local</h2>
           <p className="text-white/90 text-sm font-medium">
             Miles de comerciantes ya están transformando sus ventas con TiendiZi.
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
 

@@ -2,7 +2,6 @@ import gsap from 'gsap';
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import ICON from './../../../assets/Logo.svg';
 import { DemoWindow } from './DemoWindows';
 import Logo from '@/components/common/Logo';
 import NavLinkAnimado from '@/components/inputs/NavLinkAnimado';

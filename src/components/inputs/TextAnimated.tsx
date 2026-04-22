@@ -49,7 +49,7 @@ const TextAnimated = ({
         viewBox="0 0 100 48"
         fill="none"
         strokeWidth={strokeWidth}
-        strokeLinecap="round"
+        strokeLinecap="butt"
       >
         <path
           style={{
