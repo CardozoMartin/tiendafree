@@ -1,13 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, FileText, Globe, Package, Palette, Sparkles, CheckCircle2, ShoppingCart, Download, LayoutDashboard, PenTool } from 'lucide-react';
+import { FileText, Globe, Package, Palette, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-
-// Imágenes reales de las plantillas de TiendaFree
-import modernaTemplate from '@/assets/img/moderna.png';
-import pinkTemplate from '@/assets/img/pink.png';
-import templateJoya from '@/assets/img/plantillaJoya.png';
-import plantillaRopa from '@/assets/img/plantillaRopa.png';
-import templateGorra from '@/assets/img/plantillagorra.png';
 
 // ─── Datos de Funciones ────────────────────────────────────────────────────────
 const features = [

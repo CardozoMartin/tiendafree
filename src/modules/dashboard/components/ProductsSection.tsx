@@ -3,22 +3,17 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
-  Download,
   FileText,
   Package,
   Pencil,
   Plus,
-  Search,
   Star,
-  Upload,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { usePDF } from 'react-to-pdf';
 import {
   useActualizarProducto,
-  useExportarProductos,
-  useImportarProductos,
   useMisProductos,
 } from '../hooks/useProduct';
 import { useMyShop } from '../hooks/useShop';
@@ -34,7 +29,9 @@ const formatPrice = (price: number, moneda: string) =>
 const PRODUCTOS_POR_PAGINA = 12;
 const TIEMPO_ESPERA_BUSQUEDA_MS = 400;
 
-const ProductsSection = () => {
+const ProductsSection = ({ accent }: { accent: string }) => {
+  const accentStyle = { '--accent': accent } as CSSProperties;
+
   // ============================================================================
   // 1. ESTADOS LOCALES
   // ============================================================================
@@ -77,8 +74,6 @@ const ProductsSection = () => {
 
   const { data: productosPaginados, isLoading } = useMisProductos(filtros);
   const actualizar = useActualizarProducto();
-  const exportar = useExportarProductos();
-  const importar = useImportarProductos();
 
   // ============================================================================
   // 4. PROCESAMIENTO DE DATOS
@@ -143,7 +138,7 @@ const ProductsSection = () => {
   }
 
   return (
-    <div className="min-h-0 space-y-6 pb-6">
+    <div className="min-h-0 space-y-6 pb-6" style={accentStyle}>
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>

@@ -1,4 +1,4 @@
-import Footer from '@/components/common/Footer';
+﻿import Footer from '@/components/common/Footer';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -135,3 +135,4 @@ export default function HomePage() {
     </>
   );
 }
+//

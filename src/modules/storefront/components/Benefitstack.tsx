@@ -194,7 +194,7 @@ export default function BenefitStack() {
 
       {/* ── Stack de slides ────────────────────────────────────────── */}
       <div ref={wrapperRef} className="slides-wrapper">
-        {slides.map((s, i) => (
+        {slides.map((s) => (
           <div
             key={s.id}
             className="benefit-slide relative overflow-hidden"
