@@ -4,6 +4,7 @@ import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 import { useAuthSessionStore } from '../../auth/store/useAuthSession';
 import { NAV_ITEMS } from '../constant/constants';
 import MI from './MaterialIcon';
+import Logo from '@/components/common/Logo';
 
 interface DashboardSidebarProps {
   active: string;
@@ -80,7 +81,7 @@ const Tooltip = ({ label, children }: { label: string; children: React.ReactNode
       opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-150"
     >
       <div className="bg-zinc-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg">
-        {label}
+        {label}ss
         <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-zinc-900" />
       </div>
     </div>
@@ -102,6 +103,11 @@ export const DashboardSidebar = ({
   const [expandedMenu, setExpandedMenu] = useState<string | null>('store');
   const [logoutHovered, setLogoutHovered] = useState(false);
   const { confirm, ConfirmModal } = useConfirm();
+
+  //obtenemos los datos del usaurio para mostrar el nombre y el email en el sidebar, y para el logout
+  const { user:datosUsuario } = useAuthSessionStore();
+
+  console.log('Datos del usuario desde el sidebar:', datosUsuario);
 
   const handleLogout = async () => {
     const confirmed = await confirm({
@@ -128,15 +134,7 @@ export const DashboardSidebar = ({
           sidebarCollapsed ? 'justify-center' : 'gap-2.5'
         }`}
       >
-        <div
-          className="size-7 rounded-lg flex items-center justify-center text-white shrink-0"
-          style={{ backgroundColor: accent }}
-        >
-          <MI name="storefront" className="!text-[15px]" />
-        </div>
-        {!sidebarCollapsed && (
-          <span className="text-[15px] font-semibold text-zinc-900 tracking-tight">Vitrina</span>
-        )}
+        <Logo />
       </div>
 
       {/* ── Nav ── */}
@@ -266,9 +264,9 @@ export const DashboardSidebar = ({
           {!sidebarCollapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-[12.5px] font-medium text-zinc-900 truncate leading-tight">
-                {user.name}
+                {datosUsuario?.nombre}
               </p>
-              <p className="text-[11px] text-zinc-400 truncate leading-tight">{user.email}</p>
+              <p className="text-[11px] text-zinc-400 truncate leading-tight">{datosUsuario?.email}</p>
             </div>
           )}
           {!sidebarCollapsed && (

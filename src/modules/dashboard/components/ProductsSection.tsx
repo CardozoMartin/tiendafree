@@ -6,7 +6,6 @@ import {
   FileText,
   Package,
   Pencil,
-  Plus,
   Star,
   X,
 } from 'lucide-react';
@@ -31,24 +30,27 @@ const TIEMPO_ESPERA_BUSQUEDA_MS = 400;
 
 const ProductsSection = ({ accent }: { accent: string }) => {
   const accentStyle = { '--accent': accent } as CSSProperties;
-
-  // ============================================================================
-  // 1. ESTADOS LOCALES
-  // ============================================================================
-
   const [busqueda, setBusqueda] = useState('');
   const [debouncedBusqueda, setDebouncedBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
   const [filtroActivo, setFiltroActivo] = useState<
     'todos' | 'activos' | 'ocultos' | 'destacados' | 'bajo_stock'
   >('todos');
+  const [ showFormProducts, setShowFormProducts ] = useState(false);
+  const [showListProducts, setShowListProducts] = useState(true);
+
+  const handleAddProductClick = () => {
+    setShowFormProducts(true);
+    setShowListProducts(false);
+  };
+
+  const handleCancelAdd = () => {
+    setShowFormProducts(false);
+    setShowListProducts(true);
+  };
 
   // Estado del formulario inline (null = cerrado, 'create' = nuevo, number = editar id)
   const [expandedId, setExpandedId] = useState<'create' | number | null>(null);
-
-  // ============================================================================
-  // 2. EFECTOS SECUNDARIOS
-  // ============================================================================
 
   useEffect(() => {
     const temporizador = setTimeout(() => {
@@ -59,9 +61,6 @@ const ProductsSection = ({ accent }: { accent: string }) => {
     return () => clearTimeout(temporizador);
   }, [busqueda]);
 
-  // ============================================================================
-  // 3. PREPARACIÓN DE PARÁMETROS Y CONSULTAS (API)
-  // ============================================================================
 
   const filtros: IProductFilters = {
     pagina,
@@ -75,9 +74,6 @@ const ProductsSection = ({ accent }: { accent: string }) => {
   const { data: productosPaginados, isLoading } = useMisProductos(filtros);
   const actualizar = useActualizarProducto();
 
-  // ============================================================================
-  // 4. PROCESAMIENTO DE DATOS
-  // ============================================================================
 
   const productos: IProduct[] = productosPaginados?.datos ?? [];
   const total: number = productosPaginados?.paginacion?.total ?? 0;
@@ -117,17 +113,10 @@ const ProductsSection = ({ accent }: { accent: string }) => {
     }, 150);
   };
 
-  // ============================================================================
-  // 5. MANEJADORES DE EVENTOS
-  // ============================================================================
 
-  const toggleCreate = () => setExpandedId((prev) => (prev === 'create' ? null : 'create'));
+  
   const toggleEdit = (id: number) => setExpandedId((prev) => (prev === id ? null : id));
-  const cerrarPaneles = () => setExpandedId(null);
 
-  // ============================================================================
-  // 6. RENDERIZADO (UI)
-  // ============================================================================
 
   if (isLoading) {
     return (
@@ -192,21 +181,26 @@ const ProductsSection = ({ accent }: { accent: string }) => {
 
 
 
-          {/* Agregar */}
-          <button
-            onClick={toggleCreate}
-            className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold rounded-xl transition-all shadow-sm whitespace-nowrap"
-          >
-            {expandedId === 'create' ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            {expandedId === 'create' ? 'Cancelar' : 'Agregar'}
-          </button>
+          {/* Agregar / Cancelar */}
+          {!showFormProducts ? (
+            <button
+              onClick={handleAddProductClick}
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold rounded-xl transition-all shadow-sm whitespace-nowrap"
+            >
+              Agregar
+            </button>
+          ) : (
+            <button
+              onClick={handleCancelAdd}
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-slate-700 text-sm font-semibold rounded-xl transition-all shadow-sm whitespace-nowrap"
+            >
+              <X className="w-4 h-4" /> Cancelar
+            </button>
+          )}
         </div>
       </div>
 
-      {/* ══════════════════════════
-          FORMULARIO CREAR (inline)
-      ══════════════════════════ */}
-      {expandedId === 'create' && (
+      {showFormProducts && (
         <div>
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
@@ -214,28 +208,29 @@ const ProductsSection = ({ accent }: { accent: string }) => {
             </h2>
             <p className="text-xs text-gray-400 mt-1">Completá los datos y guardá.</p>
           </div>
-          <FormProduct onSuccess={cerrarPaneles} />
+          <FormProduct onSuccess={() => {
+            setShowFormProducts(false);
+            setShowListProducts(true);
+          }} />
         </div>
       )}
 
-      <ProductsFilters
-        busqueda={busqueda}
-        onBusquedaChange={(value) => {
-          setBusqueda(value);
-          setPagina(1);
-        }}
-        filtroActivo={filtroActivo}
-        onFiltroChange={(value) => {
-          setFiltroActivo(value);
-          setPagina(1);
-        }}
-      />
+      {showListProducts && (
+        <ProductsFilters
+          busqueda={busqueda}
+          onBusquedaChange={(value) => {
+            setBusqueda(value);
+            setPagina(1);
+          }}
+          filtroActivo={filtroActivo}
+          onFiltroChange={(value) => {
+            setFiltroActivo(value);
+            setPagina(1);
+          }}
+        />
+      )}
 
-
-      {/* ══════════════════════════
-          ESTADO VACÍO
-      ══════════════════════════ */}
-      {productos.length === 0 && (
+      {showListProducts && productos.length === 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] py-16 flex flex-col items-center justify-center text-center">
           <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
             <Package className="w-7 h-7 text-gray-300" />
@@ -251,10 +246,7 @@ const ProductsSection = ({ accent }: { accent: string }) => {
         </div>
       )}
 
-      {/* ══════════════════════════
-          LISTA DE PRODUCTOS
-      ══════════════════════════ */}
-      {productos.length > 0 && (
+      {showListProducts && productos.length > 0 && (
         <div>
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
@@ -412,7 +404,7 @@ const ProductsSection = ({ accent }: { accent: string }) => {
       )}
 
       {/* ── Paginación ── */}
-      {totalPaginas > 1 && (
+      {showListProducts && totalPaginas > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1">
           <p className="text-xs text-gray-400 font-medium text-center sm:text-left">
             Página {pagina} de {totalPaginas}

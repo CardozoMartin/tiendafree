@@ -5,6 +5,7 @@ interface ProductsFiltersProps {
   onBusquedaChange: (value: string) => void;
   filtroActivo: 'todos' | 'activos' | 'ocultos' | 'destacados' | 'bajo_stock';
   onFiltroChange: (value: ProductsFiltersProps['filtroActivo']) => void;
+  
 }
 
 export default function ProductsFilters({
