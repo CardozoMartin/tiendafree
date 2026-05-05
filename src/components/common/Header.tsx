@@ -1,8 +1,7 @@
-
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Logo from './Logo';
 import NavLinkAnimado from '../inputs/NavLinkAnimado';
+import Logo from './Logo';
 
 interface HeaderProps {
   isAuthenticated?: boolean;
@@ -16,11 +15,10 @@ const NAV_LINKS = [
   { label: 'Precios', href: '/#precios' },
 ];
 
-
 const Header = ({ isAuthenticated = false, user = null, onLogout }: HeaderProps) => {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-[#f7f4ef]/95 backdrop-blur-xl shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-10">
+    <header className="sticky top-0 z-50 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-2xl border border-white/40 bg-white/80 px-4 sm:px-6 py-3 shadow-[0_16px_40px_rgba(58,37,20,0.12)] backdrop-blur-xl">
         <Link to="/">
           <Logo />
         </Link>
