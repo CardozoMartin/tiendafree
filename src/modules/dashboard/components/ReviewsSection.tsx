@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { 
   User, 
   Star, 
@@ -49,7 +49,7 @@ export const ReviewsSection = ({ accent, tienda }: ReviewsSectionProps) => {
 
   const tiendaId = tienda?.id || tienda?.datos?.id;
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     if (!tiendaId) return;
     setLoading(true);
     try {
@@ -67,11 +67,11 @@ export const ReviewsSection = ({ accent, tienda }: ReviewsSectionProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, tiendaId]);
 
   useEffect(() => {
     fetchReviews();
-  }, [activeTab, tiendaId]);
+  }, [fetchReviews]);
 
   const handleApprove = async (id: number) => {
     setActingOn(id);
@@ -85,7 +85,7 @@ export const ReviewsSection = ({ accent, tienda }: ReviewsSectionProps) => {
         toast.success("Reseña aprobada");
         setReviews(prev => prev.filter(r => r.id !== id));
       }
-    } catch (error) {
+    } catch {
       toast.error("Error al aprobar");
     } finally {
       setActingOn(null);
@@ -104,7 +104,7 @@ export const ReviewsSection = ({ accent, tienda }: ReviewsSectionProps) => {
         toast.success("Reseña rechazada");
         setReviews(prev => prev.filter(r => r.id !== id));
       }
-    } catch (error) {
+    } catch {
       toast.error("Error al rechazar");
     } finally {
       setActingOn(null);
@@ -126,7 +126,7 @@ export const ReviewsSection = ({ accent, tienda }: ReviewsSectionProps) => {
         setReplyText('');
         setReviews(prev => prev.filter(r => r.id !== id));
       }
-    } catch (error) {
+    } catch {
       toast.error("Error al responder");
     } finally {
       setActingOn(null);

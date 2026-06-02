@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 export function normalizarMetodo(texto: string): string {
   return texto
     .toLowerCase()

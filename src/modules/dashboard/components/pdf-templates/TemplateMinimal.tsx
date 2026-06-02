@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/static-components */
 import React from 'react';
 import type { IProduct } from '../../types/product.type';
 
