@@ -6,8 +6,6 @@ import PrivateRoutes from './routes/PrivateRoutes';
 import PublicRoutes from './routes/PublicRoutes';
 
 const HomePage = lazy(() => import('@modules/storefront/pages/HomePage'));
-const PublicStorePage = lazy(() => import('@modules/storefront/pages/PublicStorePage'));
-const DemoStorePage = lazy(() => import('@modules/templates/pages/DemoStoragePage'));
 const LoginPage = lazy(() => import('@modules/auth/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@modules/auth/pages/RegisterPage'));
 const RecoveryPassPage = lazy(() =>
@@ -45,9 +43,7 @@ function App() {
           {/* Rutas Privadas - Sin Header */}
           <Route element={<PrivateRoutes />}>
             <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-            <Route path="/demo/:nombre" element={<DemoStorePage />} />
           </Route>
-          <Route path="/tienda/:slug" element={<PublicStorePage />} />
           {/* Rutas no encontradas */}
           <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
         </Routes>

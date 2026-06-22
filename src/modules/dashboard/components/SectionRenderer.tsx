@@ -32,7 +32,7 @@ export const SectionRenderer = ({
 
   useEffect(() => {
     if (active === 'store-website' && myShopSlug) {
-      window.open(`/tienda/${myShopSlug}`, '_blank');
+      window.open(`https://apptiendizi.netlify.app/${myShopSlug}`, '_blank');
     }
   }, [active, myShopSlug]);
 

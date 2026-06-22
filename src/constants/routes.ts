@@ -7,9 +7,8 @@ export const ROUTES = {
   VERIFY_EMAIL: '/verify-email',
 
   DASHBOARD: '/dashboard',
-  DEMO_STORE: (nombre: string) => `/demo/${nombre}`,
 
-  PUBLIC_STORE: (slug: string) => `/tienda/${slug}`,
+  PUBLIC_STORE: (slug: string) => `https://apptiendizi.netlify.app/${slug}`,
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

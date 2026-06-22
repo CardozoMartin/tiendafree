@@ -53,7 +53,7 @@ const HomeSection = ({ accent, onNavigate }: HomeSectionProps) => {
       .reduce((sum: number, o: any) => sum + Number(o.total), 0);
   }, [ultimosPedidos]);
 
-  const shopUrl = myShop?.slug ? `${window.location.origin}/tienda/${myShop.slug}` : null;
+  const shopUrl = myShop?.slug ? `https://apptiendizi.netlify.app/${myShop.slug}` : null;
 
   const stats = [
     {

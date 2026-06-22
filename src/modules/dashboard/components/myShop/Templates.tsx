@@ -7,10 +7,10 @@ interface TemplatesProps {
 }
 
 const DEMO_ROUTES: Record<string, string> = {
-  plantilla_accesorios: '/demo/accesorios',
-  plantilla_gorras: '/demo/gorras',
-  plantilla_ropa: '/demo/ropa',
-  plantilla_urban: '/demo/urban',
+  plantilla_accesorios: 'https://apptiendizi.netlify.app/demo-accesorios',
+  plantilla_gorras: 'https://apptiendizi.netlify.app/demo-gorras',
+  plantilla_ropa: 'https://apptiendizi.netlify.app/demo-ropa',
+  plantilla_urban: 'https://apptiendizi.netlify.app/demo-urban',
 };
 
 const Templates = ({ accent }: TemplatesProps) => {
