@@ -10,6 +10,9 @@ export interface IShopData{
     pais:string;
     provincia:string;
     ciudad:string;
+    activa?:boolean;
+    publica?:boolean;
+    logoUrl?:string;
 }
 
 
