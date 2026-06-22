@@ -86,6 +86,7 @@ export default function Dashboard() {
                 setAccent={setAccent}
                 isActiveShop={isActiveShop}
                 myShop={myShop}
+                setActive={setActive}
               />
             </div>
           </main>

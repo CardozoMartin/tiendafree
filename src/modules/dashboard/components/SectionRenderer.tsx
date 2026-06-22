@@ -10,6 +10,7 @@ import SettingsSection from './SettingsSection';
 import CmAiSection from './CmAiSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
+import AdminSection from './AdminSection';
 
 interface SectionRendererProps {
   active: string;
@@ -17,6 +18,7 @@ interface SectionRendererProps {
   setAccent: (color: string) => void;
   isActiveShop?: boolean;
   myShop?: any;
+  setActive?: (section: string) => void;
 }
 
 export const SectionRenderer = ({
@@ -24,6 +26,7 @@ export const SectionRenderer = ({
   accent,
   isActiveShop = false,
   myShop,
+  setActive,
 }: SectionRendererProps) => {
   const myShopSlug = myShop?.slug ?? myShop?.datos?.slug;
 
@@ -35,7 +38,7 @@ export const SectionRenderer = ({
 
   switch (active) {
     case 'home':
-      return <HomeSection accent={accent} />;
+      return <HomeSection accent={accent} onNavigate={setActive} />;
     case 'products':
       return <ProductsSection accent={accent} />;
     case 'orders':
@@ -57,8 +60,10 @@ export const SectionRenderer = ({
       return <ReviewsSection accent={accent} tienda={myShop} />;
     case 'settings':
       return <SettingsSection accent={accent} />;
+    case 'admin':
+      return <AdminSection accent={accent} />;
     default:
-      return <HomeSection accent={accent} />;
+      return <HomeSection accent={accent} onNavigate={setActive} />;
   }
 };
 

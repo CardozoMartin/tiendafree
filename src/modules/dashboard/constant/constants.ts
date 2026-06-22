@@ -16,6 +16,7 @@ export const NAV_ITEMS = [
   { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },
   { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' },
   { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
+  { id: 'admin', icon: 'admin_panel_settings', label: 'Admin', adminOnly: true },
 ];
 
 // ── Status Metadata ────────────────────────────────────────────────────────

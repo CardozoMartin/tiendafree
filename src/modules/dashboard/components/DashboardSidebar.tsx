@@ -140,9 +140,9 @@ export const DashboardSidebar = ({
       {/* ── Nav ── */}
       <nav className="flex-1 p-2 overflow-y-auto">
         <div className="space-y-0.5">
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((item: any) => !item.adminOnly || datosUsuario?.rol === 'ADMIN').map((item) => {
             const isActive = active === item.id;
-            const isDisabled = !isActiveShop && item.id !== 'store';
+            const isDisabled = !isActiveShop && item.id !== 'store' && item.id !== 'admin';
             const label = !isActiveShop && item.id === 'store' ? 'Crear Tienda' : item.label;
             const isExpanded = expandedMenu === item.id;
             const hasSubmenu = 'submenu' in item && item.submenu;
