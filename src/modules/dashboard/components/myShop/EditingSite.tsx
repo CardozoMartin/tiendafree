@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { TiendaData } from '../../../templates/types';
-import { useUpdateShop, useUpdateShopVisual } from '../../hooks/useShop';
+import { useUpdateShop, useUpdateShopVisual, useUploadLogo, useDeleteLogo, useCambiarSlug, useVerificarSlug } from '../../hooks/useShop';
 import ImageHeroHandlers from '../ImageEditors/ImageHeroHandlers';
 import AboutUsEditor from './AboutUsEditor';
 import MarqueeEditor from './MarqueeEditor';
@@ -11,10 +11,60 @@ interface EditingSiteProps {
   tienda?: any;
 }
 
+const SLUG_REGEX = /^[a-z0-9]+(?:[-][a-z0-9]+)*$/;
+
 const EditingSite = ({ tienda }: EditingSiteProps) => {
   // Mutations
   const updateShop = useUpdateShop();
   const updateShopVisual = useUpdateShopVisual();
+  const uploadLogo = useUploadLogo();
+  const deleteLogo = useDeleteLogo();
+  const cambiarSlug = useCambiarSlug();
+
+  // Logo state
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(tienda?.logoUrl ?? null);
+
+  // Slug state
+  const [slugInput, setSlugInput] = useState(tienda?.slug ?? '');
+  const [slugEditing, setSlugEditing] = useState(false);
+  const [slugDebounced, setSlugDebounced] = useState('');
+  const slugTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { data: slugCheck } = useVerificarSlug(
+    slugDebounced,
+    slugEditing && slugDebounced.length >= 3 && slugDebounced !== tienda?.slug
+  );
+
+  useEffect(() => {
+    setLogoPreview(tienda?.logoUrl ?? null);
+    setSlugInput(tienda?.slug ?? '');
+  }, [tienda]);
+
+  const handleSlugChange = (value: string) => {
+    const clean = value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+    setSlugInput(clean);
+    if (slugTimer.current) clearTimeout(slugTimer.current);
+    slugTimer.current = setTimeout(() => setSlugDebounced(clean), 600);
+  };
+
+  const handleLogoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoPreview(URL.createObjectURL(file));
+    await uploadLogo.mutateAsync(file);
+  };
+
+  const handleLogoDelete = async () => {
+    setLogoPreview(null);
+    await deleteLogo.mutateAsync();
+  };
+
+  const handleSlugSave = async () => {
+    if (!slugInput || slugInput === tienda?.slug) { setSlugEditing(false); return; }
+    await cambiarSlug.mutateAsync(slugInput);
+    setSlugEditing(false);
+  };
 
   // react-hook-form para el diseño global
   const { register, handleSubmit, watch, setValue, reset } = useForm({
@@ -173,6 +223,62 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+            {/* Logo */}
+            <div className="flex items-center gap-5 px-6 py-5">
+              <div
+                className="relative w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 overflow-hidden cursor-pointer group flex-shrink-0 hover:border-gray-400 transition-colors"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                {logoPreview ? (
+                  <>
+                    <img src={logoPreview} alt="Logo" className="w-full h-full object-contain p-1" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                    </div>
+                  </>
+                ) : uploadLogo.isPending ? (
+                  <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-6 h-6 text-gray-300 group-hover:text-gray-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 18h16.5M12 3v9m0 0l-2.25-2.25M12 12l2.25-2.25" />
+                  </svg>
+                )}
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoSelect}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-800">Logo de la tienda</p>
+                <p className="text-xs text-gray-400 mt-0.5">PNG, JPG o SVG · Máx 5 MB</p>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={uploadLogo.isPending}
+                    className="text-xs font-semibold text-gray-700 border border-gray-200 rounded-lg px-3 py-1 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  >
+                    {logoPreview ? 'Cambiar' : 'Subir logo'}
+                  </button>
+                  {logoPreview && (
+                    <button
+                      type="button"
+                      onClick={handleLogoDelete}
+                      disabled={deleteLogo.isPending}
+                      className="text-xs font-semibold text-red-500 border border-red-100 rounded-lg px-3 py-1 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    >
+                      Quitar
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Nombre */}
             <div className="flex items-center gap-6 px-6 py-5">
               <div className="flex-1 min-w-0">
@@ -188,6 +294,72 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
                 />
               </div>
             </div>
+
+            {/* Slug / URL */}
+            <div className="px-6 py-5">
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                URL de tu tienda
+              </label>
+              {slugEditing ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 whitespace-nowrap">apptiendizi.netlify.app/</span>
+                    <input
+                      type="text"
+                      value={slugInput}
+                      onChange={(e) => handleSlugChange(e.target.value)}
+                      className="flex-1 text-sm text-gray-900 outline-none border-b border-gray-300 focus:border-gray-800 pb-0.5 transition-colors bg-transparent"
+                      placeholder="mi-tienda"
+                      autoFocus
+                    />
+                  </div>
+                  {slugDebounced.length >= 3 && slugDebounced !== tienda?.slug && (
+                    <p className={`text-xs font-medium ${slugCheck?.disponible ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {slugCheck === undefined ? '…verificando' : slugCheck.disponible ? '✓ Disponible' : '✗ Ya está en uso'}
+                    </p>
+                  )}
+                  {slugInput && !SLUG_REGEX.test(slugInput) && (
+                    <p className="text-xs text-amber-500">Solo letras minúsculas, números y guiones</p>
+                  )}
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSlugSave}
+                      disabled={
+                        cambiarSlug.isPending ||
+                        !slugInput ||
+                        !SLUG_REGEX.test(slugInput) ||
+                        (slugCheck !== undefined && !slugCheck.disponible && slugInput !== tienda?.slug)
+                      }
+                      className="text-xs font-bold bg-gray-900 text-white rounded-lg px-4 py-1.5 hover:bg-gray-700 transition-colors disabled:opacity-40"
+                    >
+                      {cambiarSlug.isPending ? 'Guardando…' : 'Confirmar'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setSlugInput(tienda?.slug ?? ''); setSlugEditing(false); }}
+                      className="text-xs font-medium text-gray-500 hover:text-gray-800 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-gray-700 font-mono flex-1 truncate">
+                    apptiendizi.netlify.app/<span className="font-bold text-gray-900">{tienda?.slug}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSlugEditing(true)}
+                    className="text-xs font-semibold text-gray-500 border border-gray-200 rounded-lg px-3 py-1 hover:bg-gray-50 transition-colors flex-shrink-0"
+                  >
+                    Editar
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Subtítulo / descripción */}
             <div className="px-6 py-5">
               <label className="block text-xs font-medium text-gray-500 mb-1">

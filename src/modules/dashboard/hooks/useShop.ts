@@ -14,6 +14,10 @@ import { getMyShopFn, getPublicShopFn, postCreateShopFn,
   postUploadAboutUsImageFn,
   getMarqueeFn,
   putUpdateMarqueeFn,
+  postUploadLogoFn,
+  deleteLogoFn,
+  patchCambiarSlugFn,
+  getVerificarSlugFn,
 } from '../api/shop.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -222,5 +226,60 @@ export const useUpdateMarquee = () => {
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
     },
+  });
+};
+
+// ── Logo ──
+
+export const useUploadLogo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postUploadLogoFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje ?? 'Logo actualizado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useDeleteLogo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteLogoFn,
+    onSuccess: () => {
+      toast.success('Logo eliminado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+// ── Slug ──
+
+export const useCambiarSlug = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: patchCambiarSlugFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje ?? 'Slug actualizado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useVerificarSlug = (slug: string, enabled: boolean) => {
+  return useQuery({
+    queryKey: ['verificarSlug', slug],
+    queryFn: () => getVerificarSlugFn(slug),
+    enabled: enabled && slug.length >= 3,
+    staleTime: 2000,
   });
 };

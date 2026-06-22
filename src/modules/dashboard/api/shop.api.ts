@@ -97,3 +97,31 @@ export const putUpdateMarqueeFn = async (items: Array<{ texto: string; orden: nu
   const response = await api.put('/tiendas/mi-tienda/marquee', { items });
   return response.data;
 };
+
+// ── Logo ──
+
+export const postUploadLogoFn = async (file: File) => {
+  const formData = new FormData();
+  formData.append('photo', file);
+  const response = await api.post('/tiendas/mi-tienda/logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
+export const deleteLogoFn = async () => {
+  const response = await api.delete('/tiendas/mi-tienda/logo');
+  return response.data;
+};
+
+// ── Slug ──
+
+export const patchCambiarSlugFn = async (slug: string) => {
+  const response = await api.patch('/tiendas/mi-tienda/slug', { slug });
+  return response.data;
+};
+
+export const getVerificarSlugFn = async (slug: string) => {
+  const response = await api.get('/tiendas/mi-tienda/slug/verificar', { params: { slug } });
+  return response.data.datos as { slug: string; disponible: boolean };
+};
