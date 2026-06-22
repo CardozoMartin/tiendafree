@@ -66,6 +66,11 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
     setSlugEditing(false);
   };
 
+  const tiendaActiva = tienda?.activa ?? false;
+  const toggleActiva = async () => {
+    await updateShop.mutateAsync({ activa: !tiendaActiva });
+  };
+
   // react-hook-form para el diseño global
   const { register, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
@@ -206,6 +211,50 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           </button>
         </div>
       </div>
+
+      {/* ── Estado de la tienda ── */}
+      <button
+        type="button"
+        onClick={toggleActiva}
+        disabled={updateShop.isPending}
+        className={`w-full flex items-center justify-between gap-4 rounded-2xl px-6 py-5 transition-all border-2 ${
+          tiendaActiva
+            ? 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+            : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+        } disabled:opacity-60 disabled:cursor-not-allowed`}
+      >
+        <div className="flex items-center gap-4 text-left">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+            tiendaActiva ? 'bg-emerald-500' : 'bg-slate-300'
+          }`}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              {tiendaActiva
+                ? <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>
+                : <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></>
+              }
+            </svg>
+          </div>
+          <div>
+            <p className={`text-base font-black ${tiendaActiva ? 'text-emerald-800' : 'text-slate-600'}`}>
+              {tiendaActiva ? 'Tienda activa y visible' : 'Tienda desactivada'}
+            </p>
+            <p className={`text-xs mt-0.5 ${tiendaActiva ? 'text-emerald-600' : 'text-slate-400'}`}>
+              {tiendaActiva
+                ? 'Tus clientes pueden encontrar y comprar en tu tienda'
+                : 'Tu tienda no es visible para los clientes · Hacé clic para activarla'}
+            </p>
+          </div>
+        </div>
+
+        {/* Toggle visual */}
+        <div className={`relative flex-shrink-0 w-14 h-7 rounded-full transition-colors duration-300 ${
+          tiendaActiva ? 'bg-emerald-500' : 'bg-slate-300'
+        }`}>
+          <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${
+            tiendaActiva ? 'left-8' : 'left-1'
+          }`} />
+        </div>
+      </button>
 
       {/* ── Content ── */}
       <div className="space-y-10">
