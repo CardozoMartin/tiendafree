@@ -105,7 +105,7 @@ export const DashboardSidebar = ({
   const { confirm, ConfirmModal } = useConfirm();
 
   //obtenemos los datos del usaurio para mostrar el nombre y el email en el sidebar, y para el logout
-  const { user:datosUsuario } = useAuthSessionStore();
+  const { user: datosUsuario } = useAuthSessionStore();
 
   console.log('Datos del usuario desde el sidebar:', datosUsuario);
 
@@ -140,7 +140,7 @@ export const DashboardSidebar = ({
       {/* ── Nav ── */}
       <nav className="flex-1 p-2 overflow-y-auto">
         <div className="space-y-0.5">
-          {NAV_ITEMS.filter((item: any) => !item.adminOnly || datosUsuario?.rol === 'ADMIN').map((item) => {
+          {(NAV_ITEMS as any[]).filter((item) => !item.adminOnly || (datosUsuario?.rol ?? []).some((r) => r.nombre === 'ADMIN')).map((item) => {
             const isActive = active === item.id;
             const isDisabled = !isActiveShop && item.id !== 'store' && item.id !== 'admin';
             const label = !isActiveShop && item.id === 'store' ? 'Crear Tienda' : item.label;
@@ -221,7 +221,7 @@ export const DashboardSidebar = ({
                 {/* Submenu */}
                 {hasSubmenu && isActiveShop && isExpanded && !sidebarCollapsed && (
                   <div className="mt-0.5 ml-4 pl-3.5 border-l border-zinc-200/60 space-y-0.5 py-1">
-                    {item.submenu.map((sub) => {
+                    {item.submenu.map((sub: { id: string; icon: string; label: string }) => {
                       const isSubActive = active === sub.id;
                       return (
                         <button
