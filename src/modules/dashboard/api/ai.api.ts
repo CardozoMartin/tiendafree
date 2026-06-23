@@ -8,19 +8,23 @@ export interface GeneratePostRequest {
   objetivo: string;
 }
 
-export interface GeneratedMarketingKit {
-  resumen: string;
-  hook: string;
+export interface MarketingBlock {
+  titulo: string;
+  descripcion: string;
   caption: string;
   cta: string;
   hashtags: string[];
   whatsapp: string;
   historia: string;
   ideasVisuales: string[];
-  variantes: Array<{
-    titulo: string;
-    texto: string;
-  }>;
+}
+
+export interface GeneratedMarketingKit {
+  resumen: string;
+  hook: string;
+  venta: MarketingBlock;
+  promocion: MarketingBlock;
+  organico: MarketingBlock;
   recomendaciones: string[];
 }
 

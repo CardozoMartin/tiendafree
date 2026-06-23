@@ -1,403 +1,401 @@
-/* eslint-disable react-hooks/static-components */
 import React from 'react';
 import type { IProduct } from '../../types/product.type';
 
-const formatPrice = (price: number, moneda: string) =>
-  new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
+const fmt = (price: number, moneda: string) =>
+  new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(price);
 
 export interface TemplateProps {
   productos: IProduct[];
-  tienda: { nombre: string; tagline?: string; logo?: string };
+  tienda: { nombre: string; tagline?: string; logo?: string; instagram?: string; whatsapp?: string; ciudad?: string };
   grupos: Record<string, IProduct[]>;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   TEMPLATE MINIMAL — 4 productos por página (2×2).
-   Sin descripción: imagen ocupa ~72% de la card, info reducida a nombre,
-   precio y talles. Layout completamente predecible en PDF.
-   ────────────────────────────────────────────────────────────────────────── */
-
+/* ─── Paleta ─────────────────────────────────────────────────────────────── */
 const C = {
-  dark:     '#18181B',
+  bg:       '#FAFAF9',
   page:     '#FFFFFF',
-  soft:     '#F8F8F7',
-  mid:      '#EFEFED',
-  accent:   '#7C5C3B',
-  border:   '#E4E4E0',
-  text:     '#18181B',
-  textMid:  '#6B6860',
-  textMute: '#B0B0A8',
+  dark:     '#0F0F0E',
+  ink:      '#1C1C1A',
+  mid:      '#6B6860',
+  mute:     '#AEACA6',
+  line:     '#E8E6E1',
+  lineSoft: '#F0EEE9',
+  accent:   '#C8A96E',   // dorado cálido
+  accentBg: '#FBF5EB',
   white:    '#FFFFFF',
 };
 
-const SERIF = "'Cormorant Garamond', Georgia, serif";
-const SANS  = "'DM Sans', 'Helvetica Neue', Arial, sans-serif";
+const SANS  = "'Inter', 'Helvetica Neue', Arial, sans-serif";
+const SERIF = "'Georgia', 'Times New Roman', serif";
 
-const PAGE_W = 794;
-const PAGE_H = 1123;
-const PAD_X  = 28;
-const PAD_Y  = 20;
-const HDR_H  = 44;
-const FTR_H  = 32;
-const GAP    = 12;
+/* ─── Página A4 en px a 96dpi ────────────────────────────────────────────── */
+const PW = 794;
+const PH = 1123;
 
-/* ── Cálculo de card ──
-   Grilla: 1123 - 44 - 32 - 40 = 1007px → fila = (1007 - 12) / 2 = 497px
-   Columna: (794 - 56 - 12) / 2 = 363px
-── */
-const CARD_W = Math.floor((PAGE_W - PAD_X * 2 - GAP) / 2);   // 363px
-const CARD_H = Math.floor((PAGE_H - HDR_H - FTR_H - PAD_Y * 2 - GAP) / 2); // 497px
+/* ─── Helpers de estilo inline ───────────────────────────────────────────── */
+const abs = (style: React.CSSProperties): React.CSSProperties => ({ position: 'absolute', ...style });
+const flex = (style: React.CSSProperties = {}): React.CSSProperties => ({ display: 'flex', ...style });
+const page = (extra: React.CSSProperties = {}): React.CSSProperties => ({
+  width: `${PW}px`, height: `${PH}px`, background: C.page,
+  position: 'relative', overflow: 'hidden', flexShrink: 0,
+  pageBreakAfter: 'always', ...extra,
+});
 
-/* ── Sin descripción la imagen puede ser más generosa ──
-   Imagen: 72% → 357px
-   Info:   28% → 140px  (nombre 2 líneas + separador + precio+talles)
-── */
-const IMG_H  = Math.floor(CARD_H * 0.72);  // 357px
-const INFO_H = CARD_H - IMG_H;             // 140px
-const INFO_PAD_X = 16;
-const INFO_PAD_Y = 14;
-
-export const TemplateMinimal: React.FC<TemplateProps> = ({ productos, tienda }) => {
-  const total = productos.length;
+/* ═══════════════════════════════════════════════════════════════════════════
+   PORTADA
+═══════════════════════════════════════════════════════════════════════════ */
+const Cover: React.FC<{ tienda: TemplateProps['tienda']; total: number }> = ({ tienda, total }) => {
   const fecha = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
 
-  const pages: IProduct[][] = [];
-  for (let i = 0; i < total; i += 4) pages.push(productos.slice(i, i + 4));
+  return (
+    <div style={page({ background: C.dark, display: 'flex', flexDirection: 'column' })}>
 
-  /* ── Badge sobre imagen ── */
-  const Badge = ({
-    children, top, left, right, bg,
-  }: {
-    children: React.ReactNode;
-    top: number; left?: number; right?: number; bg: string;
-  }) => (
-    <span
-      style={{
-        position: 'absolute',
-        top,
-        ...(left  !== undefined ? { left }  : {}),
-        ...(right !== undefined ? { right } : {}),
-        background: bg,
-        color: C.white,
-        fontFamily: SANS,
-        fontSize: '6.5px',
-        fontWeight: 600,
-        letterSpacing: '0.14em',
-        textTransform: 'uppercase',
-        padding: '3px 8px',
-        lineHeight: 1,
-      }}
-    >
-      {children}
-    </span>
-  );
+      {/* Franja dorada izquierda */}
+      <div style={abs({ top: 0, left: 0, width: '5px', height: '100%', background: C.accent })} />
 
-  /* ── Card ── */
-  const Card = ({ p }: { p: IProduct | null }) => {
-    if (!p) {
-      return (
-        <div
-          style={{
-            width: `${CARD_W}px`,
-            height: `${CARD_H}px`,
-            background: C.soft,
-            border: `0.5px solid ${C.border}`,
-            flexShrink: 0,
-          }}
-        />
-      );
-    }
+      {/* Marco interior */}
+      <div style={abs({ top: 32, left: 32, right: 32, bottom: 32, border: `0.5px solid #2A2A28` })} />
 
-    const precio = p.precioOferta ?? p.precio;
-    const oferta = !!p.precioOferta;
-    const talles = p.tags
-      ?.filter((t) => t.nombre.toLowerCase().startsWith('talle'))
-      .slice(0, 5) ?? [];
+      {/* Contenido centrado */}
+      <div style={flex({ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0', padding: '80px 80px 60px' })}>
 
-    return (
-      <div
-        style={{
-          width:         `${CARD_W}px`,
-          height:        `${CARD_H}px`,
-          background:    C.page,
-          border:        `0.5px solid ${C.border}`,
-          display:       'flex',
-          flexDirection: 'column',
-          overflow:      'hidden',
-          flexShrink:    0,
-        }}
-      >
-        {/* ── Imagen ── */}
-        <div
-          style={{
-            width:      '100%',
-            height:     `${IMG_H}px`,
-            flexShrink: 0,
-            background: C.mid,
-            overflow:   'hidden',
-            position:   'relative',
-          }}
-        >
-          {p.imagenPrincipalUrl ? (
-            <img
-              src={p.imagenPrincipalUrl}
-              alt={p.nombre}
-              crossOrigin="anonymous"
-              style={{
-                width: '100%', height: '100%',
-                objectFit: 'cover', objectPosition: 'center top',
-                display: 'block',
-              }}
-            />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontFamily: SANS, fontSize: '8px', color: C.textMute, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-                Sin imagen
-              </span>
-            </div>
-          )}
-          {oferta       && <Badge top={10} right={10} bg={C.accent}>Oferta</Badge>}
-          {p.stock <= 0 && <Badge top={10} left={10}  bg="rgba(24,24,27,0.72)">Agotado</Badge>}
-          {p.stock > 0 && p.stock <= 5 && (
-            <Badge top={10} left={10} bg={C.accent}>Últimas {p.stock}</Badge>
+        {/* Logo */}
+        {tienda.logo && (
+          <img
+            src={tienda.logo}
+            alt={tienda.nombre}
+            crossOrigin="anonymous"
+            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: `2px solid #2A2A28`, marginBottom: '32px' }}
+          />
+        )}
+
+        {/* Eyebrow */}
+        <p style={{ fontFamily: SANS, fontSize: '9px', color: C.accent, letterSpacing: '0.35em', textTransform: 'uppercase', margin: '0 0 20px', fontWeight: 600 }}>
+          Catálogo de productos
+        </p>
+
+        {/* Nombre tienda */}
+        <h1 style={{ fontFamily: SERIF, fontSize: '58px', fontWeight: 400, color: C.white, margin: 0, textAlign: 'center', letterSpacing: '0.06em', textTransform: 'uppercase', lineHeight: 1.1 }}>
+          {tienda.nombre}
+        </h1>
+
+        {/* Línea dorada */}
+        <div style={{ width: '60px', height: '1px', background: C.accent, margin: '28px 0' }} />
+
+        {/* Tagline */}
+        {tienda.tagline && (
+          <p style={{ fontFamily: SANS, fontSize: '12px', color: '#8A887E', letterSpacing: '0.04em', margin: 0, textAlign: 'center', maxWidth: '380px', lineHeight: 1.7, fontWeight: 300 }}>
+            {tienda.tagline}
+          </p>
+        )}
+
+        {/* Stats */}
+        <div style={flex({ gap: '48px', marginTop: '52px', alignItems: 'center' })}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontFamily: SERIF, fontSize: '32px', color: C.white, margin: 0, fontWeight: 400, letterSpacing: '0.04em' }}>{total}</p>
+            <p style={{ fontFamily: SANS, fontSize: '8px', color: '#5A5A52', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '6px 0 0' }}>Productos</p>
+          </div>
+          <div style={{ width: '0.5px', height: '40px', background: '#2A2A28' }} />
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontFamily: SERIF, fontSize: '18px', color: C.white, margin: 0, fontWeight: 400, textTransform: 'capitalize', letterSpacing: '0.02em' }}>{fecha}</p>
+            <p style={{ fontFamily: SANS, fontSize: '8px', color: '#5A5A52', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '6px 0 0' }}>Edición</p>
+          </div>
+          {tienda.ciudad && (
+            <>
+              <div style={{ width: '0.5px', height: '40px', background: '#2A2A28' }} />
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontFamily: SERIF, fontSize: '18px', color: C.white, margin: 0, fontWeight: 400, letterSpacing: '0.02em' }}>{tienda.ciudad}</p>
+                <p style={{ fontFamily: SANS, fontSize: '8px', color: '#5A5A52', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '6px 0 0' }}>Ciudad</p>
+              </div>
+            </>
           )}
         </div>
+      </div>
 
-        {/* ── Info — sin descripción ── */}
-        <div
-          style={{
-            width:          '100%',
-            height:         `${INFO_H}px`,
-            flexShrink:     0,
-            overflow:       'hidden',
-            borderTop:      `0.5px solid ${C.border}`,
-            padding:        `${INFO_PAD_Y}px ${INFO_PAD_X}px`,
-            boxSizing:      'border-box',
-            display:        'flex',
-            flexDirection:  'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          {/* Nombre — 2 líneas máx */}
-          <p
-            style={{
-              fontFamily:      SANS,
-              fontSize:        '9.5px',
-              fontWeight:      600,
-              color:           C.text,
-              margin:          0,
-              letterSpacing:   '0.04em',
-              textTransform:   'uppercase',
-              lineHeight:      '13.5px',
-              height:          '27px',
-              overflow:        'hidden',
-              display:         '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}
-          >
-            {p.nombre}
-          </p>
+      {/* Footer de portada */}
+      <div style={flex({ justifyContent: 'space-between', alignItems: 'center', padding: '0 52px 52px' })}>
+        {tienda.instagram && (
+          <p style={{ fontFamily: SANS, fontSize: '8px', color: '#4A4A42', margin: 0, letterSpacing: '0.12em' }}>@{tienda.instagram}</p>
+        )}
+        {tienda.whatsapp && (
+          <p style={{ fontFamily: SANS, fontSize: '8px', color: '#4A4A42', margin: 0, letterSpacing: '0.12em' }}>{tienda.whatsapp}</p>
+        )}
+      </div>
+    </div>
+  );
+};
 
-          {/* Precio + talles */}
-          <div style={{ flexShrink: 0 }}>
-            <div style={{ height: '0.5px', background: C.border, marginBottom: '9px' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+/* ═══════════════════════════════════════════════════════════════════════════
+   SEPARADOR DE SECCIÓN (1 página por categoría)
+═══════════════════════════════════════════════════════════════════════════ */
+const SectionDivider: React.FC<{ categoria: string; count: number; tienda: TemplateProps['tienda'] }> = ({ categoria, count, tienda }) => (
+  <div style={page({ background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' })}>
+    <div style={abs({ top: 24, left: 24, right: 24, bottom: 24, border: `0.5px solid ${C.line}` })} />
+    <p style={{ fontFamily: SANS, fontSize: '9px', color: C.accent, letterSpacing: '0.32em', textTransform: 'uppercase', margin: '0 0 16px', fontWeight: 600 }}>
+      {tienda.nombre}
+    </p>
+    <h2 style={{ fontFamily: SERIF, fontSize: '52px', fontWeight: 400, color: C.ink, margin: 0, textTransform: 'capitalize', letterSpacing: '0.04em', textAlign: 'center' }}>
+      {categoria}
+    </h2>
+    <div style={{ width: '40px', height: '1px', background: C.accent, margin: '24px 0' }} />
+    <p style={{ fontFamily: SANS, fontSize: '10px', color: C.mute, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>
+      {count} {count === 1 ? 'producto' : 'productos'}
+    </p>
+  </div>
+);
 
-              {/* Precio */}
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexShrink: 0 }}>
-                <span
-                  style={{
-                    fontFamily: SERIF,
-                    fontSize:   '21px',
-                    fontWeight: 600,
-                    color:      oferta ? C.accent : C.text,
-                    lineHeight: 1,
-                  }}
-                >
-                  {formatPrice(precio, p.moneda)}
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEADER / FOOTER DE PÁGINA DE PRODUCTOS
+═══════════════════════════════════════════════════════════════════════════ */
+const PageHeader: React.FC<{ tienda: TemplateProps['tienda']; categoria: string; pageNum: number; total: number }> = ({ tienda, categoria, pageNum, total }) => (
+  <div style={flex({ height: '40px', flexShrink: 0, borderBottom: `0.5px solid ${C.line}`, padding: '0 28px', alignItems: 'center', justifyContent: 'space-between', background: C.white })}>
+    <p style={{ fontFamily: SANS, fontSize: '7.5px', color: C.mute, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0, fontWeight: 500 }}>
+      {tienda.nombre} <span style={{ color: C.line, margin: '0 6px' }}>·</span> {categoria}
+    </p>
+    <p style={{ fontFamily: SANS, fontSize: '7.5px', color: C.mute, margin: 0, letterSpacing: '0.1em' }}>
+      {pageNum} / {total}
+    </p>
+  </div>
+);
+
+const PageFooter: React.FC<{ tienda: TemplateProps['tienda'] }> = ({ tienda }) => (
+  <div style={flex({ height: '32px', flexShrink: 0, borderTop: `0.5px solid ${C.line}`, padding: '0 28px', alignItems: 'center', justifyContent: 'space-between' })}>
+    <p style={{ fontFamily: SANS, fontSize: '7px', color: C.mute, margin: 0, letterSpacing: '0.08em' }}>
+      {tienda.instagram ? `@${tienda.instagram}` : tienda.nombre}
+    </p>
+    <p style={{ fontFamily: SANS, fontSize: '7px', color: C.mute, margin: 0 }}>
+      {new Date().toLocaleDateString('es-AR')}
+    </p>
+  </div>
+);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD DE PRODUCTO  —  imagen grande + info debajo
+   Layout: 2 col × 2 filas, imagen 72% de la altura
+═══════════════════════════════════════════════════════════════════════════ */
+const COLS     = 1;
+const PAD      = 40;   // padding externo de la grilla
+const GAP      = 20;   // gap entre cards
+const HDR_H    = 40;
+const FTR_H    = 32;
+
+const CARD_W   = PW - PAD * 2;                                            // ~714px
+const GRID_H   = PH - HDR_H - FTR_H - PAD * 2;
+const ROWS     = 2;
+const CARD_H   = Math.floor((GRID_H - GAP * (ROWS - 1)) / ROWS);         // ~490px
+
+const IMG_H    = Math.floor(CARD_H * 0.62);
+const INFO_H   = CARD_H - IMG_H;
+const ITEMS_PG = COLS * ROWS;   // 2 por página
+
+const ProductCard: React.FC<{ p: IProduct | null }> = ({ p }) => {
+  if (!p) {
+    return (
+      <div style={{ width: `${CARD_W}px`, height: `${CARD_H}px`, background: C.lineSoft, flexShrink: 0 }} />
+    );
+  }
+
+  const precio     = p.precioOferta ?? p.precio;
+  const tieneOferta = !!p.precioOferta && p.precioOferta < p.precio;
+  const descPct    = tieneOferta ? Math.round(((p.precio - precio) / p.precio) * 100) : 0;
+  const sinStock   = p.stock <= 0;
+  const pocoStock  = p.stock > 0 && p.stock <= 5;
+
+  return (
+    <div style={{ width: `${CARD_W}px`, height: `${CARD_H}px`, background: C.white, border: `0.5px solid ${C.line}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+
+      {/* ── Imagen ── */}
+      <div style={{ width: '100%', height: `${IMG_H}px`, flexShrink: 0, background: C.lineSoft, overflow: 'hidden', position: 'relative' }}>
+        {p.imagenPrincipalUrl ? (
+          <img
+            src={p.imagenPrincipalUrl}
+            alt={p.nombre}
+            crossOrigin="anonymous"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+          />
+        ) : (
+          <div style={flex({ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' })}>
+            <p style={{ fontFamily: SANS, fontSize: '8px', color: C.mute, letterSpacing: '0.15em', textTransform: 'uppercase', margin: 0 }}>Sin imagen</p>
+          </div>
+        )}
+
+        {/* Badge % descuento */}
+        {tieneOferta && (
+          <div style={abs({ top: 10, right: 10, background: C.accent, color: C.white, fontFamily: SANS, fontSize: '7px', fontWeight: 700, padding: '4px 8px', letterSpacing: '0.08em' })}>
+            -{descPct}%
+          </div>
+        )}
+
+        {/* Badge agotado */}
+        {sinStock && (
+          <div style={abs({ top: 10, left: 10, background: 'rgba(15,15,14,0.75)', color: C.white, fontFamily: SANS, fontSize: '7px', fontWeight: 600, padding: '4px 8px', letterSpacing: '0.12em', textTransform: 'uppercase' })}>
+            Agotado
+          </div>
+        )}
+
+        {/* Badge poco stock */}
+        {pocoStock && (
+          <div style={abs({ top: 10, left: 10, background: C.accent, color: C.white, fontFamily: SANS, fontSize: '7px', fontWeight: 600, padding: '4px 8px', letterSpacing: '0.1em', textTransform: 'uppercase' })}>
+            Últimas {p.stock}
+          </div>
+        )}
+
+        {/* Badge destacado */}
+        {p.destacado && (
+          <div style={abs({ bottom: 10, left: 10, background: C.dark, color: C.white, fontFamily: SANS, fontSize: '6.5px', fontWeight: 700, padding: '3px 8px', letterSpacing: '0.16em', textTransform: 'uppercase' })}>
+            ★ Destacado
+          </div>
+        )}
+      </div>
+
+      {/* ── Info ── */}
+      <div style={{ height: `${INFO_H}px`, flexShrink: 0, padding: '20px 28px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px', borderTop: `0.5px solid ${C.line}` }}>
+
+        {/* Nombre */}
+        <p style={{
+          fontFamily: SANS, fontSize: '18px', fontWeight: 700, color: C.ink,
+          margin: 0, letterSpacing: '0.04em', textTransform: 'uppercase',
+          lineHeight: '24px', whiteSpace: 'nowrap', overflow: 'visible',
+        }}>
+          {p.nombre}
+        </p>
+
+        {/* Separador + precio */}
+        <div>
+          <div style={{ height: '0.5px', background: C.line, marginBottom: '10px' }} />
+          <div style={flex({ alignItems: 'baseline', justifyContent: 'space-between' })}>
+
+            {/* Precio */}
+            <div style={flex({ alignItems: 'baseline', gap: '8px' })}>
+              <span style={{ fontFamily: SERIF, fontSize: '22px', fontWeight: 400, color: tieneOferta ? C.accent : C.ink, lineHeight: 1 }}>
+                {fmt(precio, p.moneda)}
+              </span>
+              {tieneOferta && (
+                <span style={{ fontFamily: SANS, fontSize: '9px', color: C.mute, textDecoration: 'line-through' }}>
+                  {fmt(p.precio, p.moneda)}
                 </span>
-                {oferta && (
-                  <span style={{ fontFamily: SANS, fontSize: '8px', color: C.textMute, textDecoration: 'line-through' }}>
-                    {formatPrice(p.precio, p.moneda)}
-                  </span>
-                )}
-              </div>
-
-              {/* Talles + destacado */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '3px', flexWrap: 'nowrap', overflow: 'hidden' }}>
-                {p.destacado && (
-                  <span style={{ color: C.accent, fontSize: '10px', flexShrink: 0 }}>★</span>
-                )}
-                {talles.map((t) => (
-                  <span
-                    key={t.nombre}
-                    style={{
-                      fontFamily:    SANS,
-                      fontSize:      '6.5px',
-                      color:         C.textMid,
-                      border:        `0.5px solid ${C.border}`,
-                      padding:       '2px 5px',
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      whiteSpace:    'nowrap',
-                      flexShrink:    0,
-                    }}
-                  >
-                    {t.nombre.replace(/^talle[:\s]*/i, '')}
-                  </span>
-                ))}
-              </div>
+              )}
             </div>
+
+            {/* Variantes / talles */}
+            {p.variantes?.length > 0 && (
+              <span style={{ fontFamily: SANS, fontSize: '8px', color: C.mute, letterSpacing: '0.08em' }}>
+                {p.variantes.length} variante{p.variantes.length > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
         </div>
       </div>
-    );
-  };
-
-  /* ── Header / Footer ── */
-  const PageHeader = ({ pageNum, tot }: { pageNum: number; tot: number }) => (
-    <div
-      style={{
-        height: `${HDR_H}px`, flexShrink: 0,
-        borderBottom: `0.5px solid ${C.border}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: `0 ${PAD_X}px`, background: C.soft,
-      }}
-    >
-      <p style={{ fontFamily: SANS, fontSize: '8px', color: C.textMute, letterSpacing: '0.22em', textTransform: 'uppercase', margin: 0, fontWeight: 500 }}>
-        {tienda.nombre} — Catálogo
-      </p>
-      <p style={{ fontFamily: SANS, fontSize: '8px', color: C.textMute, letterSpacing: '0.12em', margin: 0 }}>
-        Pág. {pageNum} de {tot}
-      </p>
     </div>
   );
+};
 
-  const PageFooter = ({ items }: { items: IProduct[] }) => {
-    const cats = [...new Set(items.map((p) => p.categoria?.nombre).filter(Boolean))];
-    return (
-      <div
-        style={{
-          height: `${FTR_H}px`, flexShrink: 0,
-          borderTop: `0.5px solid ${C.border}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: `0 ${PAD_X}px`,
-        }}
-      >
-        <p style={{ fontFamily: SANS, fontSize: '7.5px', color: C.textMute, letterSpacing: '0.12em', margin: 0, textTransform: 'capitalize' }}>
-          {cats.length > 0 ? cats.join(' · ') : fecha}
-        </p>
-        <p style={{ fontFamily: SANS, fontSize: '7.5px', color: C.textMute, margin: 0 }}>{fecha}</p>
-      </div>
-    );
-  };
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTRAPORTADA
+═══════════════════════════════════════════════════════════════════════════ */
+const BackCover: React.FC<{ tienda: TemplateProps['tienda']; total: number }> = ({ tienda, total }) => (
+  <div style={page({ background: C.dark, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0', pageBreakAfter: undefined })}>
+    <div style={abs({ top: 32, left: 32, right: 32, bottom: 32, border: '0.5px solid #2A2A28' })} />
+    <div style={abs({ top: 0, left: 0, width: '5px', height: '100%', background: C.accent })} />
 
-  /* ── Portada / Contraportada ── */
-  const Cover = ({ isBack = false }: { isBack?: boolean }) => (
-    <div
-      style={{
-        width: `${PAGE_W}px`, height: `${PAGE_H}px`,
-        background: C.dark,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: '20px',
-        pageBreakAfter:  isBack ? undefined : 'always',
-        pageBreakBefore: isBack ? 'always'  : undefined,
-        position: 'relative', overflow: 'hidden', flexShrink: 0,
-      }}
-    >
-      <div style={{ position: 'absolute', top: 40, left: 40, right: 40, bottom: 40, border: '0.5px solid #2e2c28' }} />
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '6px', height: '100%', background: C.accent }} />
+    <p style={{ fontFamily: SANS, fontSize: '9px', color: C.accent, letterSpacing: '0.35em', textTransform: 'uppercase', margin: '0 0 20px', fontWeight: 600 }}>
+      Gracias por elegirnos
+    </p>
+    <h2 style={{ fontFamily: SERIF, fontSize: '44px', fontWeight: 400, color: C.white, margin: 0, textAlign: 'center', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 80px', lineHeight: 1.1 }}>
+      {tienda.nombre}
+    </h2>
+    <div style={{ width: '50px', height: '1px', background: C.accent, margin: '24px 0' }} />
+    <p style={{ fontFamily: SANS, fontSize: '9px', color: '#5A5A52', margin: 0, letterSpacing: '0.12em' }}>
+      {total} productos · {new Date().toLocaleDateString('es-AR')}
+    </p>
 
-      {tienda.logo && (
-        <img
-          src={tienda.logo} alt={tienda.nombre} crossOrigin="anonymous"
-          style={{ width: '68px', height: '68px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #3a3830' }}
-        />
-      )}
-
-      <p style={{ fontFamily: SANS, fontSize: '8px', color: '#5a5a50', letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>
-        {isBack ? 'Gracias por elegirnos' : 'Catálogo de productos'}
-      </p>
-
-      <p style={{ fontFamily: SERIF, fontSize: '52px', fontWeight: 300, color: C.white, margin: 0, textAlign: 'center', letterSpacing: '0.10em', textTransform: 'uppercase', padding: '0 80px', lineHeight: 1.1 }}>
-        {tienda.nombre}
-      </p>
-
-      <div style={{ width: '48px', height: '1px', background: C.accent }} />
-
-      {!isBack && tienda.tagline && (
-        <p style={{ fontFamily: SANS, fontSize: '9.5px', color: '#6a6a60', letterSpacing: '0.06em', margin: 0, fontWeight: 300, lineHeight: 1.8, textAlign: 'center', maxWidth: '400px' }}>
-          {tienda.tagline}
+    {/* Contacto */}
+    <div style={flex({ gap: '32px', marginTop: '40px', alignItems: 'center' })}>
+      {tienda.instagram && (
+        <p style={{ fontFamily: SANS, fontSize: '8.5px', color: '#6A6A62', margin: 0, letterSpacing: '0.1em' }}>
+          @{tienda.instagram}
         </p>
       )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '8px' }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontFamily: SANS, fontSize: '7px', color: '#4a4a42', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 4px' }}>Fecha</p>
-          <p style={{ fontFamily: SERIF, fontSize: '16px', color: C.white, margin: 0, fontWeight: 400, textTransform: 'capitalize', letterSpacing: '0.04em' }}>{fecha}</p>
-        </div>
-        <div style={{ width: '0.5px', height: '40px', background: '#2e2c28' }} />
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontFamily: SANS, fontSize: '7px', color: '#4a4a42', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 4px' }}>Productos</p>
-          <p style={{ fontFamily: SERIF, fontSize: '16px', color: C.white, margin: 0, fontWeight: 400, letterSpacing: '0.04em' }}>{total}</p>
-        </div>
-      </div>
+      {tienda.instagram && tienda.whatsapp && (
+        <div style={{ width: '0.5px', height: '14px', background: '#2A2A28' }} />
+      )}
+      {tienda.whatsapp && (
+        <p style={{ fontFamily: SANS, fontSize: '8.5px', color: '#6A6A62', margin: 0, letterSpacing: '0.1em' }}>
+          {tienda.whatsapp}
+        </p>
+      )}
     </div>
-  );
+  </div>
+);
 
-  /* ══════════════════════════════════════════════════════════════════════════
-     RENDER
-  ══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER PRINCIPAL
+═══════════════════════════════════════════════════════════════════════════ */
+export const TemplateMinimal: React.FC<TemplateProps> = ({ productos, tienda, grupos }) => {
+  const total = productos.length;
+
+  // Calcular total de páginas para el header
+  let totalPages = 0;
+  const sectionPages: Record<string, number> = {};
+  for (const [cat, items] of Object.entries(grupos)) {
+    const pags = Math.ceil(items.length / ITEMS_PG);
+    sectionPages[cat] = pags;
+    totalPages += 1 + pags; // 1 separador + páginas de productos
+  }
+
+  let globalPageNum = 0;
+
   return (
-    <div style={{ width: `${PAGE_W}px`, fontFamily: SANS, color: C.text, background: C.page, padding: 0 }}>
+    <div style={{ width: `${PW}px`, background: C.bg, padding: 0, fontFamily: SANS }}>
 
-      <Cover />
+      <Cover tienda={tienda} total={total} />
 
-      {pages.map((chunk, pageIdx) => {
-        const items4: (IProduct | null)[] = [...chunk];
-        while (items4.length < 4) items4.push(null);
+      {Object.entries(grupos).map(([categoria, items]) => {
+        const chunks: IProduct[][] = [];
+        for (let i = 0; i < items.length; i += ITEMS_PG) chunks.push(items.slice(i, i + ITEMS_PG));
 
         return (
-          <div
-            key={pageIdx}
-            style={{
-              width:          `${PAGE_W}px`,
-              height:         `${PAGE_H}px`,
-              background:     C.page,
-              display:        'flex',
-              flexDirection:  'column',
-              pageBreakBefore: 'always',
-              overflow:       'hidden',
-              flexShrink:     0,
-            }}
-          >
-            <PageHeader pageNum={pageIdx + 1} tot={pages.length} />
+          <React.Fragment key={categoria}>
+            {/* Página separador de sección */}
+            <SectionDivider categoria={categoria} count={items.length} tienda={tienda} />
 
-            <div
-              style={{
-                flex:          1,
-                padding:       `${PAD_Y}px ${PAD_X}px`,
-                display:       'flex',
-                flexDirection: 'column',
-                gap:           `${GAP}px`,
-                overflow:      'hidden',
-              }}
-            >
-              <div style={{ display: 'flex', gap: `${GAP}px`, flexShrink: 0 }}>
-                {items4.slice(0, 2).map((p, i) => <Card key={i} p={p} />)}
-              </div>
-              <div style={{ display: 'flex', gap: `${GAP}px`, flexShrink: 0 }}>
-                {items4.slice(2, 4).map((p, i) => <Card key={i} p={p} />)}
-              </div>
-            </div>
+            {/* Páginas de productos */}
+            {chunks.map((chunk, chunkIdx) => {
+              globalPageNum++;
+              const cards: (IProduct | null)[] = [...chunk];
+              while (cards.length < ITEMS_PG) cards.push(null);
 
-            <PageFooter items={chunk} />
-          </div>
+              return (
+                <div
+                  key={chunkIdx}
+                  style={{
+                    width: `${PW}px`, height: `${PH}px`, background: C.white,
+                    display: 'flex', flexDirection: 'column',
+                    pageBreakBefore: 'always', overflow: 'hidden', flexShrink: 0,
+                  }}
+                >
+                  <PageHeader tienda={tienda} categoria={categoria} pageNum={globalPageNum} total={totalPages} />
+
+                  {/* Grilla 2×2 */}
+                  <div style={{ flex: 1, padding: `${PAD}px`, display: 'flex', flexDirection: 'column', gap: `${GAP}px`, overflow: 'hidden' }}>
+                    {Array.from({ length: ROWS }).map((_, row) => (
+                      <div key={row} style={flex({ gap: `${GAP}px`, flexShrink: 0 })}>
+                        {cards.slice(row * COLS, row * COLS + COLS).map((p, i) => (
+                          <ProductCard key={i} p={p} />
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+
+                  <PageFooter tienda={tienda} />
+                </div>
+              );
+            })}
+          </React.Fragment>
         );
       })}
 
-      <Cover isBack />
+      <BackCover tienda={tienda} total={total} />
     </div>
   );
 };

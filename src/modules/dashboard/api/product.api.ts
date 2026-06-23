@@ -104,12 +104,8 @@ export const putActualizarProductoFn = async ({
   // En NestJS/class-validator, si una propiedad es @IsOptional(), enviar `null` o string vacío
   // puede fallar las validaciones estrictas (ej: @IsNumber).
   // Es más seguro enviar nulos u omitirlos.
-  if (
-    jsonPayload.precioOferta === null ||
-    jsonPayload.precioOferta === '' ||
-    Number.isNaN(jsonPayload.precioOferta)
-  ) {
-    delete jsonPayload.precioOferta;
+  if (jsonPayload.precioOferta === '' || Number.isNaN(jsonPayload.precioOferta)) {
+    jsonPayload.precioOferta = null;
   }
 
   if (

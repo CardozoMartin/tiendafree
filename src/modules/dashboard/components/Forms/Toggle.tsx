@@ -1,20 +1,46 @@
-import type { UseFormRegister } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import type { UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 
 export function Toggle({
   name,
-  register,
+  watch,
+  setValue,
 }: {
   name: 'disponible' | 'destacado';
-  register: UseFormRegister<any>;
+  watch: UseFormWatch<any>;
+  setValue: UseFormSetValue<any>;
+  register?: UseFormRegister<any>;
 }) {
+  const value = watch(name);
+  const [checked, setChecked] = useState<boolean>(!!value);
+
+  useEffect(() => {
+    setChecked(!!value);
+  }, [value]);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = !checked;
+    setChecked(next);
+    setValue(name, next, { shouldDirty: true });
+  };
+
   return (
-    <label className="inline-flex items-center cursor-pointer">
-      <input type="checkbox" {...register(name)} className="sr-only peer" />
-      <div className="relative w-14 h-8 rounded-full bg-slate-200 border border-slate-300 transition-colors duration-200 peer-checked:border-slate-500">
-        <span className="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-300 shadow-sm transition-transform duration-200 transform peer-checked:translate-x-[1.25rem] peer-checked:border-slate-500">
-          <span className="text-slate-400 peer-checked:text-slate-700">✔</span>
-        </span>
-      </div>
-    </label>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={handleClick}
+      className={`relative w-14 h-8 rounded-full border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900/20 ${
+        checked ? 'bg-gray-800 border-gray-800' : 'bg-slate-200 border-slate-300'
+      }`}
+    >
+      <span
+        className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+          checked ? 'translate-x-[1.5rem]' : 'translate-x-0'
+        }`}
+      />
+    </button>
   );
 }

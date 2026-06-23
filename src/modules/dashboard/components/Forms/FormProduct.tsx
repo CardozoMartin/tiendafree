@@ -91,7 +91,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
       nombre: producto?.nombre ?? '',
       descripcion: producto?.descripcion ?? '',
       precio: producto?.precio ?? ('' as any),
-      precioOferta: producto?.precioOferta ?? '',
+      precioOferta: producto?.precioOferta || '',
       moneda: producto?.moneda ?? 'ARS',
       disponible: producto?.disponible ?? true,
       destacado: producto?.destacado ?? false,
@@ -122,7 +122,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
         nombre: producto.nombre,
         descripcion: producto.descripcion ?? '',
         precio: producto.precio,
-        precioOferta: producto.precioOferta ?? '',
+        precioOferta: producto.precioOferta || '',
         moneda: producto.moneda,
         disponible: producto.disponible,
         destacado: producto.destacado,
@@ -280,7 +280,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     const payload = {
       ...data,
       precio: Number(data.precio),
-      precioOferta: data.precioOferta !== '' ? Number(data.precioOferta) : null,
+      precioOferta: data.precioOferta && Number(data.precioOferta) > 0 ? Number(data.precioOferta) : null,
       tags: tagsArray,
       imagenPrincipal: imageFile || undefined,
       imagenPrincipalUrl: !imageFile ? producto?.imagenPrincipalUrl : undefined,
@@ -518,18 +518,17 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
           <InputProduct
             label="Precio de oferta"
             name="precioOferta"
-            placeholder="0.00"
+            placeholder="Dejar vacío para quitar oferta"
             icon={<BadgePercent className="w-4 h-4" />}
             register={register}
             errors={errors}
             type="number"
             step="0.01"
-            min="0.01"
             opcional
             validacion={{
               validate: (value: string | number | undefined) => {
-                if (value === '' || value === undefined || value === null) return true;
-                if (Number(value) <= 0) return 'El precio de oferta debe ser mayor a 0';
+                if (value === '' || value === undefined || value === null || value === 0 || Number(value) === 0) return true;
+                if (Number(value) < 0) return 'El precio de oferta debe ser mayor a 0';
                 if (Number(precio) && Number(value) >= Number(precio)) {
                   return 'El precio de oferta debe ser menor al precio original';
                 }
@@ -569,14 +568,14 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
               <p className="text-sm font-medium text-gray-800">Disponible</p>
               <p className="text-xs text-gray-400 mt-0.5">Visible en tu tienda</p>
             </div>
-            <Toggle name="disponible" register={register} />
+            <Toggle name="disponible" watch={watch} setValue={setValue} />
           </div>
           <div className="flex items-center gap-4 px-5 py-4">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-800">Destacado</p>
               <p className="text-xs text-gray-400 mt-0.5">Aparece primero en la grilla</p>
             </div>
-            <Toggle name="destacado" register={register} />
+            <Toggle name="destacado" watch={watch} setValue={setValue} />
           </div>
           <InputProduct
             label="Stock disponible"

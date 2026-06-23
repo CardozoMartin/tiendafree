@@ -87,8 +87,11 @@ const ProductsSection = ({ accent }: { accent: string }) => {
   const tiendaInfo = myShop?.datos
     ? {
         nombre: myShop.datos.nombre,
-        tagline: (myShop.datos.configuracion as any)?.tagline || myShop.datos.dominio,
-        logo: (myShop.datos.configuracion as any)?.logoUrl || undefined,
+        tagline: myShop.datos.titulo || myShop.datos.descripcion || undefined,
+        logo: myShop.datos.logoUrl || undefined,
+        instagram: myShop.datos.instagram || undefined,
+        whatsapp: myShop.datos.whatsapp || undefined,
+        ciudad: myShop.datos.ciudad || undefined,
       }
     : { nombre: 'Tienda' };
 
@@ -97,7 +100,6 @@ const ProductsSection = ({ accent }: { accent: string }) => {
     canvas: { useCORS: true },
   });
 
-  const [pdfTheme, setPdfTheme] = useState<'minimal' | 'modern' | 'lookbook'>('minimal');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleDownloadPdf = async () => {
@@ -141,29 +143,6 @@ const ProductsSection = ({ accent }: { accent: string }) => {
 
         {/* Botones — scroll horizontal en mobile, wrap en tablet+ */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-end shrink-0">
-          {/* Menú de Tema PDF */}
-          <div className="relative shrink-0">
-            <select
-              value={pdfTheme}
-              onChange={(e) => setPdfTheme(e.target.value as any)}
-              className="appearance-none bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold rounded-xl transition-all shadow-sm px-3 py-2.5 pr-8 focus:outline-none focus:border-gray-400 cursor-pointer whitespace-nowrap"
-              title="Elegir diseño del PDF"
-            >
-              <option value="minimal">Minimalista</option>
-              <option value="modern">Moderno</option>
-              <option value="lookbook">Lookbook</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                <path
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                  fillRule="evenodd"
-                ></path>
-              </svg>
-            </div>
-          </div>
-
           {/* Catálogo PDF */}
           <button
             onClick={handleDownloadPdf}
@@ -436,7 +415,6 @@ const ProductsSection = ({ accent }: { accent: string }) => {
           ref={targetRef}
           productos={allProductsForPdf}
           tienda={tiendaInfo}
-          tema={pdfTheme}
         />
       </div>
     </div>
