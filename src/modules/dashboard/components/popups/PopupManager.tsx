@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { comprimirImagen } from '../../utils/comprimirImagen';
 import {
   usePopups,
   useCrearPopup,
@@ -64,7 +65,8 @@ function PopupForm({
   const handleSave = async () => {
     onSave(form);
     if (imageFile && popupId) {
-      await subirImagen.mutateAsync({ id: popupId, file: imageFile });
+      const comprimido = await comprimirImagen(imageFile);
+      await subirImagen.mutateAsync({ id: popupId, file: comprimido });
     }
   };
 

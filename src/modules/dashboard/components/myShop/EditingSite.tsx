@@ -4,6 +4,7 @@ import type { TiendaData } from '../../../templates/types';
 import { useUpdateShop, useUpdateShopVisual, useUploadLogo, useDeleteLogo, useCambiarSlug, useVerificarSlug } from '../../hooks/useShop';
 import ImageHeroHandlers from '../ImageEditors/ImageHeroHandlers';
 import HeroEditor from '../ImageEditors/HeroEditor';
+import { comprimirImagen } from '../../utils/comprimirImagen';
 import AboutUsEditor from './AboutUsEditor';
 import MarqueeEditor from './MarqueeEditor';
 import DashboardHelp from '../DashboardHelp';
@@ -95,7 +96,8 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLogoPreview(URL.createObjectURL(file));
-    await uploadLogo.mutateAsync(file);
+    const comprimido = await comprimirImagen(file, { maxAncho: 600, maxAlto: 600 });
+    await uploadLogo.mutateAsync(comprimido);
   };
 
   const handleLogoDelete = async () => {

@@ -3,6 +3,7 @@ import { Megaphone, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMyShop, useUpdateShopVisual } from '../hooks/useShop';
 import { postBannerPromoImagenFn } from '../api/shop.api';
+import { comprimirImagen } from '../utils/comprimirImagen';
 
 interface Props { accent: string; }
 
@@ -51,7 +52,8 @@ export default function BannerPromoSection({ accent }: Props) {
     if (!file) return;
     setSubiendo(true);
     try {
-      const { bannerPromoImagenUrl } = await postBannerPromoImagenFn(file);
+      const comprimido = await comprimirImagen(file);
+      const { bannerPromoImagenUrl } = await postBannerPromoImagenFn(comprimido);
       set('bannerPromoImagenUrl', bannerPromoImagenUrl);
       toast.success('Imagen del banner subida');
     } catch {

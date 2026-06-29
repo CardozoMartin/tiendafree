@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { comprimirImagen } from '../../utils/comprimirImagen';
 import { getCategoriasFn } from '../../api/product.api';
 import {
   useActualizarProducto,
@@ -135,15 +136,16 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     }
   }, [producto, reset]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
+      const comprimido = await comprimirImagen(file);
+      setImageFile(comprimido);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(comprimido);
     }
   };
 
@@ -161,7 +163,8 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   const handleSubirImagenExtra = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && producto) {
-      await agregarImagen({ productoId: producto.id, file });
+      const comprimido = await comprimirImagen(file);
+      await agregarImagen({ productoId: producto.id, file: comprimido });
     }
     e.target.value = '';
   };
@@ -257,7 +260,8 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   ) => {
     const file = e.target.files?.[0];
     if (file && producto) {
-      await subirImagenVariante({ productoId: producto.id, varianteId, file });
+      const comprimido = await comprimirImagen(file);
+      await subirImagenVariante({ productoId: producto.id, varianteId, file: comprimido });
     }
     e.target.value = '';
   };

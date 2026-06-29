@@ -7,6 +7,7 @@ import {
   deleteShopCarouselImageFn,
 } from '../../api/carrusel.api';
 import { putUpdateShopVisualFn } from '../../api/shop.api';
+import { comprimirImagen } from '../../utils/comprimirImagen';
 
 // ── Hooks internos ────────────────────────────────────────────────────────────
 
@@ -159,10 +160,12 @@ function HeroImagenEditor() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5 MB'); return; }
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const original = e.target.files?.[0];
+    if (!original) return;
+
+    // Comprimimos automáticamente (redimensiona + baja calidad)
+    const file = await comprimirImagen(original);
 
     // Preview local
     const reader = new FileReader();

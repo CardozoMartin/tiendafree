@@ -1,5 +1,6 @@
 import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 import { useRef, useState, useEffect } from 'react';
+import { comprimirImagen } from '../../utils/comprimirImagen';
 import {
   useAddShopCarouselImage,
   useActualizarSeccion,
@@ -224,8 +225,9 @@ function NuevaSeccionForm({ onClose }: { onClose: () => void }) {
 
   const handleSubmit = async () => {
     if (!file) return;
+    const fileComprimido = await comprimirImagen(file);
     const fd = new FormData();
-    fd.append('carruselImagenes', file);
+    fd.append('carruselImagenes', fileComprimido);
     fd.append('tipo', 'CARRUSEL');
     fd.append('orden', '0');
     try {
