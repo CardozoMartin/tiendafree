@@ -480,7 +480,7 @@ function FormEntrega({
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
-export default function MethodsSection() {
+export default function MethodsSection(_props: { accent?: string } = {}) {
   const { data: tienda } = useMyShop();
   const { data: catalogoPagos = [] } = useMetodosPagoCatalogo();
   const { data: catalogoEntregas = [] } = useMetodosEntregaCatalogo();
@@ -624,7 +624,7 @@ export default function MethodsSection() {
                           {(() => {
                             const est = estadoPago(metodo.nombre, config, mpResumen);
                             return (
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${BADGE_ESTADO[est.tipo]}`} title={est.tipo === 'error' ? mpResumen?.ultimoError : undefined}>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${BADGE_ESTADO[est.tipo]}`} title={est.tipo === 'error' ? (mpResumen?.ultimoError ?? undefined) : undefined}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${DOT_ESTADO[est.tipo]}`} />
                                 {est.label}
                               </span>

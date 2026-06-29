@@ -85,7 +85,7 @@ function HeroTextosEditor({ temaConfig }: { temaConfig: any }) {
   };
 
   const handleGuardar = () => {
-    mutation.mutate(form);
+    mutation.mutate(form as any);
     setDirty(false);
   };
 

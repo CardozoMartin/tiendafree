@@ -12,7 +12,6 @@ export default function BannerPromoSection({ accent }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState(false);
 
-  const tc = tienda?.temaConfig ?? {};
   const [form, setForm] = useState({
     bannerPromoActivo: false,
     bannerPromoTitulo: '',
