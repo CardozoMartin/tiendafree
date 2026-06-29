@@ -29,9 +29,8 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
   <label className="relative inline-flex items-center cursor-pointer">
     <input type="checkbox" className="sr-only peer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-    <div className="relative w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200">
-      <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-    </div>
+    <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
+    <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
   </label>
 );
 
@@ -386,9 +385,8 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" {...register('modoOscuro')} className="sr-only peer" />
-            <div className="relative w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200">
-              <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-            </div>
+            <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
+            <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
           </label>
         </Row>
 
@@ -461,9 +459,8 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" {...register('cardMostrarPrecio')} className="sr-only peer" />
-            <div className="relative w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200">
-              <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-            </div>
+            <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
+            <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
           </label>
         </Row>
         <Row>
@@ -473,9 +470,8 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" {...register('cardMostrarBadge')} className="sr-only peer" />
-            <div className="relative w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200">
-              <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-            </div>
+            <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
+            <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
           </label>
         </Row>
       </Card>
