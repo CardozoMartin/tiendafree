@@ -33,7 +33,7 @@ const Toggle = ({ value, onChange, label }: { value: boolean; onChange: (v: bool
       onClick={() => onChange(!value)}
       className={`relative w-14 h-8 rounded-full transition-colors duration-200 ${value ? 'bg-gray-800' : 'bg-slate-300'}`}
     >
-      <span className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out ${value ? 'translate-x-6' : 'translate-x-0'}`} />
+      <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-200 ${value ? 'left-7' : 'left-1'}`} />
     </div>
     <span className="text-sm text-slate-600">{label}</span>
   </label>

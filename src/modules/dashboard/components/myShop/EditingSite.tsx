@@ -27,11 +27,12 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 
 // ── Toggle reutilizable ───────────────────────────────────────────────────────
 const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
-  <label className="relative inline-flex items-center cursor-pointer">
-    <input type="checkbox" className="sr-only peer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-    <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
-    <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-  </label>
+  <div
+    onClick={() => onChange(!checked)}
+    className={`relative flex-shrink-0 w-14 h-8 rounded-full cursor-pointer transition-colors duration-200 ${checked ? 'bg-gray-800' : 'bg-slate-300'}`}
+  >
+    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-200 ${checked ? 'left-7' : 'left-1'}`} />
+  </div>
 );
 
 // ── Separador de sección dentro de un tab ────────────────────────────────────
@@ -383,11 +384,12 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
             <p className="text-sm font-medium text-gray-800">Modo oscuro</p>
             <p className="text-xs text-gray-400 mt-0.5">Fondo oscuro en la plantilla</p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" {...register('modoOscuro')} className="sr-only peer" />
-            <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
-            <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-          </label>
+          <div
+            onClick={() => setValue('modoOscuro', !temaData.modoOscuro, { shouldDirty: true })}
+            className={`relative flex-shrink-0 w-14 h-8 rounded-full cursor-pointer transition-colors duration-200 ${temaData.modoOscuro ? 'bg-gray-800' : 'bg-slate-300'}`}
+          >
+            <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-200 ${temaData.modoOscuro ? 'left-7' : 'left-1'}`} />
+          </div>
         </Row>
 
         {/* Navbar style */}
@@ -457,22 +459,24 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
             <p className="text-sm font-medium text-gray-800">Mostrar precio</p>
             <p className="text-xs text-gray-400">Visible sobre la imagen del producto</p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" {...register('cardMostrarPrecio')} className="sr-only peer" />
-            <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
-            <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-          </label>
+          <div
+            onClick={() => setValue('cardMostrarPrecio', !temaData.cardMostrarPrecio, { shouldDirty: true })}
+            className={`relative flex-shrink-0 w-14 h-8 rounded-full cursor-pointer transition-colors duration-200 ${temaData.cardMostrarPrecio ? 'bg-gray-800' : 'bg-slate-300'}`}
+          >
+            <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-200 ${temaData.cardMostrarPrecio ? 'left-7' : 'left-1'}`} />
+          </div>
         </Row>
         <Row>
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-800">Mostrar etiquetas</p>
             <p className="text-xs text-gray-400">Badges de categoría o estado</p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" {...register('cardMostrarBadge')} className="sr-only peer" />
-            <div className="w-14 h-8 bg-slate-300 peer-checked:bg-gray-800 rounded-full transition-colors duration-200" />
-            <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out peer-checked:translate-x-6" />
-          </label>
+          <div
+            onClick={() => setValue('cardMostrarBadge', !temaData.cardMostrarBadge, { shouldDirty: true })}
+            className={`relative flex-shrink-0 w-14 h-8 rounded-full cursor-pointer transition-colors duration-200 ${temaData.cardMostrarBadge ? 'bg-gray-800' : 'bg-slate-300'}`}
+          >
+            <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-200 ${temaData.cardMostrarBadge ? 'left-7' : 'left-1'}`} />
+          </div>
         </Row>
       </Card>
     </div>
