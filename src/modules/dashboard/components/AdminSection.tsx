@@ -28,12 +28,12 @@ const Input = ({ label, value, onChange, placeholder, type = 'text' }: {
 );
 
 const Toggle = ({ value, onChange, label }: { value: boolean; onChange: (v: boolean) => void; label: string }) => (
-  <label className="flex items-center gap-2 cursor-pointer select-none">
+  <label className="flex items-center gap-3 cursor-pointer select-none">
     <div
       onClick={() => onChange(!value)}
-      className={`w-10 h-6 rounded-full transition-colors flex items-center px-1 ${value ? 'bg-green-500' : 'bg-slate-200'}`}
+      className={`relative w-14 h-8 rounded-full transition-colors duration-200 ${value ? 'bg-gray-800' : 'bg-slate-300'}`}
     >
-      <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${value ? 'translate-x-4' : ''}`} />
+      <span className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out ${value ? 'translate-x-6' : 'translate-x-0'}`} />
     </div>
     <span className="text-sm text-slate-600">{label}</span>
   </label>
