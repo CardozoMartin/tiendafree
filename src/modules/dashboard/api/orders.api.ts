@@ -17,3 +17,8 @@ export const patchUpdateOrderStatusFn = async (
   const response = await api.patch(`/pedidos/${id}/estado`, data);
   return response.data;
 };
+
+export const patchUpdatePaymentStatusFn = async (id: number, estadoPago: string) => {
+  const response = await api.patch(`/pedidos/${id}/estado-pago`, { estadoPago });
+  return response.data;
+};

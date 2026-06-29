@@ -11,6 +11,10 @@ import CmAiSection from './CmAiSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
 import AdminSection from './AdminSection';
+import ClientesSection from './ClientesSection';
+import AnalyticsSection from './AnalyticsSection';
+import CuponesSection from './CuponesSection';
+import BannerPromoSection from './BannerPromoSection';
 
 interface SectionRendererProps {
   active: string;
@@ -56,6 +60,14 @@ export const SectionRenderer = ({
       return <CmAiSection accent={accent} tienda={myShop} />;
     case 'banner-creator':
       return <BannerCreatorSection accent={accent} tienda={myShop} />;
+    case 'clientes':
+      return <ClientesSection />;
+    case 'analytics':
+      return <AnalyticsSection accent={accent} />;
+    case 'cupones':
+      return <CuponesSection accent={accent} />;
+    case 'banner-promo':
+      return <BannerPromoSection accent={accent} />;
     case 'reviews':
       return <ReviewsSection accent={accent} tienda={myShop} />;
     case 'settings':

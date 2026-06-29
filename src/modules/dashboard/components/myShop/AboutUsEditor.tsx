@@ -104,27 +104,36 @@ const AboutUsEditor = () => {
         <div className="px-6 py-5">
           <label className="block text-xs font-medium text-gray-500 mb-3">Foto del local o equipo</label>
           <div className="flex items-center gap-4">
-            {localData.imagenUrl ? (
-              <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
-                <img src={localData.imagenUrl} alt="About Us" className="w-full h-full object-cover" />
-                <button
-                  onClick={() => uploadImage.mutateAsync(null as any)} // Small hack to clear
-                  className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 shadow-sm hover:bg-white hover:scale-110 transition-all"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1.5 text-gray-400 hover:border-gray-900 hover:text-gray-900 transition-all"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                <span className="text-[10px] font-bold uppercase">Subir</span>
-              </button>
-            )}
-            <div className="flex-1">
+            <div
+              className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-dashed border-gray-200 flex-shrink-0 cursor-pointer hover:border-gray-400 transition-all group"
+              onClick={() => fileRef.current?.click()}
+            >
+              {localData.imagenUrl ? (
+                <>
+                  <img src={localData.imagenUrl} alt="About Us" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                  </div>
+                </>
+              ) : uploadImage.isPending ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg className="w-5 h-5 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                </div>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-gray-400 group-hover:text-gray-600">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                  <span className="text-[10px] font-bold uppercase">Subir</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 space-y-1.5">
               <p className="text-xs text-gray-500">Recomendamos una foto horizontal (16:9) de buena calidad.</p>
+              {localData.imagenUrl && (
+                <p className="text-[10px] text-gray-400">Hacé clic en la imagen para cambiarla.</p>
+              )}
               <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleFileChange} />
             </div>
           </div>
