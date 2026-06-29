@@ -21,15 +21,6 @@ const TIPOS: { value: TipoSeccionHero; label: string; icon: string }[] = [
   { value: 'VIDEO', label: 'Video', icon: '▶️' },
 ];
 
-function estadoSeccion(s: CarruselSeccion): { label: string; color: string } {
-  const ahora = new Date();
-  if (!s.activa) return { label: 'Pausada', color: 'bg-gray-100 text-gray-500' };
-  const desde = s.fechaDesde ? new Date(s.fechaDesde) : null;
-  const hasta = s.fechaHasta ? new Date(s.fechaHasta) : null;
-  if (desde && ahora < desde) return { label: 'Programada', color: 'bg-blue-50 text-blue-600' };
-  if (hasta && ahora > hasta) return { label: 'Vencida', color: 'bg-red-50 text-red-500' };
-  return { label: 'Activa', color: 'bg-green-50 text-green-600' };
-}
 
 function toInputDate(iso?: string | null) {
   if (!iso) return '';
@@ -366,15 +357,10 @@ function IntervaloCarruselEditor({ temaConfig }: { temaConfig?: { intervaloCarru
 const ImageHeroHandlers = ({ temaConfig }: { temaConfig?: { intervaloCarrusel?: number } }) => {
   const { data: secciones = [], isLoading } = useCarruselAdmin();
   const { mutate: deleteSeccion } = useDeleteShopCarouselImage();
-  const { mutate: actualizar } = useActualizarSeccion();
   const { confirm, ConfirmModal } = useConfirm();
 
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
-
-  const handleToggle = (s: CarruselSeccion) => {
-    actualizar({ id: s.id, datos: { activa: !s.activa } });
-  };
 
   const handleDelete = async (id: number) => {
     const ok = await confirm({
@@ -415,8 +401,6 @@ const ImageHeroHandlers = ({ temaConfig }: { temaConfig?: { intervaloCarrusel?: 
         ) : (
           <div className="divide-y divide-gray-50">
             {secciones.map((s) => {
-              const estado = estadoSeccion(s);
-              const tipoInfo = TIPOS.find((t) => t.value === s.tipo);
               const isEditing = editandoId === s.id;
 
               return (
@@ -431,17 +415,9 @@ const ImageHeroHandlers = ({ temaConfig }: { temaConfig?: { intervaloCarrusel?: 
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-medium text-gray-800 truncate">
-                          {s.etiqueta || s.titulo || `Sección #${s.id}`}
-                        </span>
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${estado.color}`}>
-                          {estado.label}
-                        </span>
-                        <span className="text-[10px] text-gray-400">
-                          {tipoInfo?.icon} {tipoInfo?.label}
-                        </span>
-                      </div>
+                      <span className="text-xs font-medium text-gray-800 truncate block">
+                        {s.etiqueta || s.titulo || `Sección #${s.id}`}
+                      </span>
                       {(s.fechaDesde || s.fechaHasta) && (
                         <p className="text-[10px] text-gray-400 mt-0.5">
                           {s.fechaDesde && `Desde: ${new Date(s.fechaDesde).toLocaleDateString('es-AR')}`}
@@ -453,23 +429,6 @@ const ImageHeroHandlers = ({ temaConfig }: { temaConfig?: { intervaloCarrusel?: 
 
                     {/* Acciones */}
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      {/* Toggle activa */}
-                      <button
-                        onClick={() => handleToggle(s)}
-                        title={s.activa ? 'Pausar' : 'Activar'}
-                        className={`relative w-8 h-4.5 rounded-full transition-colors ${
-                          s.activa ? 'bg-green-500' : 'bg-gray-200'
-                        }`}
-                        style={{ width: 32, height: 18 }}
-                      >
-                        <span
-                          className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-transform ${
-                            s.activa ? 'translate-x-3.5' : 'translate-x-0'
-                          }`}
-                          style={{ width: 14, height: 14 }}
-                        />
-                      </button>
-
                       {/* Editar */}
                       <button
                         onClick={() => setEditandoId(isEditing ? null : s.id)}
