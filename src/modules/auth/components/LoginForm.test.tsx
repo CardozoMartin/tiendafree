@@ -45,7 +45,7 @@ describe('LoginForm', () => {
 
     it('debe mostrar el logo y el título', () => {
       render(<LoginForm />);
-      expect(screen.getByText('Vitrina')).toBeInTheDocument();
+      expect(screen.getByText('TiendiZi')).toBeInTheDocument();
       expect(screen.getByText(/bienvenido de nuevo/i)).toBeInTheDocument();
     });
 

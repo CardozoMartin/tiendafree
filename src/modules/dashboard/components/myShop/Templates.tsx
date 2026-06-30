@@ -1,14 +1,20 @@
+import { type CSSProperties } from 'react';
 import { PLANTILLAS } from '../../constant/plantilla_constants';
 import { useMyShop, useUpdateShop } from '../../hooks/useShop';
 
+interface TemplatesProps {
+  accent?: string;
+}
+
 const DEMO_ROUTES: Record<string, string> = {
-  plantilla_accesorios: '/demo/accesorios',
-  plantilla_gorras: '/demo/gorras',
-  plantilla_ropa: '/demo/ropa',
-  plantilla_urban: '/demo/urban',
+  plantilla_accesorios: 'https://apptiendizi.netlify.app/demo-accesorios',
+  plantilla_gorras: 'https://apptiendizi.netlify.app/demo-gorras',
+  plantilla_ropa: 'https://apptiendizi.netlify.app/demo-ropa',
+  plantilla_urban: 'https://apptiendizi.netlify.app/demo-urban',
 };
 
-const Templates = () => {
+const Templates = ({ accent }: TemplatesProps) => {
+  const accentStyle = { '--accent': accent } as CSSProperties;
   const { data: shopData } = useMyShop();
   const { mutate: updateShop, isPending } = useUpdateShop();
 
@@ -19,7 +25,7 @@ const Templates = () => {
   const currentPlantillaId = shopData?.plantillaId;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" style={accentStyle}>
       <div>
         <h2 className="text-xl font-black text-slate-900">Plantillas</h2>
         <p className="text-sm text-slate-500 mt-0.5">

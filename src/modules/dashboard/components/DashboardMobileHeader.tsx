@@ -29,7 +29,7 @@ export const DashboardMobileHeader = ({ accent, active }: DashboardMobileHeaderP
         >
           <MI name="storefront" className="!text-base" />
         </div>
-        <span className="font-black text-slate-900">Vitrina</span>
+        <span className="font-black text-slate-900">Tiendizi</span>
       </div>
       <div className="flex items-center gap-2">
         <DashboardHelp activeSection={active} accent={accent} />

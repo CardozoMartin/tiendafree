@@ -72,22 +72,16 @@ export const DashboardBottomNav = ({
                 key={item.id}
                 onClick={() => handleNavClick(item)}
                 disabled={isDisabled}
-                className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all relative
+                className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-1 transition-all relative isolate
                   ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'active:scale-95'}`}
               >
-                {/* Active indicator */}
-                {isActive && !isDisabled && (
-                  <span
-                    className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-8 rounded-full"
-                    style={{ backgroundColor: accent }}
-                  />
-                )}
+                {/* Removed SVG background as requested */}
 
-                <div className="relative">
+                <div className="relative mt-1">
                   <MI
                     name={item.icon}
-                    className="!text-[22px] transition-colors"
-                    style={isActive && !isDisabled ? { color: accent } : { color: '#a1a1aa' }}
+                    className="!text-[24px] transition-colors"
+                    style={isActive && !isDisabled ? { color: accent } : { color: '#475569' }}
                   />
                   {/* Badge pedidos pendientes */}
                   {item.id === 'orders' && pendingOrders > 0 && (
@@ -102,8 +96,8 @@ export const DashboardBottomNav = ({
                 </div>
 
                 <span
-                  className="text-[10px] font-medium transition-colors"
-                  style={isActive && !isDisabled ? { color: accent } : { color: '#a1a1aa' }}
+                  className="text-[11px] font-semibold transition-colors"
+                  style={isActive && !isDisabled ? { color: accent } : { color: '#475569' }}
                 >
                   {label}
                 </span>
@@ -118,22 +112,19 @@ export const DashboardBottomNav = ({
                 setDrawerOpen(true);
                 setStoreDrawerOpen(false);
               }}
-              className="flex-1 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all relative"
+              className="flex-1 flex flex-col items-center justify-center gap-1.5 py-1 active:scale-95 transition-all relative isolate"
             >
-              {drawerOpen && (
-                <span
-                  className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-8 rounded-full"
-                  style={{ backgroundColor: accent }}
+              {/* Removed SVG background as requested */}
+              <div className="relative mt-1">
+                <MI
+                  name="more_horiz"
+                  className="!text-[24px] transition-colors"
+                  style={drawerOpen ? { color: accent } : { color: '#475569' }}
                 />
-              )}
-              <MI
-                name="more_horiz"
-                className="!text-[22px]"
-                style={drawerOpen ? { color: accent } : { color: '#a1a1aa' }}
-              />
+              </div>
               <span
-                className="text-[10px] font-medium"
-                style={drawerOpen ? { color: accent } : { color: '#a1a1aa' }}
+                className="text-[11px] font-semibold transition-colors"
+                style={drawerOpen ? { color: accent } : { color: '#475569' }}
               >
                 Más
               </span>
@@ -154,8 +145,8 @@ export const DashboardBottomNav = ({
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-50">
                 <div className="flex items-center gap-2">
-                  <MI name="storefront" className="!text-[16px] text-zinc-400" />
-                  <span className="text-[13px] font-semibold text-zinc-700">Tienda</span>
+                  <MI name="storefront" className="!text-[16px] text-slate-400" />
+                  <span className="text-[13px] font-semibold text-slate-800">Tienda</span>
                 </div>
                 <button
                   onClick={() => setStoreDrawerOpen(false)}
@@ -182,8 +173,8 @@ export const DashboardBottomNav = ({
                   <MI name="store" className="!text-[16px]" style={{ color: accent }} />
                 </span>
                 <div className="flex-1 text-left">
-                  <p className="text-[13px] font-medium text-zinc-800">Mi tienda</p>
-                  <p className="text-[11px] text-zinc-400">Ver resumen general</p>
+                  <p className="text-[13px] font-semibold text-slate-800">Mi tienda</p>
+                  <p className="text-[11px] text-slate-400">Ver resumen general</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-zinc-200" />
               </button>
@@ -219,8 +210,8 @@ export const DashboardBottomNav = ({
                       </span>
                       <div className="flex-1 text-left">
                         <p
-                          className="text-[13px] font-medium"
-                          style={isSubActive ? { color: accent } : { color: '#27272a' }}
+                          className="text-[13px] font-semibold"
+                          style={isSubActive ? { color: accent } : { color: '#475569' }}
                         >
                           {sub.label}
                         </p>
@@ -244,7 +235,7 @@ export const DashboardBottomNav = ({
           <div className="md:hidden fixed bottom-16 inset-x-0 z-50 px-3 pb-2">
             <div className="bg-white rounded-2xl border border-zinc-100 shadow-xl overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-50">
-                <span className="text-[13px] font-semibold text-zinc-700">Más opciones</span>
+                <span className="text-[13px] font-semibold text-slate-800">Más opciones</span>
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="text-zinc-300 hover:text-zinc-500 transition-colors"
@@ -285,8 +276,8 @@ export const DashboardBottomNav = ({
                       />
                     </span>
                     <span
-                      className="flex-1 text-left text-[13px] font-medium"
-                      style={isActive ? { color: accent } : { color: '#27272a' }}
+                      className="flex-1 text-left text-[13px] font-semibold"
+                      style={isActive ? { color: accent } : { color: '#475569' }}
                     >
                       {item.label}
                     </span>

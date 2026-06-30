@@ -9,15 +9,19 @@ export const NAV_ITEMS = [
       { id: 'store-methods', icon: 'payments', label: 'Pagos y Envíos' },
       { id: 'store-edit', icon: 'edit_square', label: 'Editar Página' },
       { id: 'store-website', icon: 'language', label: 'Sitio Web' },
+      { id: 'dominio', icon: 'public', label: 'Dominio propio' },
     ],
   },
-  { id: 'home', icon: 'home', label: 'Inicio' },
   { id: 'products', icon: 'inventory_2', label: 'Productos' },
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos' },
+  { id: 'analytics', icon: 'monitoring', label: 'Estadísticas' },
+  { id: 'cupones', icon: 'confirmation_number', label: 'Cupones' },
+  { id: 'banner-promo', icon: 'campaign', label: 'Banner promo' },
+  { id: 'clientes', icon: 'group', label: 'Clientes' },
   { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },
   { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' },
-  { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
-  { id: 'settings', icon: 'settings', label: 'Config' },
+  // { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
+  { id: 'admin', icon: 'admin_panel_settings', label: 'Admin', adminOnly: true },
 ];
 
 // ── Status Metadata ────────────────────────────────────────────────────────

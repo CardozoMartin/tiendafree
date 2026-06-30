@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import type React from 'react';
 
 export function IconInput({

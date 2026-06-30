@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getOrdersFn, getOrderByIdFn, patchUpdateOrderStatusFn } from '../api/orders.api';
+import { getOrdersFn, getOrderByIdFn, patchUpdateOrderStatusFn, patchUpdatePaymentStatusFn } from '../api/orders.api';
 
 const QUERY_KEY = 'pedidos';
 
@@ -42,6 +42,21 @@ export const useUpdateOrderStatus = () => {
     },
     onError: () => {
       toast.error('Error al actualizar el estado');
+    },
+  });
+};
+
+export const useUpdatePaymentStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { id: number; estadoPago: string }) =>
+      patchUpdatePaymentStatusFn(data.id, data.estadoPago),
+    onSuccess: () => {
+      toast.success('Estado de pago actualizado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: () => {
+      toast.error('Error al actualizar el pago');
     },
   });
 };

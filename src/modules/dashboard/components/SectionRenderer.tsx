@@ -7,9 +7,15 @@ import EditingSite from './myShop/EditingSite';
 import MethodsSection from './myShop/MethodsSection';
 import Templates from './myShop/Templates';
 import SettingsSection from './SettingsSection';
+import DominioSection from './DominioSection';
 import CmAiSection from './CmAiSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
+import AdminSection from './AdminSection';
+import ClientesSection from './ClientesSection';
+import AnalyticsSection from './AnalyticsSection';
+import CuponesSection from './CuponesSection';
+import BannerPromoSection from './BannerPromoSection';
 
 interface SectionRendererProps {
   active: string;
@@ -17,6 +23,7 @@ interface SectionRendererProps {
   setAccent: (color: string) => void;
   isActiveShop?: boolean;
   myShop?: any;
+  setActive?: (section: string) => void;
 }
 
 export const SectionRenderer = ({
@@ -24,18 +31,19 @@ export const SectionRenderer = ({
   accent,
   isActiveShop = false,
   myShop,
+  setActive,
 }: SectionRendererProps) => {
   const myShopSlug = myShop?.slug ?? myShop?.datos?.slug;
 
   useEffect(() => {
     if (active === 'store-website' && myShopSlug) {
-      window.open(`/tienda/${myShopSlug}`, '_blank');
+      window.open(`https://apptiendizi.netlify.app/${myShopSlug}`, '_blank');
     }
   }, [active, myShopSlug]);
 
   switch (active) {
     case 'home':
-      return <HomeSection accent={accent} />;
+      return <HomeSection accent={accent} onNavigate={setActive} />;
     case 'products':
       return <ProductsSection accent={accent} />;
     case 'orders':
@@ -53,12 +61,24 @@ export const SectionRenderer = ({
       return <CmAiSection accent={accent} tienda={myShop} />;
     case 'banner-creator':
       return <BannerCreatorSection accent={accent} tienda={myShop} />;
+    case 'clientes':
+      return <ClientesSection />;
+    case 'analytics':
+      return <AnalyticsSection accent={accent} />;
+    case 'cupones':
+      return <CuponesSection accent={accent} />;
+    case 'banner-promo':
+      return <BannerPromoSection accent={accent} />;
     case 'reviews':
       return <ReviewsSection accent={accent} tienda={myShop} />;
     case 'settings':
       return <SettingsSection accent={accent} />;
+    case 'dominio':
+      return <DominioSection accent={accent} />;
+    case 'admin':
+      return <AdminSection accent={accent} />;
     default:
-      return <HomeSection accent={accent} />;
+      return <HomeSection accent={accent} onNavigate={setActive} />;
   }
 };
 

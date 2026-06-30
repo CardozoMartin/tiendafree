@@ -6,14 +6,23 @@ import { getMyShopFn, getPublicShopFn, postCreateShopFn,
   getMetodosPagoCatalogoFn,
   getMetodosEntregaCatalogoFn,
   postAgregarMetodoPagoFn,
+  putActualizarMetodoPagoFn,
   deleteEliminarMetodoPagoFn,
   postAgregarMetodoEntregaFn,
+  putActualizarMetodoEntregaFn,
   deleteEliminarMetodoEntregaFn,
+  getMpResumenFn,
+  postTestMpFn,
+  deleteMpFn,
   getAboutUsFn,
   putUpdateAboutUsFn,
   postUploadAboutUsImageFn,
   getMarqueeFn,
   putUpdateMarqueeFn,
+  postUploadLogoFn,
+  deleteLogoFn,
+  patchCambiarSlugFn,
+  getVerificarSlugFn,
 } from '../api/shop.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -120,6 +129,18 @@ export const useAgregarMetodoPago = () => {
   });
 };
 
+export const useActualizarMetodoPago = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => putActualizarMetodoPagoFn(id, data),
+    onSuccess: () => {
+      toast.success('Método de pago actualizado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => { toast.error(getErrorMessage(error)); },
+  });
+};
+
 export const useEliminarMetodoPago = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -148,6 +169,18 @@ export const useAgregarMetodoEntrega = () => {
   });
 };
 
+export const useActualizarMetodoEntrega = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => putActualizarMetodoEntregaFn(id, data),
+    onSuccess: () => {
+      toast.success('Método de entrega actualizado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => { toast.error(getErrorMessage(error)); },
+  });
+};
+
 export const useEliminarMetodoEntrega = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -159,6 +192,43 @@ export const useEliminarMetodoEntrega = () => {
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
     },
+  });
+};
+
+// ── Mercado Pago ──
+
+export const useMpResumen = () => {
+  return useQuery({
+    queryKey: ['mp-resumen'],
+    queryFn: getMpResumenFn,
+    staleTime: 30_000,
+  });
+};
+
+export const useTestMp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postTestMpFn,
+    onSuccess: (data) => {
+      if (data.ok) toast.success(`Conexión exitosa — ${data.mpUser}`);
+      else toast.error(data.error ?? 'Error al conectar con Mercado Pago');
+      queryClient.invalidateQueries({ queryKey: ['mp-resumen'] });
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => { toast.error(getErrorMessage(error)); },
+  });
+};
+
+export const useDesconectarMp = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteMpFn,
+    onSuccess: () => {
+      toast.success('Mercado Pago desconectado');
+      queryClient.invalidateQueries({ queryKey: ['mp-resumen'] });
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => { toast.error(getErrorMessage(error)); },
   });
 };
 
@@ -222,5 +292,60 @@ export const useUpdateMarquee = () => {
     onError: (error: AxiosError<IErrorResponse>) => {
       toast.error(getErrorMessage(error));
     },
+  });
+};
+
+// ── Logo ──
+
+export const useUploadLogo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postUploadLogoFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje ?? 'Logo actualizado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useDeleteLogo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteLogoFn,
+    onSuccess: () => {
+      toast.success('Logo eliminado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+// ── Slug ──
+
+export const useCambiarSlug = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: patchCambiarSlugFn,
+    onSuccess: (data: ISuccessResponse<any>) => {
+      toast.success(data.mensaje ?? 'Slug actualizado');
+      queryClient.invalidateQueries({ queryKey: ['myShop'] });
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+};
+
+export const useVerificarSlug = (slug: string, enabled: boolean) => {
+  return useQuery({
+    queryKey: ['verificarSlug', slug],
+    queryFn: () => getVerificarSlugFn(slug),
+    enabled: enabled && slug.length >= 3,
+    staleTime: 2000,
   });
 };

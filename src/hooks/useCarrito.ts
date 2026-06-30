@@ -22,7 +22,7 @@ export interface Carrito {
  */
 export const useCarrito = (tiendaId: number) => {
   const [carrito, setCarrito] = useState<Carrito>({ items: [], total: 0, cantidad: 0 });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isAgregando, setIsAgregando] = useState(false);
   const [isActualizando, setIsActualizando] = useState(false);
   const [isEliminando, setIsEliminando] = useState(false);

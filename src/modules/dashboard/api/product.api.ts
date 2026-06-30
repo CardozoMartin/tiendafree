@@ -57,7 +57,7 @@ export const postCrearProductoFn = async (payload: ICreateProductDto) => {
   formData.append('stock', (payload.stock ?? 0).toString());
 
   if (payload.descripcion) formData.append('descripcion', payload.descripcion);
-  if (payload.precioOferta !== undefined && payload.precioOferta !== null) {
+  if (payload.precioOferta !== undefined && payload.precioOferta !== null && Number(payload.precioOferta) > 0) {
     formData.append('precioOferta', payload.precioOferta.toString());
   }
   if (payload.categoriaId) {
@@ -94,38 +94,25 @@ export const putActualizarProductoFn = async ({
   id: number;
   payload: IUpdateProductDto;
 }) => {
-  // Vamos a intentar enviar JSON en lugar de FormData, ya que muchos backends ignoran
-  // multipart/form-data en verbos PUT o si carecen de interceptores configurados para updates.
-  const jsonPayload: Record<string, any> = { ...payload };
+  const { imagenPrincipal: _drop, ...rest } = payload as any;
 
-  // Removemos el objeto File ya que no se puede enviar por JSON
-  delete jsonPayload.imagenPrincipal;
+  const jsonPayload: Record<string, any> = {};
 
-  // En NestJS/class-validator, si una propiedad es @IsOptional(), enviar `null` o string vacío
-  // puede fallar las validaciones estrictas (ej: @IsNumber).
-  // Es más seguro enviar nulos u omitirlos.
-  if (
-    jsonPayload.precioOferta === null ||
-    jsonPayload.precioOferta === '' ||
-    Number.isNaN(jsonPayload.precioOferta)
-  ) {
-    delete jsonPayload.precioOferta;
-  }
-
-  if (
-    jsonPayload.categoriaId === null ||
-    jsonPayload.categoriaId === '' ||
-    Number.isNaN(jsonPayload.categoriaId)
-  ) {
-    delete jsonPayload.categoriaId;
-  }
-
-  // Eliminar cualquier otro undefined explicito para asegurar un JSON limpio
-  Object.keys(jsonPayload).forEach((key) => {
-    if (jsonPayload[key] === undefined) {
-      delete jsonPayload[key];
+  for (const [key, value] of Object.entries(rest)) {
+    if (value === undefined) continue;
+    if (key === 'precioOferta') {
+      // String vacío, NaN, 0 o negativo → null para borrar el precio de oferta
+      const num = value === '' || value === null ? NaN : Number(value);
+      jsonPayload[key] = Number.isNaN(num) || num <= 0 ? null : num;
+      continue;
     }
-  });
+    if (key === 'categoriaId') {
+      const num = Number(value);
+      if (!Number.isNaN(num) && num > 0) jsonPayload[key] = num;
+      continue;
+    }
+    jsonPayload[key] = value;
+  }
 
   const { data } = await api.put<IApiResponse<IProduct>>(`/mis-productos/${id}`, jsonPayload, {
     headers: { 'Content-Type': 'application/json' },

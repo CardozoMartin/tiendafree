@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { comprimirImagen } from '../../utils/comprimirImagen';
 import { getCategoriasFn } from '../../api/product.api';
 import {
   useActualizarProducto,
@@ -27,9 +28,11 @@ import {
   useEliminarVariante,
   useSubirImagenVariante,
 } from '../../hooks/useProduct';
-import { IconInput } from './IconInput';
-import { Toggle } from './Toggle';
 import type { IProduct } from '../../types/product.type';
+import InputProduct from './InputProduct';
+import SelectProduct from './SelectProduct';
+import TextAreaProduct from './TextAreaProduct';
+import { Toggle } from './Toggle';
 
 interface FormProductValues {
   nombre: string;
@@ -62,8 +65,6 @@ interface FormProductProps {
 const inputCls =
   'w-full pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 transition-all';
 
-const inputErrorCls = 'border-red-300 focus:border-red-400 focus:ring-red-100';
-
 // ─── Componente principal ────────────────────────────────────────────────────
 
 const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
@@ -91,7 +92,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
       nombre: producto?.nombre ?? '',
       descripcion: producto?.descripcion ?? '',
       precio: producto?.precio ?? ('' as any),
-      precioOferta: producto?.precioOferta ?? '',
+      precioOferta: producto?.precioOferta || '',
       moneda: producto?.moneda ?? 'ARS',
       disponible: producto?.disponible ?? true,
       destacado: producto?.destacado ?? false,
@@ -122,7 +123,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
         nombre: producto.nombre,
         descripcion: producto.descripcion ?? '',
         precio: producto.precio,
-        precioOferta: producto.precioOferta ?? '',
+        precioOferta: producto.precioOferta || '',
         moneda: producto.moneda,
         disponible: producto.disponible,
         destacado: producto.destacado,
@@ -135,15 +136,16 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     }
   }, [producto, reset]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
+      const comprimido = await comprimirImagen(file);
+      setImageFile(comprimido);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(comprimido);
     }
   };
 
@@ -161,7 +163,8 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   const handleSubirImagenExtra = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && producto) {
-      await agregarImagen({ productoId: producto.id, file });
+      const comprimido = await comprimirImagen(file);
+      await agregarImagen({ productoId: producto.id, file: comprimido });
     }
     e.target.value = '';
   };
@@ -257,7 +260,8 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   ) => {
     const file = e.target.files?.[0];
     if (file && producto) {
-      await subirImagenVariante({ productoId: producto.id, varianteId, file });
+      const comprimido = await comprimirImagen(file);
+      await subirImagenVariante({ productoId: producto.id, varianteId, file: comprimido });
     }
     e.target.value = '';
   };
@@ -280,7 +284,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     const payload = {
       ...data,
       precio: Number(data.precio),
-      precioOferta: data.precioOferta !== '' ? Number(data.precioOferta) : null,
+      precioOferta: data.precioOferta && Number(data.precioOferta) > 0 ? Number(data.precioOferta) : null,
       tags: tagsArray,
       imagenPrincipal: imageFile || undefined,
       imagenPrincipalUrl: !imageFile ? producto?.imagenPrincipalUrl : undefined,
@@ -386,67 +390,52 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] divide-y divide-gray-50">
           {/* Nombre */}
-          <div className="px-5 py-4 space-y-1.5">
-            <label className="block text-xs font-medium text-gray-500">
-              Nombre <span className="text-red-400">*</span>
-            </label>
-            <IconInput icon={Tag} error={!!errors.nombre}>
-              <input
-                type="text"
-                placeholder="Ej: Torta de chocolate"
-                className={`${inputCls} ${errors.nombre ? inputErrorCls : ''}`}
-                {...register('nombre', {
-                  required: 'El nombre es requerido',
-                  minLength: { value: 2, message: 'Mínimo 2 caracteres' },
-                })}
-              />
-            </IconInput>
-            {errors.nombre && <p className="text-red-400 text-xs">{errors.nombre.message}</p>}
-          </div>
+          <InputProduct
+            label="Nombre"
+            name="nombre"
+            placeholder="Ej: Torta de chocolate"
+            icon={<Tag className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            required
+            validacion={{
+              required: 'El nombre es requerido',
+              minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+            }}
+          />
 
           {/* Descripción */}
-          <div className="px-5 py-4 space-y-1.5">
-            <label className="block text-xs font-medium text-gray-500">Descripción</label>
-            <div className="relative">
-              <FileText className="absolute left-3 top-3 w-3.5 h-3.5 text-gray-300 pointer-events-none" />
-              <textarea
-                rows={3}
-                placeholder="Contá algo sobre el producto…"
-                className={`${inputCls} resize-none`}
-                style={{ paddingLeft: '2.25rem' }}
-                {...register('descripcion')}
-              />
-            </div>
-          </div>
+          <TextAreaProduct
+            label="Descripción"
+            name="descripcion"
+            placeholder="Contá algo sobre el producto…"
+            icon={<FileText className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            rows={3}
+          />
 
           {/* Tags */}
-          <div className="px-5 py-4 space-y-1.5">
-            <label className="block text-xs font-medium text-gray-500">Tags</label>
-            <IconInput icon={Hash}>
-              <input
-                type="text"
-                placeholder="ropa, verano, oferta"
-                className={`${inputCls} ${errors.tags ? inputErrorCls : ''}`}
-                {...register('tags', {
-                  validate: (value) => {
-                    const tags = value
-                      .split(',')
-                      .map((tag) => tag.trim())
-                      .filter(Boolean);
-                    if (tags.length > 10) return 'Máximo 10 tags';
-                    if (new Set(tags.map((tag) => tag.toLowerCase())).size !== tags.length)
-                      return 'No uses tags duplicados';
-                    return true;
-                  },
-                })}
-              />
-            </IconInput>
-            {errors.tags ? (
-              <p className="text-red-400 text-xs">{errors.tags.message}</p>
-            ) : (
-              <p className="text-[11px] text-gray-400">Separalos con comas · Máximo 10</p>
-            )}
-          </div>
+          <InputProduct
+            label="Tags"
+            name="tags"
+            placeholder="ropa, verano, oferta"
+            icon={<Hash className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            validacion={{
+              validate: (value: string) => {
+                const tags = value
+                  .split(',')
+                  .map((tag: string) => tag.trim())
+                  .filter(Boolean);
+                if (tags.length > 10) return 'Máximo 10 tags';
+                if (new Set(tags.map((tag: string) => tag.toLowerCase())).size !== tags.length)
+                  return 'No uses tags duplicados';
+                return true;
+              },
+            }}
+          />
 
           {/* Categoría */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4">
@@ -503,10 +492,6 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
           </div>
         </div>
       </div>
-
-      {/* ══════════════════════════
-          SECCIÓN: PRECIO
-      ══════════════════════════ */}
       <div>
         <div className="mb-4">
           <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">Precio</h2>
@@ -515,75 +500,60 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] divide-y divide-gray-50">
           {/* Precio */}
-          <div className="px-5 py-4 space-y-1.5">
-            <label className="block text-xs font-medium text-gray-500">
-              Precio <span className="text-red-400">*</span>
-            </label>
-            <IconInput icon={DollarSign} error={!!errors.precio}>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="0.00"
-                className={`${inputCls} ${errors.precio ? inputErrorCls : ''}`}
-                {...register('precio', {
-                  required: 'El precio es requerido',
-                  valueAsNumber: true,
-                  min: { value: 0.01, message: 'Debe ser mayor a 0' },
-                })}
-              />
-            </IconInput>
-            {errors.precio && <p className="text-red-400 text-xs">{errors.precio.message}</p>}
-          </div>
+          <InputProduct
+            label="Precio"
+            name="precio"
+            placeholder="0.00"
+            icon={<DollarSign className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            type="number"
+            step="0.01"
+            min="0.01"
+            required
+            validacion={{
+              required: 'El precio es requerido',
+              valueAsNumber: true,
+              min: { value: 0.01, message: 'Debe ser mayor a 0' },
+            }}
+          />
 
           {/* Precio oferta */}
-          <div className="px-5 py-4 space-y-1.5">
-            <label className="block text-xs font-medium text-gray-500">
-              Precio de oferta
-              <span className="ml-1.5 text-[11px] font-normal text-gray-400">Opcional</span>
-            </label>
-            <IconInput icon={BadgePercent}>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="0.00"
-                className={`${inputCls} ${errors.precioOferta ? inputErrorCls : ''}`}
-                {...register('precioOferta', {
-                  validate: (value) => {
-                    if (value === '' || value === undefined || value === null) return true;
-                    if (Number(value) <= 0) return 'El precio de oferta debe ser mayor a 0';
-                    if (Number(precio) && Number(value) >= Number(precio)) {
-                      return 'El precio de oferta debe ser menor al precio original';
-                    }
-                    return true;
-                  },
-                })}
-              />
-            </IconInput>
-            {errors.precioOferta && (
-              <p className="text-red-400 text-xs">{errors.precioOferta.message}</p>
-            )}
-          </div>
+          <InputProduct
+            label="Precio de oferta"
+            name="precioOferta"
+            placeholder="Dejar vacío para quitar oferta"
+            icon={<BadgePercent className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            type="number"
+            step="0.01"
+            opcional
+            validacion={{
+              validate: (value: string | number | undefined) => {
+                if (value === '' || value === undefined || value === null || value === 0 || Number(value) === 0) return true;
+                if (Number(value) < 0) return 'El precio de oferta debe ser mayor a 0';
+                if (Number(precio) && Number(value) >= Number(precio)) {
+                  return 'El precio de oferta debe ser menor al precio original';
+                }
+                return true;
+              },
+            }}
+          />
 
           {/* Moneda */}
-          <div className="flex items-center gap-4 px-5 py-4">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-800">Moneda</p>
-              <p className="text-xs text-gray-400 mt-0.5">Código ISO</p>
-            </div>
-            <div className="relative">
-              <ArrowDownUp className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none" />
-              <select
-                className="pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
-                {...register('moneda')}
-              >
-                <option value="ARS">ARS – Peso</option>
-                <option value="USD">USD – Dólar</option>
-                <option value="EUR">EUR – Euro</option>
-              </select>
-            </div>
-          </div>
+          <SelectProduct
+            label="Moneda"
+            name="moneda"
+            icon={<ArrowDownUp className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            options={[
+              { value: 'ARS', label: 'ARS – Peso' },
+              { value: 'USD', label: 'USD – Dólar' },
+              { value: 'EUR', label: 'EUR – Euro' },
+            ]}
+          />
         </div>
       </div>
 
@@ -602,30 +572,28 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
               <p className="text-sm font-medium text-gray-800">Disponible</p>
               <p className="text-xs text-gray-400 mt-0.5">Visible en tu tienda</p>
             </div>
-            <Toggle name="disponible" register={register} />
+            <Toggle name="disponible" watch={watch} setValue={setValue} />
           </div>
           <div className="flex items-center gap-4 px-5 py-4">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-800">Destacado</p>
               <p className="text-xs text-gray-400 mt-0.5">Aparece primero en la grilla</p>
             </div>
-            <Toggle name="destacado" register={register} />
+            <Toggle name="destacado" watch={watch} setValue={setValue} />
           </div>
-          <div className="px-5 py-4 space-y-1.5">
-            <label className="block text-xs font-medium text-gray-500">Stock disponible</label>
-            <IconInput icon={Package} error={!!errors.stock}>
-              <input
-                type="number"
-                placeholder="0"
-                className={`${inputCls} ${errors.stock ? inputErrorCls : ''}`}
-                {...register('stock', {
-                  valueAsNumber: true,
-                  min: { value: 0, message: 'El stock no puede ser negativo' },
-                })}
-              />
-            </IconInput>
-            {errors.stock && <p className="text-red-400 text-xs">{errors.stock.message}</p>}
-          </div>
+          <InputProduct
+            label="Stock disponible"
+            name="stock"
+            placeholder="0"
+            icon={<Package className="w-4 h-4" />}
+            register={register}
+            errors={errors}
+            type="number"
+            validacion={{
+              valueAsNumber: true,
+              min: { value: 0, message: 'El stock no puede ser negativo' },
+            }}
+          />
         </div>
       </div>
 
