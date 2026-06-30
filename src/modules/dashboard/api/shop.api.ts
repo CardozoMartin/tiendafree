@@ -26,6 +26,32 @@ export const putUpdateShopFn = async (data: Partial<IShopData>) => {
   return response.data;
 }
 
+// ---- Dominio personalizado ----
+
+export interface EstadoDominio {
+  dominio: string | null;
+  verificado: boolean;
+  instruccionDns: { tipo: string; host: string; valor: string; ayuda?: string } | null;
+}
+
+// Obtiene el estado actual del dominio de la tienda (para mostrar en el panel).
+export const getEstadoDominioFn = async (): Promise<EstadoDominio> => {
+  const { data } = await api.get('/tiendas/mi-tienda/dominio');
+  return data.datos;
+};
+
+// Guarda/cambia el dominio. Devuelve la instrucción del registro TXT a configurar.
+export const guardarDominioFn = async (dominio: string): Promise<EstadoDominio> => {
+  const { data } = await api.patch('/tiendas/mi-tienda/dominio', { dominio });
+  return data.datos;
+};
+
+// Pide al backend que verifique (consultando el DNS) que el TXT esté publicado.
+export const verificarDominioFn = async (): Promise<{ verificado: boolean; mensaje: string }> => {
+  const { data } = await api.post('/tiendas/mi-tienda/dominio/verificar');
+  return data.datos;
+};
+
 //funcion para actualizar los datos visuales de la tienda (colores, fuentes, etc)
 export const putUpdateShopVisualFn = async (data: Partial<IShopData>) => {
   const response = await api.put('/tiendas/mi-tienda/tema/', data);

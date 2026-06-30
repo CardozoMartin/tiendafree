@@ -9,6 +9,7 @@ export const NAV_ITEMS = [
       { id: 'store-methods', icon: 'payments', label: 'Pagos y Envíos' },
       { id: 'store-edit', icon: 'edit_square', label: 'Editar Página' },
       { id: 'store-website', icon: 'language', label: 'Sitio Web' },
+      { id: 'dominio', icon: 'public', label: 'Dominio propio' },
     ],
   },
   { id: 'products', icon: 'inventory_2', label: 'Productos' },

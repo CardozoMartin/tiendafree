@@ -7,6 +7,7 @@ import EditingSite from './myShop/EditingSite';
 import MethodsSection from './myShop/MethodsSection';
 import Templates from './myShop/Templates';
 import SettingsSection from './SettingsSection';
+import DominioSection from './DominioSection';
 import CmAiSection from './CmAiSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
@@ -72,6 +73,8 @@ export const SectionRenderer = ({
       return <ReviewsSection accent={accent} tienda={myShop} />;
     case 'settings':
       return <SettingsSection accent={accent} />;
+    case 'dominio':
+      return <DominioSection accent={accent} />;
     case 'admin':
       return <AdminSection accent={accent} />;
     default:
