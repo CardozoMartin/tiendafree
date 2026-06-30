@@ -46,6 +46,26 @@ const DominioSection = ({ accent = '#6366f1' }: { accent?: string }) => {
   const dominioActual = estado?.dominio ?? null;
   const verificado = estado?.verificado ?? false;
   const dns = estado?.instruccionDns ?? null;
+  const apuntado = estado?.instruccionApuntado ?? null;
+
+  // Cuadro reutilizable que muestra un registro DNS (TXT o CNAME) con botón de copiar.
+  const RegistroDnsBox = ({ reg }: { reg: { tipo: string; host: string; valor: string } }) => (
+    <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm bg-white rounded-xl p-4 border border-slate-100">
+      <span className="text-slate-400 font-semibold">Tipo</span>
+      <span className="font-mono text-slate-800">{reg.tipo}</span>
+      <span className="text-slate-400 font-semibold">Host</span>
+      <span className="font-mono text-slate-800">{reg.host}</span>
+      <span className="text-slate-400 font-semibold">Valor</span>
+      <button
+        onClick={() => copiar(reg.valor)}
+        className="font-mono text-slate-800 text-left break-all hover:text-indigo-600 flex items-center gap-1"
+        title="Copiar"
+      >
+        {reg.valor}
+        <MI name="content_copy" className="!text-sm text-slate-400" />
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
@@ -98,29 +118,18 @@ const DominioSection = ({ accent = '#6366f1' }: { accent?: string }) => {
         </div>
       </div>
 
-      {/* Instrucción de verificación (TXT) */}
+      {/* Paso 1 — Verificación (TXT). Solo mientras no esté verificado. */}
       {dns && !verificado && (
         <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm space-y-3">
-          <p className="text-sm font-bold text-slate-800">Verificá que el dominio es tuyo</p>
+          <p className="text-sm font-bold text-slate-800">
+            <span className="inline-flex items-center justify-center size-5 rounded-full bg-amber-500 text-white text-xs mr-2">1</span>
+            Verificá que el dominio es tuyo
+          </p>
           <p className="text-xs text-slate-500">
             Entrá al panel de tu proveedor de dominio y agregá este registro:
           </p>
 
-          <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm bg-white rounded-xl p-4 border border-slate-100">
-            <span className="text-slate-400 font-semibold">Tipo</span>
-            <span className="font-mono text-slate-800">{dns.tipo}</span>
-            <span className="text-slate-400 font-semibold">Host</span>
-            <span className="font-mono text-slate-800">{dns.host}</span>
-            <span className="text-slate-400 font-semibold">Valor</span>
-            <button
-              onClick={() => copiar(dns.valor)}
-              className="font-mono text-slate-800 text-left break-all hover:text-indigo-600 flex items-center gap-1"
-              title="Copiar"
-            >
-              {dns.valor}
-              <MI name="content_copy" className="!text-sm text-slate-400" />
-            </button>
-          </div>
+          <RegistroDnsBox reg={dns} />
 
           <button
             onClick={() => verificar.mutate()}
@@ -132,6 +141,27 @@ const DominioSection = ({ accent = '#6366f1' }: { accent?: string }) => {
           </button>
           <p className="text-[11px] text-slate-400 text-center">
             El DNS puede tardar unos minutos en propagarse.
+          </p>
+        </div>
+      )}
+
+      {/* Paso 2 — Apuntado (CNAME). Se muestra siempre que haya un dominio cargado:
+          verificar prueba la propiedad, pero el CNAME es lo que hace que el dominio
+          CARGUE la tienda. Son dos cosas distintas. */}
+      {apuntado && dominioActual && (
+        <div className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-5 shadow-sm space-y-3">
+          <p className="text-sm font-bold text-slate-800">
+            <span className="inline-flex items-center justify-center size-5 rounded-full bg-indigo-500 text-white text-xs mr-2">2</span>
+            Apuntá el dominio a tu tienda
+          </p>
+          <p className="text-xs text-slate-500">
+            Este registro hace que tu dominio muestre la tienda. Agregalo en el mismo panel de tu proveedor:
+          </p>
+
+          <RegistroDnsBox reg={apuntado} />
+
+          <p className="text-[11px] text-slate-400">
+            Una vez configurado y verificado, tu tienda quedará disponible en {dominioActual}.
           </p>
         </div>
       )}

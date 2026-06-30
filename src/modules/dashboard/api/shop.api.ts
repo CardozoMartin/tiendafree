@@ -28,10 +28,18 @@ export const putUpdateShopFn = async (data: Partial<IShopData>) => {
 
 // ---- Dominio personalizado ----
 
+interface RegistroDns {
+  tipo: string;
+  host: string;
+  valor: string;
+  ayuda?: string;
+}
+
 export interface EstadoDominio {
   dominio: string | null;
   verificado: boolean;
-  instruccionDns: { tipo: string; host: string; valor: string; ayuda?: string } | null;
+  instruccionDns: RegistroDns | null;      // TXT: para verificar la propiedad
+  instruccionApuntado?: RegistroDns | null; // CNAME: para que el dominio cargue la tienda
 }
 
 // Obtiene el estado actual del dominio de la tienda (para mostrar en el panel).
