@@ -63,30 +63,47 @@ function esEnvioConCosto(nombre: string) {
 }
 
 // ─── Íconos por método ────────────────────────────────────────────────────────
+// Importamos los assets para que Vite los procese y no se rompan en producción
+// (las rutas string tipo "/src/assets/..." solo funcionan en dev).
+import MI from '../MaterialIcon';
+import imgEfectivo from '../../../../assets/SVG/Efectivo.png';
+import imgTransferencia from '../../../../assets/SVG/Transferencias.png';
+import imgPagosQR from '../../../../assets/SVG/PagosQR.png';
+import imgTarjeta from '../../../../assets/SVG/TarjetaDeCredito.png';
+import imgRetiroLocal from '../../../../assets/SVG/RetiroLocal.png';
+import imgEnvioTodoPais from '../../../../assets/SVG/EnvioTodoPais.png';
+import imgPuntoEncuentro from '../../../../assets/SVG/PuntoEncuentro.png';
+import imgUber from '../../../../assets/SVG/Uber.png';
 
+// Mapa por nombre EXACTO del catálogo (seed), en minúsculas.
 const METHOD_IMGS: Record<string, string> = {
-  'efectivo': '/src/assets/SVG/Efectivo.png',
-  'transferencia bancaria': '/src/assets/SVG/Transferencias.png',
-  'transferencia': '/src/assets/SVG/Transferencias.png',
-  'mercado pago': '/src/assets/SVG/MP.png',
-  'mercadopago': '/src/assets/SVG/MP.png',
-  'cuenta dni': '/src/assets/SVG/Cuenta-DNI.png',
-  'uala': '/src/assets/SVG/Ualá.png',
-  'naranja x': '/src/assets/SVG/Naranja-X.png',
-  'retiro en tienda': '/src/assets/SVG/Local.png',
-  'envío a domicilio': '/src/assets/SVG/Delivery.png',
-  'envio a domicilio': '/src/assets/SVG/Delivery.png',
-  'correo argentino': '/src/assets/SVG/CorreoArgentino.png',
-  'oca': '/src/assets/SVG/OCA.png',
-  'andreani': '/src/assets/SVG/Andreani.png',
-  'pickit': '/src/assets/SVG/Pickit.png',
-  'punto de retiro': '/src/assets/SVG/PuntodeRetiro.png',
+  // Pagos
+  'efectivo': imgEfectivo,
+  'transferencia bancaria': imgTransferencia,
+  'mercado pago': imgPagosQR,
+  'tarjeta de crédito': imgTarjeta,
+  'tarjeta de débito': imgTarjeta,
+  // Envíos
+  'retiro en local': imgRetiroLocal,
+  'envío a domicilio': imgEnvioTodoPais,
+  'punto de encuentro': imgPuntoEncuentro,
+  'motomensajería': imgUber,
 };
 
-function MethodIcon({ nombre, size = 28 }: { nombre: string; size?: number }) {
-  const key = nombre.toLowerCase();
+function MethodIcon({ nombre, icono, size = 28 }: { nombre: string; icono?: string; size?: number }) {
+  const key = nombre.toLowerCase().trim();
   const src = METHOD_IMGS[key];
   if (src) return <img src={src} alt={nombre} style={{ width: size, height: size, objectFit: 'contain' }} />;
+  // Fallback elegante: si el método no tiene PNG propio, usamos su Material Symbol
+  // (viene del catálogo/seed) en vez de un cuadrito con la inicial.
+  if (icono) {
+    return (
+      <div className="rounded-lg bg-gray-100 flex items-center justify-center text-gray-500"
+        style={{ width: size, height: size }}>
+        <MI name={icono} style={{ fontSize: size * 0.6 }} />
+      </div>
+    );
+  }
   return (
     <div className="rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs"
       style={{ width: size, height: size }}>{nombre[0]?.toUpperCase()}</div>
@@ -536,7 +553,7 @@ export default function MethodsSection(_props: { accent?: string } = {}) {
         </button>
 
         <div className="flex items-center gap-3">
-          <MethodIcon nombre={metodo.nombre} size={44} />
+          <MethodIcon nombre={metodo.nombre} icono={metodo.icono} size={44} />
           <div>
             <h2 className="text-lg font-bold text-gray-900">{metodo.nombre}</h2>
             <p className="text-xs text-gray-400">{isNew ? 'Configurar y activar este método' : 'Editar configuración'}</p>
@@ -597,7 +614,7 @@ export default function MethodsSection(_props: { accent?: string } = {}) {
                   <tr key={metodo.id} className={`transition-colors ${activo ? 'bg-white' : 'bg-gray-50/50'}`}>
                     <td className="px-4 py-3 align-top">
                       <div className="flex items-center gap-3">
-                        <MethodIcon nombre={metodo.nombre} size={32} />
+                        <MethodIcon nombre={metodo.nombre} icono={metodo.icono} size={32} />
                         <div>
                           <p className="font-medium text-gray-800 text-sm">{metodo.nombre}</p>
                           {activo && config?.detalle && (
@@ -692,7 +709,7 @@ export default function MethodsSection(_props: { accent?: string } = {}) {
                   <tr key={metodo.id} className={`transition-colors ${activo ? 'bg-white' : 'bg-gray-50/50'}`}>
                     <td className="px-4 py-3 align-top">
                       <div className="flex items-center gap-3">
-                        <MethodIcon nombre={metodo.nombre} size={32} />
+                        <MethodIcon nombre={metodo.nombre} icono={metodo.icono} size={32} />
                         <div className="flex-1">
                           <p className="font-medium text-gray-800 text-sm">{metodo.nombre}</p>
                           {activo && config?.tiempoEstimado && (

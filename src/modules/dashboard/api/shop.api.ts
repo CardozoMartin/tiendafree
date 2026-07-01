@@ -28,10 +28,18 @@ export const putUpdateShopFn = async (data: Partial<IShopData>) => {
 
 // ---- Dominio personalizado ----
 
+interface RegistroDns {
+  tipo: string;
+  host: string;
+  valor: string;
+  ayuda?: string;
+}
+
 export interface EstadoDominio {
   dominio: string | null;
   verificado: boolean;
-  instruccionDns: { tipo: string; host: string; valor: string; ayuda?: string } | null;
+  instruccionDns: RegistroDns | null;      // TXT: para verificar la propiedad
+  instruccionApuntado?: RegistroDns | null; // CNAME: para que el dominio cargue la tienda
 }
 
 // Obtiene el estado actual del dominio de la tienda (para mostrar en el panel).
@@ -49,6 +57,53 @@ export const guardarDominioFn = async (dominio: string): Promise<EstadoDominio> 
 // Pide al backend que verifique (consultando el DNS) que el TXT esté publicado.
 export const verificarDominioFn = async (): Promise<{ verificado: boolean; mensaje: string }> => {
   const { data } = await api.post('/tiendas/mi-tienda/dominio/verificar');
+  return data.datos;
+};
+
+// ---- Config de email marketing (proveedor propio del dueño) ----
+
+export type ProveedorEmail = 'brevo' | 'gmail' | 'smtp';
+
+// Estado de la config para el panel. La credencial NUNCA viaja al front:
+// solo sabemos si hay una cargada (tieneCredencial).
+export interface EstadoConfigEmail {
+  proveedor: ProveedorEmail | null;
+  remitente: string | null;
+  remitenteNombre: string | null;
+  host: string | null;
+  port: number | null;
+  usuario: string | null;
+  tieneCredencial: boolean;
+  verificado: boolean;
+  listoParaEnviar: boolean;
+}
+
+// Datos que el dueño manda al guardar. credencial es opcional al editar:
+// si no la mandás, se conserva la ya guardada.
+export interface GuardarConfigEmailInput {
+  proveedor: ProveedorEmail;
+  remitente: string;
+  remitenteNombre?: string;
+  credencial?: string;
+  host?: string;
+  port?: number;
+  usuario?: string;
+}
+
+export const getConfigEmailFn = async (): Promise<EstadoConfigEmail> => {
+  const { data } = await api.get('/tiendas/mi-tienda/email-config');
+  return data.datos;
+};
+
+export const guardarConfigEmailFn = async (
+  input: GuardarConfigEmailInput
+): Promise<EstadoConfigEmail> => {
+  const { data } = await api.put('/tiendas/mi-tienda/email-config', input);
+  return data.datos;
+};
+
+export const verificarConfigEmailFn = async (): Promise<{ verificado: boolean; mensaje: string }> => {
+  const { data } = await api.post('/tiendas/mi-tienda/email-config/verificar');
   return data.datos;
 };
 
@@ -234,4 +289,54 @@ export interface AnalyticsResumen {
 export const getAnalyticsResumenFn = async (dias = 30) => {
   const response = await api.get('/analytics/resumen', { params: { dias } });
   return response.data.datos as AnalyticsResumen;
+};
+
+// ── Campañas de email ──
+
+export type SegmentoCampana = 'CLIENTES_REGISTRADOS' | 'COMPRADORES' | 'AMBOS';
+export type EstadoCampana = 'BORRADOR' | 'ENCOLADA' | 'ENVIANDO' | 'ENVIADA' | 'FALLIDA';
+
+export interface Campana {
+  id: number;
+  asunto: string;
+  cuerpoHtml: string;
+  imagenUrl: string | null;
+  segmento: SegmentoCampana;
+  estado: EstadoCampana;
+  totalDestinatarios: number;
+  enviados: number;
+  fallidos: number;
+  creadoEn: string;
+  encoladaEn: string | null;
+  finalizadaEn: string | null;
+}
+
+export interface CrearCampanaInput {
+  asunto: string;
+  cuerpoHtml: string;
+  imagenUrl?: string;
+  segmento: SegmentoCampana;
+}
+
+// Conteo de destinatarios por segmento (para el compositor).
+export const getDestinatariosCampanaFn = async (): Promise<Record<SegmentoCampana, number>> => {
+  const { data } = await api.get('/campanas/destinatarios');
+  return data.datos;
+};
+
+export const listarCampanasFn = async (): Promise<Campana[]> => {
+  const { data } = await api.get('/campanas');
+  return data.datos;
+};
+
+export const crearCampanaFn = async (input: CrearCampanaInput): Promise<Campana> => {
+  const { data } = await api.post('/campanas', input);
+  return data.datos;
+};
+
+export const enviarCampanaFn = async (
+  id: number
+): Promise<{ encolada: boolean; totalDestinatarios: number; mensaje: string }> => {
+  const { data } = await api.post(`/campanas/${id}/enviar`);
+  return data.datos;
 };
