@@ -107,6 +107,11 @@ export const verificarConfigEmailFn = async (): Promise<{ verificado: boolean; m
   return data.datos;
 };
 
+export const eliminarConfigEmailFn = async (): Promise<EstadoConfigEmail> => {
+  const { data } = await api.delete('/tiendas/mi-tienda/email-config');
+  return data.datos;
+};
+
 //funcion para actualizar los datos visuales de la tienda (colores, fuentes, etc)
 export const putUpdateShopVisualFn = async (data: Partial<IShopData>) => {
   const response = await api.put('/tiendas/mi-tienda/tema/', data);

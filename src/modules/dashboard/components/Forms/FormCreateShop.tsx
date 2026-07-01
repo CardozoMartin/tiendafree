@@ -20,7 +20,6 @@ export interface IShopData {
   nombre: string;
   titulo: string;
   descripcion: string;
-  plantillaId: number;
   whatsapp: string;
   instagram: string;
   facebook: string;
@@ -47,7 +46,6 @@ const FormCreateShop = ({ accent }: FormCreateShopProps) => {
     defaultValues: {
       nombre: '',
       slug: '',
-      plantillaId: 1,
     },
   });
 
@@ -79,7 +77,7 @@ const FormCreateShop = ({ accent }: FormCreateShopProps) => {
       textoConfirmar: 'Si, crear tienda',
       variant: 'info',
     });
-    if (userConfirmed) await createShop({ ...data, plantillaId: 1 });
+    if (userConfirmed) await createShop(data);
   };
 
   return (

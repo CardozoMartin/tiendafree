@@ -21,7 +21,15 @@ const PROVEEDORES: { id: ProveedorEmail; label: string; ayuda: string }[] = [
   { id: 'smtp', label: 'Otro (SMTP)', ayuda: 'Cualquier proveedor con servidor SMTP.' },
 ];
 
-const EmailConfigSection = ({ accent = '#6366f1' }: { accent?: string }) => {
+interface EmailConfigSectionProps {
+  accent?: string;
+  // Cuando se monta desde Marketing con "Editar", arranca en modo edición.
+  arrancarEditando?: boolean;
+  // Botón para volver a la vista de campañas (solo se muestra si se pasa).
+  onVolver?: () => void;
+}
+
+const EmailConfigSection = ({ accent = '#6366f1', arrancarEditando = false, onVolver }: EmailConfigSectionProps) => {
   const qc = useQueryClient();
 
   const { data: estado, isLoading } = useQuery({
@@ -39,7 +47,7 @@ const EmailConfigSection = ({ accent = '#6366f1' }: { accent?: string }) => {
   const [usuario, setUsuario] = useState('');
   // Cuando la config ya está verificada, el form arranca bloqueado (solo-lectura).
   // "Editar" lo desbloquea, igual que hace Mercado Pago en MethodsSection.
-  const [editando, setEditando] = useState(false);
+  const [editando, setEditando] = useState(arrancarEditando);
 
   // Precargamos el form con la config guardada (sin la credencial, que no viaja).
   useEffect(() => {
@@ -101,6 +109,14 @@ const EmailConfigSection = ({ accent = '#6366f1' }: { accent?: string }) => {
 
   return (
     <div className="space-y-5">
+      {onVolver && (
+        <button
+          onClick={onVolver}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-bold hover:bg-slate-200 transition"
+        >
+          <MI name="arrow_back" className="!text-base" /> Volver a campañas
+        </button>
+      )}
       <div>
         <h1 className="text-2xl font-black text-slate-900">Servicio de email</h1>
         <p className="text-sm text-slate-500 mt-1">

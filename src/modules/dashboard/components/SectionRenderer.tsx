@@ -3,13 +3,11 @@ import HomeSection from '../components/HomeSection';
 import OrdersSection from '../components/OrdersSection';
 import ProductsSection from '../components/ProductsSection';
 import CreateShop from './CreateShop';
-import EditingSite from './myShop/EditingSite';
+import EditorSitio from './myShop/EditorSitio';
 import MethodsSection from './myShop/MethodsSection';
-import Templates from './myShop/Templates';
 import SettingsSection from './SettingsSection';
 import DominioSection from './DominioSection';
-import EmailConfigSection from './EmailConfigSection';
-import CampanasSection from './CampanasSection';
+import MarketingSection from './MarketingSection';
 import CmAiSection from './CmAiSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
@@ -52,9 +50,8 @@ export const SectionRenderer = ({
       return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      return isActiveShop ? <Templates accent={accent} /> : <CreateShop accent={accent} />;
     case 'store-edit':
-      return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
+      return isActiveShop ? <EditorSitio tienda={myShop} /> : <CreateShop accent={accent} />;
     case 'store-methods':
       return <MethodsSection accent={accent} />;
     case 'store-website':
@@ -77,10 +74,11 @@ export const SectionRenderer = ({
       return <SettingsSection accent={accent} />;
     case 'dominio':
       return <DominioSection accent={accent} />;
+    // 'email-config' se mantiene por compatibilidad con links viejos; ahora
+    // ambos (config + campañas) viven en MarketingSection.
     case 'email-config':
-      return <EmailConfigSection accent={accent} />;
     case 'campanas':
-      return <CampanasSection accent={accent} />;
+      return <MarketingSection accent={accent} />;
     case 'admin':
       return <AdminSection accent={accent} />;
     default:

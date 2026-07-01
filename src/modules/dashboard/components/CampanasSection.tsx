@@ -228,12 +228,6 @@ const CampanasSection = ({ accent = '#6366f1' }: { accent?: string }) => {
         </button>
       </div>
 
-      {!listoParaEnviar && (
-        <div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-sm text-amber-700">
-          Todavía no configuraste tu <b>servicio de email</b>. Andá a “Mi Tienda → Servicio de email” para habilitarlo.
-        </div>
-      )}
-
       {campanas.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 p-10 text-center text-slate-400 text-sm">
           Todavía no enviaste ninguna campaña.
