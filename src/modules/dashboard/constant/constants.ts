@@ -5,9 +5,8 @@ export const NAV_ITEMS = [
     icon: 'palette',
     label: 'Mi Tienda',
     submenu: [
-      { id: 'store-templates', icon: 'image', label: 'Plantillas' },
+      { id: 'store-edit', icon: 'edit_square', label: 'Editar Sitio' },
       { id: 'store-methods', icon: 'payments', label: 'Pagos y Envíos' },
-      { id: 'store-edit', icon: 'edit_square', label: 'Editar Página' },
       { id: 'store-website', icon: 'language', label: 'Sitio Web' },
       { id: 'dominio', icon: 'public', label: 'Dominio propio' },
       { id: 'email-config', icon: 'mail', label: 'Servicio de email' },

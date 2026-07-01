@@ -3,9 +3,8 @@ import HomeSection from '../components/HomeSection';
 import OrdersSection from '../components/OrdersSection';
 import ProductsSection from '../components/ProductsSection';
 import CreateShop from './CreateShop';
-import EditingSite from './myShop/EditingSite';
 import MethodsSection from './myShop/MethodsSection';
-import Templates from './myShop/Templates';
+import EditorSitio from './myShop/EditorSitio';
 import SettingsSection from './SettingsSection';
 import DominioSection from './DominioSection';
 import EmailConfigSection from './EmailConfigSection';
@@ -52,9 +51,9 @@ export const SectionRenderer = ({
       return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      return isActiveShop ? <Templates accent={accent} /> : <CreateShop accent={accent} />;
     case 'store-edit':
-      return isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
+      // "Editar Sitio": hub de secciones (reemplaza la vieja vista de Plantillas).
+      return isActiveShop ? <EditorSitio /> : <CreateShop accent={accent} />;
     case 'store-methods':
       return <MethodsSection accent={accent} />;
     case 'store-website':

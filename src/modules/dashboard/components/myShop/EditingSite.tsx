@@ -428,6 +428,7 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
             {([
               { value: 'HERO_FIJO',  label: 'Hero clásico',       desc: 'Texto + imagen circular a la derecha', icon: '🖼️' },
               { value: 'CARRUSEL',   label: 'Carrusel full',      desc: 'Slides a pantalla completa con texto encima', icon: '🎞️' },
+              { value: 'GALERIA',    label: 'Galería expandible', desc: 'Fila de imágenes que crecen al pasar el mouse', icon: '🖇️' },
             ] as const).map((opt) => (
               <button
                 key={opt.value}
@@ -482,6 +483,11 @@ const EditingSite = ({ tienda }: EditingSiteProps) => {
         <>
           <SectionTitle title="Hero clásico" desc="Texto, subtítulo, botón e imagen circular de la portada." />
           <HeroEditor temaConfig={tienda?.temaConfig} />
+        </>
+      ) : tipoHero === 'GALERIA' ? (
+        <>
+          <SectionTitle title="Galería expandible" desc="Las imágenes que subas acá se muestran en una fila que se expande al pasar el mouse. Se usan las mismas del carrusel." />
+          <ImageHeroHandlers temaConfig={tienda?.temaConfig} />
         </>
       ) : (
         <>
