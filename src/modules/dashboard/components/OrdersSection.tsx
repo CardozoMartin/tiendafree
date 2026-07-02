@@ -4,6 +4,8 @@ import MI from './MaterialIcon';
 import { useOrders, useUpdateOrderStatus, useUpdatePaymentStatus } from '../hooks/useOrders';
 import { useMyShop } from '../hooks/useShop';
 import DashboardHelp from './DashboardHelp';
+import OnboardingWelcome from './OnboardingWelcome';
+import pedidosImg from '../../../assets/onboarding/envios.png';
 
 // Estado de pago: etiqueta + colores
 const PAGO_META: Record<string, { label: string; bg: string; text: string }> = {
@@ -113,7 +115,28 @@ const OrdersSection = ({ accent }: { accent: string }) => {
         <DashboardHelp activeSection="orders" accent={accent} />
       </div>
 
-      {orders.length === 0 ? (
+      {orders.length === 0 && filter === 'all' ? (
+        /* La tienda todavía no recibió ningún pedido: portada de onboarding. */
+        <OnboardingWelcome
+          accent={accent}
+          image={pedidosImg}
+          title={
+            <>
+              Todavía no tenés <span style={{ color: accent }}>pedidos</span>
+            </>
+          }
+          description="Cuando tus clientes compren, sus pedidos van a aparecer acá."
+          subDescription="Compartí el link de tu tienda para empezar a recibir ventas."
+          buttonLabel="Ver mi tienda"
+          buttonIcon="storefront"
+          helpHref={null}
+          onStart={() => {
+            const slug = myShop?.slug ?? myShop?.datos?.slug;
+            if (slug) window.open(`https://apptiendizi.netlify.app/${slug}`, '_blank');
+          }}
+        />
+      ) : orders.length === 0 ? (
+        /* Hay pedidos en la tienda, pero el filtro actual no devuelve ninguno. */
         <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm mt-8">
           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
             <MI name="receipt_long" className="!text-3xl" />

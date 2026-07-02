@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Ticket, Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react';
 import { useCupones, useCrearCupon, useActualizarCupon, useEliminarCupon } from '../hooks/useCupones';
 import type { Cupon, CuponPayload } from '../api/cupones.api';
+import OnboardingWelcome from './OnboardingWelcome';
+import cuponesImg from '../../../assets/onboarding/cupones.png';
 
 interface Props { accent: string; }
 
@@ -45,6 +47,27 @@ export default function CuponesSection({ accent }: Props) {
     );
   }
 
+  // Sin cupones cargados: mostramos solo la portada de onboarding.
+  if (!isLoading && cupones.length === 0) {
+    return (
+      <OnboardingWelcome
+        accent={accent}
+        image={cuponesImg}
+        title={
+          <>
+            Creá tu primer <span style={{ color: accent }}>cupón</span>
+          </>
+        }
+        description="Ofrecé descuentos con códigos que tus clientes aplican en el checkout."
+        subDescription="Ideal para promociones, fechas especiales o fidelizar clientes."
+        buttonLabel="Crear cupón"
+        buttonIcon="add"
+        helpHref={null}
+        onStart={() => setCreando(true)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -64,14 +87,6 @@ export default function CuponesSection({ accent }: Props) {
       {isLoading ? (
         <div className="flex h-48 items-center justify-center">
           <div className="animate-spin h-7 w-7 border-4 border-slate-200 border-t-slate-800 rounded-full" />
-        </div>
-      ) : cupones.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
-          <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
-            <Ticket className="w-7 h-7" />
-          </div>
-          <h3 className="text-slate-900 font-bold mb-1">Todavía no tenés cupones</h3>
-          <p className="text-slate-400 text-sm">Creá tu primer cupón para ofrecer descuentos.</p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

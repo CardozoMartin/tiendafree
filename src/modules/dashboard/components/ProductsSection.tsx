@@ -20,6 +20,8 @@ import type { IProduct, IProductFilters } from '../types/product.type';
 import CatalogoPDF from './CatalogoPDF';
 import FormProduct from './Forms/FormProduct';
 import ProductsFilters from './ProductsSection/ProductsFilters';
+import OnboardingWelcome from './OnboardingWelcome';
+import productosImg from '../../../assets/onboarding/productos.png';
 
 const formatPrice = (price: number, moneda: string) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
@@ -79,6 +81,14 @@ const ProductsSection = ({ accent }: { accent: string }) => {
   const total: number = productosPaginados?.paginacion?.total ?? 0;
   const totalPaginas: number = productosPaginados?.paginacion?.totalPaginas ?? 1;
 
+  // Tienda sin ningún producto cargado (sin búsqueda ni filtro y sin el form abierto):
+  // mostramos solo la portada de onboarding, sin header, PDF ni filtros.
+  const tiendaSinProductos =
+    productos.length === 0 &&
+    !debouncedBusqueda &&
+    filtroActivo === 'todos' &&
+    !showFormProducts;
+
   // Query para obtener todos los productos para el PDF
   const { data: todosProductosPaginados } = useMisProductos({ limite: 1000, disponible: true });
   const allProductsForPdf = (todosProductosPaginados?.datos ?? []).filter((p) => p.stock > 0);
@@ -124,6 +134,29 @@ const ProductsSection = ({ accent }: { accent: string }) => {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="animate-spin w-8 h-8 border-[3px] border-gray-200 border-t-gray-800 rounded-full" />
+      </div>
+    );
+  }
+
+  // Tienda sin productos: solo la portada de onboarding (sin header, PDF ni filtros).
+  if (tiendaSinProductos) {
+    return (
+      <div style={accentStyle}>
+        <OnboardingWelcome
+          accent={accent}
+          image={productosImg}
+          title={
+            <>
+              Cargá tu primer <span style={{ color: accent }}>producto</span>
+            </>
+          }
+          description="Sumá productos a tu catálogo para empezar a vender."
+          subDescription="Agregá fotos, precio, stock y descripción de cada uno."
+          buttonLabel="Agregar producto"
+          buttonIcon="add"
+          helpHref={null}
+          onStart={handleAddProductClick}
+        />
       </div>
     );
   }
@@ -209,21 +242,22 @@ const ProductsSection = ({ accent }: { accent: string }) => {
         />
       )}
 
-      {showListProducts && productos.length === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] py-16 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
-            <Package className="w-7 h-7 text-gray-300" />
+      {/* Estado vacío por búsqueda/filtro sin resultados (sí hay productos en la tienda) */}
+      {showListProducts &&
+        productos.length === 0 &&
+        (debouncedBusqueda || filtroActivo !== 'todos') && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] py-16 flex flex-col items-center justify-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
+              <Package className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-sm font-semibold text-gray-700">Sin resultados</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-xs">
+              {debouncedBusqueda
+                ? `No encontramos nada con "${debouncedBusqueda}".`
+                : 'No hay productos con este filtro.'}
+            </p>
           </div>
-          <p className="text-sm font-semibold text-gray-700">
-            {debouncedBusqueda ? 'Sin resultados' : 'Todavía no tenés productos'}
-          </p>
-          <p className="text-xs text-gray-400 mt-1 max-w-xs">
-            {debouncedBusqueda
-              ? `No encontramos nada con "${debouncedBusqueda}".`
-              : 'Usá el botón "Agregar" para crear tu primer producto.'}
-          </p>
-        </div>
-      )}
+        )}
 
       {showListProducts && productos.length > 0 && (
         <div>

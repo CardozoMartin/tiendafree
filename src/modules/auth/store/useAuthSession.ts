@@ -101,6 +101,9 @@ export const useAuthSessionStore = create<SessionStore>()(
 
       logout: () => {
         get().stopSessionCheck();
+        // Limpiar la sección del dashboard para que la próxima sesión arranque
+        // en la vista por defecto (Diseño) y no herede la última visitada.
+        localStorage.removeItem('dashboard_active_section');
         set({
           user: null,
           isLoggedIn: false,

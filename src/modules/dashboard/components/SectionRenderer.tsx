@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import HomeSection from '../components/HomeSection';
 import OrdersSection from '../components/OrdersSection';
 import ProductsSection from '../components/ProductsSection';
 import CreateShop from './CreateShop';
+import OnboardingWelcome from './OnboardingWelcome';
 import EditorSitio from './myShop/EditorSitio';
 import MethodsSection from './myShop/MethodsSection';
 import SettingsSection from './SettingsSection';
@@ -16,6 +17,7 @@ import ClientesSection from './ClientesSection';
 import AnalyticsSection from './AnalyticsSection';
 import CuponesSection from './CuponesSection';
 import BannerPromoSection from './BannerPromoSection';
+import disenoImg from '../../../assets/onboarding/diseño tienda.png';
 
 interface SectionRendererProps {
   active: string;
@@ -35,6 +37,21 @@ export const SectionRenderer = ({
 }: SectionRendererProps) => {
   const myShopSlug = myShop?.slug ?? myShop?.datos?.slug;
 
+  // Bienvenida (onboarding) previa al formulario de crear tienda.
+  // Se muestra mientras el usuario no tenga tienda; al tocar "Comenzar ahora"
+  // se revela el formulario CreateShop.
+  const [onboardingStarted, setOnboardingStarted] = useState(false);
+
+  // Portada "Diseñá tu tienda": se muestra al entrar a la sección de diseño y,
+  // al tocar el CTA, revela el EditorSitio. Se resetea cada vez que se sale y
+  // vuelve a la sección de diseño (por eso depende de `active`).
+  const [designStarted, setDesignStarted] = useState(false);
+  const isDesignSection =
+    active === 'store' || active === 'store-templates' || active === 'store-edit';
+  useEffect(() => {
+    if (!isDesignSection) setDesignStarted(false);
+  }, [isDesignSection]);
+
   useEffect(() => {
     if (active === 'store-website' && myShopSlug) {
       window.open(`https://apptiendizi.netlify.app/${myShopSlug}`, '_blank');
@@ -51,7 +68,32 @@ export const SectionRenderer = ({
     case 'store':
     case 'store-templates':
     case 'store-edit':
-      return isActiveShop ? <EditorSitio tienda={myShop} /> : <CreateShop accent={accent} />;
+      if (isActiveShop) {
+        // Portada de diseño → al tocar el CTA se muestra el editor.
+        return designStarted ? (
+          <EditorSitio tienda={myShop} />
+        ) : (
+          <OnboardingWelcome
+            accent={accent}
+            image={disenoImg}
+            title={
+              <>
+                Diseñá tu <span style={{ color: accent }}>tienda</span>
+              </>
+            }
+            description="Personalizá cada sección: colores, imágenes, textos y más."
+            subDescription="Hacé que tu tienda tenga tu estilo y se destaque."
+            buttonLabel="Diseñar tienda"
+            buttonIcon="brush"
+            onStart={() => setDesignStarted(true)}
+          />
+        );
+      }
+      return onboardingStarted ? (
+        <CreateShop accent={accent} />
+      ) : (
+        <OnboardingWelcome accent={accent} onStart={() => setOnboardingStarted(true)} />
+      );
     case 'store-methods':
       return <MethodsSection accent={accent} />;
     case 'store-website':
