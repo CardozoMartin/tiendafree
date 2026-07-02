@@ -15,7 +15,6 @@ export const NAV_ITEMS = [
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos' },
   { id: 'analytics', icon: 'monitoring', label: 'Estadísticas' },
   { id: 'cupones', icon: 'confirmation_number', label: 'Cupones' },
-  { id: 'banner-promo', icon: 'campaign', label: 'Banner promo' },
   { id: 'clientes', icon: 'group', label: 'Clientes' },
   { id: 'campanas', icon: 'mail', label: 'Email Marketing' },
   { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },

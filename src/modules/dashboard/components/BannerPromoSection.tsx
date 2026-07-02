@@ -5,9 +5,9 @@ import { useMyShop, useUpdateShopVisual } from '../hooks/useShop';
 import { postBannerPromoImagenFn } from '../api/shop.api';
 import { comprimirImagen } from '../utils/comprimirImagen';
 
-interface Props { accent: string; }
+interface Props { accent: string; onVolver?: () => void; }
 
-export default function BannerPromoSection({ accent }: Props) {
+export default function BannerPromoSection({ accent, onVolver }: Props) {
   const { data: tienda } = useMyShop();
   const updateVisual = useUpdateShopVisual();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -73,6 +73,17 @@ export default function BannerPromoSection({ accent }: Props) {
 
   return (
     <div className="space-y-6 max-w-2xl">
+      {onVolver && (
+        <button
+          onClick={onVolver}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Volver a secciones
+        </button>
+      )}
       <div>
         <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
           <Megaphone className="w-6 h-6" style={{ color: accent }} /> Banner promocional
