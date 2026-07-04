@@ -63,6 +63,9 @@ export const postCrearProductoFn = async (payload: ICreateProductDto) => {
   if (payload.categoriaId) {
     formData.append('categoriaId', payload.categoriaId.toString());
   }
+  if (payload.guiaTallesId) {
+    formData.append('guiaTallesId', payload.guiaTallesId.toString());
+  }
 
   // Tags como string separado por comas
   if (payload.tags && payload.tags.length > 0) {
@@ -109,6 +112,12 @@ export const putActualizarProductoFn = async ({
     if (key === 'categoriaId') {
       const num = Number(value);
       if (!Number.isNaN(num) && num > 0) jsonPayload[key] = num;
+      continue;
+    }
+    if (key === 'guiaTallesId') {
+      // '' o null → null (desasociar); número → id
+      const num = value === '' || value === null ? NaN : Number(value);
+      jsonPayload[key] = Number.isNaN(num) || num <= 0 ? null : num;
       continue;
     }
     jsonPayload[key] = value;

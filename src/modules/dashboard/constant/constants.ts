@@ -18,6 +18,8 @@ export const NAV_ITEMS = [
   { id: 'clientes', icon: 'group', label: 'Clientes' },
   { id: 'campanas', icon: 'mail', label: 'Email Marketing' },
   { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },
+  { id: 'revocaciones', icon: 'assignment_return', label: 'Arrepentimientos' },
+  { id: 'legal', icon: 'gavel', label: 'Legales' },
   { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' },
   // { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
   { id: 'admin', icon: 'admin_panel_settings', label: 'Admin', adminOnly: true },

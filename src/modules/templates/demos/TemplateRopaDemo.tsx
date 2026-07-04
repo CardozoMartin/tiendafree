@@ -2187,7 +2187,6 @@ export default function TemplateRopaDemo({ tienda, accent, themeConfig }: Planti
     }));
   }, [tienda?.carrusel]);
 
-  console.log('carrusel en tienda ', carruselItems);
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });

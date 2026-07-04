@@ -16,6 +16,8 @@ import AdminSection from './AdminSection';
 import ClientesSection from './ClientesSection';
 import AnalyticsSection from './AnalyticsSection';
 import CuponesSection from './CuponesSection';
+import RevocacionesSection from './RevocacionesSection';
+import LegalSection from './LegalSection';
 import BannerPromoSection from './BannerPromoSection';
 import disenoImg from '../../../assets/onboarding/diseño tienda.png';
 
@@ -112,6 +114,10 @@ export const SectionRenderer = ({
       return <BannerPromoSection accent={accent} />;
     case 'reviews':
       return <ReviewsSection accent={accent} tienda={myShop} />;
+    case 'revocaciones':
+      return <RevocacionesSection accent={accent} />;
+    case 'legal':
+      return <LegalSection accent={accent} />;
     case 'settings':
       return <SettingsSection accent={accent} />;
     case 'dominio':

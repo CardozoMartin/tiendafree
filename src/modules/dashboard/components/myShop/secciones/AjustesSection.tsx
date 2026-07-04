@@ -75,6 +75,11 @@ export default function AjustesSection({ tienda, onVolver }: Props) {
   const [titulo, setTitulo]           = useState(tienda?.titulo ?? '');
   const [descripcion, setDescripcion] = useState(tienda?.descripcion ?? '');
 
+  // Datos legales del vendedor
+  const [razonSocial, setRazonSocial]       = useState(tienda?.razonSocial ?? '');
+  const [cuit, setCuit]                     = useState(tienda?.cuit ?? '');
+  const [domicilioLegal, setDomicilioLegal] = useState(tienda?.domicilioLegal ?? '');
+
   // Tema (color acento, modo oscuro, secciones visibles)
   const { watch, setValue, reset } = useForm({
     defaultValues: {
@@ -93,6 +98,9 @@ export default function AjustesSection({ tienda, onVolver }: Props) {
     setSlugInput(tienda?.slug ?? '');
     setTitulo(tienda?.titulo ?? '');
     setDescripcion(tienda?.descripcion ?? '');
+    setRazonSocial(tienda?.razonSocial ?? '');
+    setCuit(tienda?.cuit ?? '');
+    setDomicilioLegal(tienda?.domicilioLegal ?? '');
     if (tienda?.temaConfig) {
       reset({
         colorAcento: tienda.temaConfig.colorAcento || '#3B82F6',
@@ -132,7 +140,7 @@ export default function AjustesSection({ tienda, onVolver }: Props) {
   };
 
   const handleSave = async () => {
-    await updateShop.mutateAsync({ titulo, descripcion });
+    await updateShop.mutateAsync({ titulo, descripcion, razonSocial, cuit, domicilioLegal });
     await updateShopVisual.mutateAsync({
       colorAcento: temaData.colorAcento,
       modoOscuro: temaData.modoOscuro,
@@ -318,6 +326,46 @@ export default function AjustesSection({ tienda, onVolver }: Props) {
                 placeholder="Una frase que describa tu tienda…"
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
+              />
+            </div>
+          </Card>
+        </div>
+
+        {/* ── Datos legales del vendedor ── */}
+        <div>
+          <SectionTitle
+            title="Datos legales"
+            desc="Identificación del vendedor requerida en comercio electrónico. Se muestran en el pie de tu tienda y se usan en tus Términos y Condiciones."
+          />
+          <Card>
+            <div className="px-6 py-5">
+              <label className="block text-xs font-medium text-gray-500 mb-1">Razón social / Nombre y apellido</label>
+              <input
+                type="text"
+                className="w-full text-sm text-gray-900 outline-none bg-transparent placeholder:text-gray-300 border-b border-transparent focus:border-gray-200 pb-0.5 transition-colors"
+                placeholder="Ej. Comercial XYZ S.R.L. o Juan Pérez"
+                value={razonSocial}
+                onChange={(e) => setRazonSocial(e.target.value)}
+              />
+            </div>
+            <div className="px-6 py-5">
+              <label className="block text-xs font-medium text-gray-500 mb-1">CUIT / CUIL</label>
+              <input
+                type="text"
+                className="w-full text-sm text-gray-900 outline-none bg-transparent placeholder:text-gray-300 border-b border-transparent focus:border-gray-200 pb-0.5 transition-colors"
+                placeholder="Ej. 20-12345678-9"
+                value={cuit}
+                onChange={(e) => setCuit(e.target.value)}
+              />
+            </div>
+            <div className="px-6 py-5">
+              <label className="block text-xs font-medium text-gray-500 mb-1">Domicilio legal</label>
+              <input
+                type="text"
+                className="w-full text-sm text-gray-900 outline-none bg-transparent placeholder:text-gray-300 border-b border-transparent focus:border-gray-200 pb-0.5 transition-colors"
+                placeholder="Ej. Av. Siempre Viva 742, Springfield, Buenos Aires"
+                value={domicilioLegal}
+                onChange={(e) => setDomicilioLegal(e.target.value)}
               />
             </div>
           </Card>

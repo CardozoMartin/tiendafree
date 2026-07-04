@@ -115,7 +115,6 @@ export const DashboardSidebar = ({
     updateShop.mutate({ activa: !tiendaActiva });
   };
 
-  console.log('Datos del usuario desde el sidebar:', datosUsuario);
 
   const handleLogout = async () => {
     const confirmed = await confirm({

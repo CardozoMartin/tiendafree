@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 const PublicStorePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: tienda, isLoading, isError } = usePublicShop(slug!);
-  console.log('Datos de la tienda pública:', tienda);
 
   if (isLoading) {
     return (

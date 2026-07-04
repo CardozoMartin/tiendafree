@@ -14,6 +14,11 @@ export interface IShopData {
   publica?: boolean;
   logoUrl?: string;
 
+  // Datos legales del vendedor
+  razonSocial?: string;
+  cuit?: string;
+  domicilioLegal?: string;
+
   // Campos de tema (endpoint /tema/)
   colorAcento?: string;
   modoOscuro?: boolean;

@@ -3,16 +3,20 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Download,
   FileText,
   Package,
   Pencil,
   Star,
+  Upload,
   X,
 } from 'lucide-react';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { usePDF } from 'react-to-pdf';
 import {
   useActualizarProducto,
+  useExportarProductos,
+  useImportarProductos,
   useMisProductos,
 } from '../hooks/useProduct';
 import { useMyShop } from '../hooks/useShop';
@@ -75,6 +79,15 @@ const ProductsSection = ({ accent }: { accent: string }) => {
 
   const { data: productosPaginados, isLoading } = useMisProductos(filtros);
   const actualizar = useActualizarProducto();
+  const exportarExcel = useExportarProductos();
+  const importarExcel = useImportarProductos();
+  const excelInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await importarExcel.mutateAsync(file);
+    e.target.value = '';
+  };
 
 
   const productos: IProduct[] = productosPaginados?.datos ?? [];
@@ -176,6 +189,43 @@ const ProductsSection = ({ accent }: { accent: string }) => {
 
         {/* Botones — scroll horizontal en mobile, wrap en tablet+ */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-end shrink-0">
+          {/* Exportar a Excel */}
+          <button
+            onClick={() => exportarExcel.mutate()}
+            disabled={exportarExcel.isPending}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 text-sm font-semibold rounded-xl transition-all whitespace-nowrap disabled:opacity-60"
+            title="Exportar productos y variantes a Excel"
+          >
+            {exportarExcel.isPending ? (
+              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            <span>Exportar</span>
+          </button>
+
+          {/* Importar desde Excel */}
+          <button
+            onClick={() => excelInputRef.current?.click()}
+            disabled={importarExcel.isPending}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 text-sm font-semibold rounded-xl transition-all whitespace-nowrap disabled:opacity-60"
+            title="Importar productos y variantes desde Excel"
+          >
+            {importarExcel.isPending ? (
+              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
+            ) : (
+              <Upload className="w-4 h-4" />
+            )}
+            <span>Importar</span>
+          </button>
+          <input
+            ref={excelInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleImportExcel}
+          />
+
           {/* Catálogo PDF */}
           <button
             onClick={handleDownloadPdf}
