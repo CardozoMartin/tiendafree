@@ -7,6 +7,14 @@ export const postCreateShopFn = async (data: IShopData) => {
   return response.data;
 };
 
+export interface Rubro { id: string; label: string; emoji: string }
+
+// Catálogo de rubros de negocio (para el onboarding "¿Qué vendés?").
+export const getRubrosFn = async (): Promise<Rubro[]> => {
+  const { data } = await api.get('/tiendas/rubros');
+  return data.datos ?? [];
+};
+
 //funcion para obtener los datos de la tienda solo si el usuarios es dueño y OWNER
 export const getMyShopFn = async () => {
   const response = await api.get('/tiendas/mi-tienda/');

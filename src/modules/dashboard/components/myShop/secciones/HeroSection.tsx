@@ -2,21 +2,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useUpdateShop, useUpdateShopVisual } from '../../../hooks/useShop';
 import ImageHeroHandlers from '../../ImageEditors/ImageHeroHandlers';
-import HeroEditor from '../../ImageEditors/HeroEditor';
 import HeroPreviewModal from './HeroPreviewModal';
 
-type TipoHero = 'HERO_FIJO' | 'CARRUSEL' | 'GALERIA';
+type TipoHero = 'CARRUSEL' | 'GALERIA';
 
 interface Props {
   tienda?: any;
   onVolver: () => void;
 }
 
-const IconHeroFijo = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 18h16.5M12 3v9" />
-  </svg>
-);
 const IconCarrusel = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
@@ -29,7 +23,6 @@ const IconGaleria = () => (
 );
 
 const TIPOS: { value: TipoHero; label: string; desc: string; icon: React.ReactNode }[] = [
-  { value: 'HERO_FIJO', label: 'Hero clásico', desc: 'Texto + imagen a la derecha',                  icon: <IconHeroFijo /> },
   { value: 'CARRUSEL',  label: 'Carrusel',      desc: 'Slides a pantalla completa con texto',         icon: <IconCarrusel /> },
   { value: 'GALERIA',   label: 'Galería',        desc: 'Imágenes que se expanden al pasar el cursor', icon: <IconGaleria /> },
 ];
@@ -44,7 +37,7 @@ export default function HeroSection({ tienda, onVolver }: Props) {
     heroCtaTexto: string;
   }>({
     defaultValues: {
-      tipoSeccionHero: tienda?.temaConfig?.tipoSeccionHero ?? 'HERO_FIJO',
+      tipoSeccionHero: tienda?.temaConfig?.tipoSeccionHero === 'GALERIA' ? 'GALERIA' : 'CARRUSEL',
       heroTitulo:      tienda?.temaConfig?.heroTitulo      ?? tienda?.titulo      ?? '',
       heroSubtitulo:   tienda?.temaConfig?.heroSubtitulo   ?? tienda?.descripcion ?? '',
       heroCtaTexto:    tienda?.temaConfig?.heroCtaTexto    ?? 'Comprar ahora',
@@ -163,21 +156,12 @@ export default function HeroSection({ tienda, onVolver }: Props) {
           </div>
         </div>
 
-        {/* Editor de contenido según tipo */}
+        {/* Editor de contenido: ambos tipos (carrusel y galería) usan las mismas imágenes/slides */}
         <div>
-          {tipo === 'HERO_FIJO' ? (
-            <>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Imagen del hero</p>
-              <HeroEditor temaConfig={tienda?.temaConfig} />
-            </>
-          ) : (
-            <>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
-                {tipo === 'GALERIA' ? 'Imágenes de la galería' : 'Slides del carrusel'}
-              </p>
-              <ImageHeroHandlers temaConfig={tienda?.temaConfig} />
-            </>
-          )}
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+            {tipo === 'GALERIA' ? 'Imágenes de la galería' : 'Slides del carrusel'}
+          </p>
+          <ImageHeroHandlers temaConfig={tienda?.temaConfig} />
         </div>
       </div>
 

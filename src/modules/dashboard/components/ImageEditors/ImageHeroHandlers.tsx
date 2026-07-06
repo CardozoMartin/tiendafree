@@ -139,15 +139,18 @@ function SeccionEditForm({
       {/* Link */}
       <div>
         <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
-          URL de destino (opcional)
+          Link de destino (opcional)
         </label>
         <input
-          type="url"
-          placeholder="https://..."
+          type="text"
+          placeholder="https://... o ruta interna (ej: /categoria/5)"
           className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-lg outline-none focus:border-gray-800 transition-colors"
           value={form.linkUrl}
           onChange={(e) => setForm({ ...form, linkUrl: e.target.value })}
         />
+        <p className="text-[10px] text-gray-400 mt-1">
+          Puede ser un enlace externo (https://...) o una sección de tu tienda (ej: <code>/categoria/5</code>).
+        </p>
       </div>
 
       {/* Fechas programadas */}

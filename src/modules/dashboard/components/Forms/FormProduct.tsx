@@ -249,18 +249,47 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
   const precio = watch('precio');
   const formCategoriaId = watch('categoriaId');
-  let selectedParentId: number | '' = '';
+
+  // ── Selectores de categoría por nivel (soporta árbol de N niveles) ──
+  // Construimos el "camino" de selects: nivel 0 = raíces; y por cada categoría
+  // elegida en un nivel, si tiene hijos, mostramos el select del nivel siguiente.
+  // El `categoriaId` guardado es el ÚLTIMO nodo seleccionado (puede ser intermedio
+  // si el dueño no baja hasta la hoja).
+  const hijosDe = (padreId: number | null) =>
+    categorias.filter((c: any) => (c.padreId ?? null) === padreId);
+
+  // Camino de ids desde la raíz hasta el categoriaId elegido.
+  const caminoCategoria: number[] = [];
   if (typeof formCategoriaId === 'number') {
-    const catNode = categorias.find((c: any) => c.id === formCategoriaId);
-    if (catNode) {
-      selectedParentId = catNode.padreId ? catNode.padreId : catNode.id;
+    let actual: any = categorias.find((c: any) => c.id === formCategoriaId);
+    const chain: number[] = [];
+    while (actual) {
+      chain.unshift(actual.id);
+      actual = actual.padreId ? categorias.find((c: any) => c.id === actual.padreId) : null;
+    }
+    caminoCategoria.push(...chain);
+  }
+
+  // Niveles de selects a mostrar: [opciones del nivel, id seleccionado en ese nivel].
+  // Empezamos por las raíces; agregamos un nivel más mientras la selección tenga hijos.
+  const nivelesSelect: { opciones: any[]; seleccionado: number | '' }[] = [];
+  {
+    let padreActual: number | null = null;
+    for (let i = 0; ; i++) {
+      const opciones = hijosDe(padreActual);
+      if (opciones.length === 0) break;
+      const idNivel: number | undefined = caminoCategoria[i];
+      const seleccionado: number | '' = idNivel === undefined ? '' : idNivel;
+      nivelesSelect.push({ opciones, seleccionado });
+      if (idNivel === undefined) break;
+      padreActual = idNivel;
     }
   }
 
-  const categoriasPrincipales = categorias.filter((c: any) => !c.padreId);
-  const subcategoriasSeleccionadas = selectedParentId
-    ? categorias.filter((c: any) => c.padreId === selectedParentId)
-    : [];
+  // Al elegir en un nivel, ese nodo pasa a ser el categoriaId (se descartan niveles inferiores).
+  const elegirNivel = (val: string) => {
+    setValue('categoriaId', val ? Number(val) : '');
+  };
 
   useEffect(() => {
     if (producto) {
@@ -668,48 +697,23 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <div className="relative min-w-[170px]">
-                <LayoutGrid className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none" />
-                <select
-                  className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
-                  value={selectedParentId}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setValue('categoriaId', val ? Number(val) : '');
-                  }}
-                >
-                  <option value="">Sin categoría</option>
-                  {categoriasPrincipales.map((cat: any) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {subcategoriasSeleccionadas.length > 0 && (
-                <div className="relative min-w-[170px]">
-                  <LayoutGrid className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none opacity-50" />
+              {nivelesSelect.map((nivel, i) => (
+                <div key={i} className="relative min-w-[170px]">
+                  <LayoutGrid className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none ${i > 0 ? 'opacity-50' : ''}`} />
                   <select
                     className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
-                    value={formCategoriaId}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setValue(
-                        'categoriaId',
-                        val ? Number(val) : selectedParentId !== '' ? Number(selectedParentId) : ''
-                      );
-                    }}
+                    value={nivel.seleccionado}
+                    onChange={(e) => elegirNivel(e.target.value)}
                   >
-                    <option value="">(Seleccionar subcategoría...)</option>
-                    {subcategoriasSeleccionadas.map((cat: any) => (
+                    <option value="">{i === 0 ? 'Sin categoría' : '(Elegir...)'}</option>
+                    {nivel.opciones.map((cat: any) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.nombre}
                       </option>
                     ))}
                   </select>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>

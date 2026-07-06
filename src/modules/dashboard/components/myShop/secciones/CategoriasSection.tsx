@@ -80,7 +80,9 @@ export default function CategoriasSection({ tienda, onVolver }: Props) {
     resetForm();
   };
 
-  const puedeAgregar = !!nuevaImagen && titulo.trim().length > 0 && linkUrl.trim().length > 0;
+  const MAX_CATEGORIAS = 4;
+  const alcanzoMax = categorias.length >= MAX_CATEGORIAS;
+  const puedeAgregar = !alcanzoMax && !!nuevaImagen && titulo.trim().length > 0 && linkUrl.trim().length > 0;
 
   return (
     <div className="flex flex-col h-full">
@@ -207,7 +209,18 @@ export default function CategoriasSection({ tienda, onVolver }: Props) {
 
         {/* Agregar nueva */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
-          <p className="text-sm font-bold text-gray-800 mb-4">Agregar categoría</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-bold text-gray-800">Agregar categoría</p>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${alcanzoMax ? 'text-amber-600 bg-amber-50' : 'text-gray-400 bg-gray-100'}`}>
+              {categorias.length}/{MAX_CATEGORIAS}
+            </span>
+          </div>
+
+          {alcanzoMax ? (
+            <p className="text-sm text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-3">
+              Llegaste al máximo de {MAX_CATEGORIAS} categorías. Eliminá una si querés agregar otra.
+            </p>
+          ) : (
           <div className="space-y-3">
             {/* Imagen */}
             <div
@@ -258,6 +271,7 @@ export default function CategoriasSection({ tienda, onVolver }: Props) {
               {agregar.isPending ? 'Agregando…' : 'Agregar categoría'}
             </button>
           </div>
+          )}
         </div>
       </div>
     </div>

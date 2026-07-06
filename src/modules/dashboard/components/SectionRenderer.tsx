@@ -16,6 +16,7 @@ import AdminSection from './AdminSection';
 import ClientesSection from './ClientesSection';
 import AnalyticsSection from './AnalyticsSection';
 import CuponesSection from './CuponesSection';
+import PromocionesSection from './PromocionesSection';
 import RevocacionesSection from './RevocacionesSection';
 import LegalSection from './LegalSection';
 import BannerPromoSection from './BannerPromoSection';
@@ -110,6 +111,8 @@ export const SectionRenderer = ({
       return <AnalyticsSection accent={accent} />;
     case 'cupones':
       return <CuponesSection accent={accent} />;
+    case 'promociones':
+      return <PromocionesSection accent={accent} />;
     case 'banner-promo':
       return <BannerPromoSection accent={accent} />;
     case 'reviews':

@@ -4,8 +4,9 @@ import { useUpdateShopVisual } from '../../../hooks/useShop';
 import NavbarPreviewModal from './NavbarPreviewModal';
 import NavbarDisenoPreviewModal from './NavbarDisenoPreviewModal';
 
-type NavbarVariante = 'CLASICO' | 'PILL';
-type NavbarStyle    = 'STICKY' | 'TRANSPARENT' | 'FLOATING';
+type NavbarVariante  = 'CLASICO' | 'PILL';
+type NavbarStyle     = 'STICKY' | 'TRANSPARENT' | 'FLOATING';
+type NavbarColorTema = 'CLARO' | 'OSCURO';
 
 interface Props {
   tienda?: any;
@@ -28,17 +29,20 @@ export default function NavbarSection({ tienda, onVolver }: Props) {
   const [showComportPreview, setShowComportPreview] = useState(false);
 
   const { register, watch, setValue, handleSubmit } = useForm<{
-    navbarVariante: NavbarVariante;
-    navbarStyle:    NavbarStyle;
+    navbarVariante:  NavbarVariante;
+    navbarStyle:     NavbarStyle;
+    navbarColorTema: NavbarColorTema;
   }>({
     defaultValues: {
-      navbarVariante: tienda?.temaConfig?.navbarVariante ?? 'CLASICO',
-      navbarStyle:    tienda?.temaConfig?.navbarStyle    ?? 'STICKY',
+      navbarVariante:  tienda?.temaConfig?.navbarVariante  ?? 'CLASICO',
+      navbarStyle:     tienda?.temaConfig?.navbarStyle     ?? 'STICKY',
+      navbarColorTema: tienda?.temaConfig?.navbarColorTema ?? 'OSCURO',
     },
   });
 
-  const variante = watch('navbarVariante');
-  const style    = watch('navbarStyle');
+  const variante  = watch('navbarVariante');
+  const style     = watch('navbarStyle');
+  const colorTema = watch('navbarColorTema');
 
   const updateShopVisual = useUpdateShopVisual();
   const isSaving = updateShopVisual.isPending;
@@ -110,6 +114,41 @@ export default function NavbarSection({ tienda, onVolver }: Props) {
                 <span className="text-xl">{d.icon}</span>
                 <p className="text-sm font-semibold text-gray-800 mt-1">{d.label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{d.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Color de la barra */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          <div className="mb-3">
+            <p className="text-sm font-bold text-gray-800">Color de la barra</p>
+            <p className="text-xs text-gray-400 mt-0.5">Fondo claro con letras oscuras, o fondo oscuro con letras claras</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { value: 'CLARO'  as const, label: 'Blanco', desc: 'Fondo blanco · letras negras', bg: '#ffffff', fg: '#000000', borde: '#e5e7eb' },
+              { value: 'OSCURO' as const, label: 'Negro',  desc: 'Fondo negro · letras blancas', bg: '#000000', fg: '#ffffff', borde: '#000000' },
+            ]).map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setValue('navbarColorTema', opt.value)}
+                className={`p-3 rounded-xl border-2 text-left transition-all ${
+                  colorTema === opt.value ? 'border-gray-900' : 'border-gray-200 hover:border-gray-400'
+                }`}
+              >
+                {/* Mini preview del navbar */}
+                <div
+                  className="w-full h-8 rounded-md flex items-center px-2 gap-1 mb-2"
+                  style={{ background: opt.bg, border: `1px solid ${opt.borde}` }}
+                >
+                  <span className="text-[10px] font-extrabold uppercase" style={{ color: opt.fg }}>Aa</span>
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: opt.fg, opacity: 0.5 }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: opt.fg, opacity: 0.5 }} />
+                </div>
+                <p className="text-sm font-semibold text-gray-800">{opt.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
               </button>
             ))}
           </div>

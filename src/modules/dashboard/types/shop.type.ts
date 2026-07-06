@@ -3,6 +3,7 @@ export interface IShopData {
   nombre: string;
   titulo: string;
   descripcion: string;
+  rubro?: string;
   whatsapp: string;
   instagram: string;
   facebook: string;
@@ -24,6 +25,9 @@ export interface IShopData {
   modoOscuro?: boolean;
   navbarStyle?: string;
   navbarVariante?: 'CLASICO' | 'PILL';
+  navbarColorTema?: 'CLARO' | 'OSCURO';
+  cardVariante?: 'CLASICO' | 'MODERNO';
+  homeCategoriaFilas?: number[];
   heroTitulo?: string;
   heroSubtitulo?: string;
   heroCtaTexto?: string;
