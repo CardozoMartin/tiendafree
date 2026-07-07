@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Menu, Pill, ShoppingBag, type LucideIcon } from 'lucide-react';
 import { useUpdateShopVisual } from '../../../hooks/useShop';
 import NavbarPreviewModal from './NavbarPreviewModal';
 import NavbarDisenoPreviewModal from './NavbarDisenoPreviewModal';
 
-type NavbarVariante = 'CLASICO' | 'PILL';
-type NavbarStyle    = 'STICKY' | 'TRANSPARENT' | 'FLOATING';
+type NavbarVariante  = 'CLASICO' | 'PILL' | 'BOUTIQUE';
+type NavbarStyle     = 'STICKY' | 'TRANSPARENT' | 'FLOATING';
+type NavbarColorTema = 'CLARO' | 'OSCURO';
+type BotonForma      = 'REDONDEADO' | 'CUADRADO';
 
 interface Props {
   tienda?: any;
   onVolver: () => void;
 }
 
-const DISENOS: { value: NavbarVariante; label: string; desc: string; icon: string }[] = [
-  { value: 'CLASICO', label: 'Clásico', desc: 'Logo · links planos · buscador · carrito · login', icon: '▬' },
-  { value: 'PILL',    label: 'Pill',    desc: 'Links en píldora central, botón gradiente',         icon: '💊' },
+const DISENOS: { value: NavbarVariante; label: string; desc: string; icon: LucideIcon }[] = [
+  { value: 'CLASICO', label: 'Clásico', desc: 'Logo · links planos · buscador · carrito · login', icon: Menu },
+  { value: 'PILL',    label: 'Pill',    desc: 'Links en píldora central, botón gradiente',         icon: Pill },
+  { value: 'BOUTIQUE', label: 'Boutique', desc: 'Nombre centrado en serif · categorías abajo · estilo indumentaria', icon: ShoppingBag },
 ];
 
 const COMPORTAMIENTOS: { value: NavbarStyle; label: string; desc: string }[] = [
@@ -28,17 +32,23 @@ export default function NavbarSection({ tienda, onVolver }: Props) {
   const [showComportPreview, setShowComportPreview] = useState(false);
 
   const { register, watch, setValue, handleSubmit } = useForm<{
-    navbarVariante: NavbarVariante;
-    navbarStyle:    NavbarStyle;
+    navbarVariante:  NavbarVariante;
+    navbarStyle:     NavbarStyle;
+    navbarColorTema: NavbarColorTema;
+    botonForma:      BotonForma;
   }>({
     defaultValues: {
-      navbarVariante: tienda?.temaConfig?.navbarVariante ?? 'CLASICO',
-      navbarStyle:    tienda?.temaConfig?.navbarStyle    ?? 'STICKY',
+      navbarVariante:  tienda?.temaConfig?.navbarVariante  ?? 'CLASICO',
+      navbarStyle:     tienda?.temaConfig?.navbarStyle     ?? 'STICKY',
+      navbarColorTema: tienda?.temaConfig?.navbarColorTema ?? 'OSCURO',
+      botonForma:      tienda?.temaConfig?.botonForma      ?? 'REDONDEADO',
     },
   });
 
-  const variante = watch('navbarVariante');
-  const style    = watch('navbarStyle');
+  const variante   = watch('navbarVariante');
+  const style      = watch('navbarStyle');
+  const colorTema  = watch('navbarColorTema');
+  const botonForma = watch('botonForma');
 
   const updateShopVisual = useUpdateShopVisual();
   const isSaving = updateShopVisual.isPending;
@@ -96,20 +106,98 @@ export default function NavbarSection({ tienda, onVolver }: Props) {
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {DISENOS.map((d) => (
+            {DISENOS.map((d) => {
+              const Icon = d.icon;
+              const activo = variante === d.value;
+              return (
               <button
                 key={d.value}
                 type="button"
                 onClick={() => setValue('navbarVariante', d.value)}
                 className={`p-3 rounded-xl border-2 text-left transition-all ${
-                  variante === d.value
+                  activo
                     ? 'border-gray-900 bg-gray-50'
                     : 'border-gray-200 hover:border-gray-400'
                 }`}
               >
-                <span className="text-xl">{d.icon}</span>
-                <p className="text-sm font-semibold text-gray-800 mt-1">{d.label}</p>
+                <span className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                  activo ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  <Icon className="w-5 h-5" strokeWidth={1.8} />
+                </span>
+                <p className="text-sm font-semibold text-gray-800 mt-2">{d.label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{d.desc}</p>
+              </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Color de la barra */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          <div className="mb-3">
+            <p className="text-sm font-bold text-gray-800">Color de la barra</p>
+            <p className="text-xs text-gray-400 mt-0.5">Fondo claro con letras oscuras, o fondo oscuro con letras claras</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { value: 'CLARO'  as const, label: 'Blanco', desc: 'Fondo blanco · letras negras', bg: '#ffffff', fg: '#000000', borde: '#e5e7eb' },
+              { value: 'OSCURO' as const, label: 'Negro',  desc: 'Fondo negro · letras blancas', bg: '#000000', fg: '#ffffff', borde: '#000000' },
+            ]).map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setValue('navbarColorTema', opt.value)}
+                className={`p-3 rounded-xl border-2 text-left transition-all ${
+                  colorTema === opt.value ? 'border-gray-900' : 'border-gray-200 hover:border-gray-400'
+                }`}
+              >
+                {/* Mini preview del navbar */}
+                <div
+                  className="w-full h-8 rounded-md flex items-center px-2 gap-1 mb-2"
+                  style={{ background: opt.bg, border: `1px solid ${opt.borde}` }}
+                >
+                  <span className="text-[10px] font-extrabold uppercase" style={{ color: opt.fg }}>Aa</span>
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: opt.fg, opacity: 0.5 }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: opt.fg, opacity: 0.5 }} />
+                </div>
+                <p className="text-sm font-semibold text-gray-800">{opt.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Forma de los botones */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          <div className="mb-3">
+            <p className="text-sm font-bold text-gray-800">Forma de los botones</p>
+            <p className="text-xs text-gray-400 mt-0.5">Aplica a los botones de acción de toda la tienda (login, agregar al carrito, comprar…)</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { value: 'REDONDEADO' as const, label: 'Redondeados', desc: 'Bordes tipo píldora', radius: '9999px' },
+              { value: 'CUADRADO'   as const, label: 'Cuadrados',   desc: 'Esquinas rectas con leve radio', radius: '6px' },
+            ]).map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setValue('botonForma', opt.value)}
+                className={`p-3 rounded-xl border-2 text-left transition-all ${
+                  botonForma === opt.value ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-400'
+                }`}
+              >
+                {/* Mini preview del botón */}
+                <div className="flex items-center justify-center h-9 mb-2">
+                  <span
+                    className="px-4 py-1.5 text-[11px] font-bold text-white"
+                    style={{ background: '#111827', borderRadius: opt.radius }}
+                  >
+                    Comprar
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-gray-800">{opt.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
               </button>
             ))}
           </div>

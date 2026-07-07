@@ -1,14 +1,20 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
 import { useUpdateShopVisual } from '../../../hooks/useShop';
+import { api } from '../../../../../api/ApiBase';
 
 interface Props {
   tienda?: any;
   onVolver: () => void;
 }
 
+type CardVariante = 'CLASICO' | 'MODERNO';
+
 interface FormValues {
   cardMostrarPrecio: boolean;
   cardMostrarBadge: boolean;
+  cardVariante: CardVariante;
 }
 
 interface DemoCardProps {
@@ -82,6 +88,7 @@ export default function ProductosSection({ tienda, onVolver }: Props) {
     defaultValues: {
       cardMostrarPrecio: tienda?.temaConfig?.cardMostrarPrecio ?? true,
       cardMostrarBadge:  tienda?.temaConfig?.cardMostrarBadge  ?? true,
+      cardVariante:      tienda?.temaConfig?.cardVariante      ?? 'CLASICO',
     },
   });
 
@@ -90,6 +97,38 @@ export default function ProductosSection({ tienda, onVolver }: Props) {
 
   const mostrarPrecio = watch('cardMostrarPrecio');
   const mostrarBadge  = watch('cardMostrarBadge');
+  const cardVariante  = watch('cardVariante');
+
+  // ── Filas por categoría en el home (array ordenado de IDs) ──
+  // Endpoint público por tienda (no requiere rol admin).
+  const { data: categorias = [] } = useQuery({
+    queryKey: ['categoriasTienda', tienda?.id],
+    queryFn: async () => {
+      const { data } = await api.get(`/tiendas/${tienda.id}/productos/categorias`);
+      return (data.datos ?? []) as any[];
+    },
+    enabled: !!tienda?.id,
+  });
+  const MAX_FILAS = 8;
+  const [homeFilas, setHomeFilas] = useState<number[]>(
+    Array.isArray(tienda?.temaConfig?.homeCategoriaFilas) ? tienda.temaConfig.homeCategoriaFilas : []
+  );
+
+  const nombreCategoria = (id: number) =>
+    categorias.find((c: any) => c.id === id)?.nombre ?? `#${id}`;
+  const disponibles = categorias.filter((c: any) => !homeFilas.includes(c.id));
+
+  const agregarFila = (id: number) =>
+    setHomeFilas((f) => (f.length >= MAX_FILAS || f.includes(id) ? f : [...f, id]));
+  const quitarFila = (id: number) => setHomeFilas((f) => f.filter((x) => x !== id));
+  const moverFila = (idx: number, dir: -1 | 1) =>
+    setHomeFilas((f) => {
+      const j = idx + dir;
+      if (j < 0 || j >= f.length) return f;
+      const copia = [...f];
+      [copia[idx], copia[j]] = [copia[j], copia[idx]];
+      return copia;
+    });
 
   // Acento real de la tienda. La preview va sobre la card blanca del panel,
   // así que usamos texto oscuro fijo (no seguimos el modoOscuro del sitio).
@@ -101,7 +140,7 @@ export default function ProductosSection({ tienda, onVolver }: Props) {
   } as React.CSSProperties;
 
   const handleSave = async (data: FormValues) => {
-    await updateShopVisual.mutateAsync(data);
+    await updateShopVisual.mutateAsync({ ...data, homeCategoriaFilas: homeFilas } as any);
   };
 
   return (
@@ -137,47 +176,111 @@ export default function ProductosSection({ tienda, onVolver }: Props) {
 
       <div className="space-y-6 pb-20">
 
-        {/* Variante de card — por ahora solo CLASICA */}
+        {/* Variante de card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
           <p className="text-sm font-bold text-gray-800 mb-1">Diseño de la card</p>
           <p className="text-xs text-gray-400 mb-4">Elegí cómo se muestra cada producto en la grilla.</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {/* CLASICA — activa y única por ahora */}
-            <button
-              type="button"
-              className="w-full p-3 rounded-xl border-2 border-gray-900 bg-gray-50 text-left"
-            >
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-2 bg-gray-900 text-white">
+            {/* Variantes seleccionables */}
+            {([
+              { value: 'CLASICO' as const, label: 'Clásica', desc: 'Imagen arriba, nombre y precio abajo.' },
+              { value: 'MODERNO' as const, label: 'Moderna', desc: 'Nuevo diseño (en construcción).' },
+            ]).map((v) => {
+              const activo = cardVariante === v.value;
+              return (
+                <button
+                  key={v.value}
+                  type="button"
+                  onClick={() => setValue('cardVariante', v.value)}
+                  className={`w-full p-3 rounded-xl border-2 text-left transition-all ${
+                    activo ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-2 ${activo ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{v.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5 leading-snug">{v.desc}</p>
+                </button>
+              );
+            })}
+
+            {/* Próxima variante — bloqueada */}
+            <div className="w-full p-3 rounded-xl border-2 border-dashed border-gray-200 text-left opacity-50 cursor-not-allowed select-none">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-2 bg-gray-100 text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-gray-800">Clásica</p>
-              <p className="text-xs text-gray-400 mt-0.5 leading-snug">Imagen arriba, nombre y precio abajo.</p>
-            </button>
-
-            {/* Próximas variantes — bloqueadas */}
-            {[
-              { label: 'Moderna', desc: 'Card con fondo, sombra y botón.' },
-              { label: 'Minimal',  desc: 'Imagen cuadrada, sin texto debajo.' },
-            ].map((v) => (
-              <div
-                key={v.label}
-                className="w-full p-3 rounded-xl border-2 border-dashed border-gray-200 text-left opacity-50 cursor-not-allowed select-none"
-              >
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-2 bg-gray-100 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <p className="text-sm font-semibold text-gray-800">{v.label}</p>
-                <p className="text-xs text-gray-400 mt-0.5 leading-snug">{v.desc}</p>
-                <span className="inline-block mt-1.5 text-[10px] font-semibold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                  Próximamente
-                </span>
-              </div>
-            ))}
+              <p className="text-sm font-semibold text-gray-800">Minimal</p>
+              <p className="text-xs text-gray-400 mt-0.5 leading-snug">Imagen cuadrada, sin texto debajo.</p>
+              <span className="inline-block mt-1.5 text-[10px] font-semibold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                Próximamente
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Filas por categoría en el home */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-bold text-gray-800">Filas por categoría en el inicio</p>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${homeFilas.length >= MAX_FILAS ? 'text-amber-600 bg-amber-50' : 'text-gray-400 bg-gray-100'}`}>
+              {homeFilas.length}/{MAX_FILAS}
+            </span>
+          </div>
+          <p className="text-xs text-gray-400 mb-4">
+            Mostrá carruseles de productos por categoría en tu inicio (ej: Camperas, Buzos…). Cada fila lleva un “Ver más” a esa categoría.
+          </p>
+
+          {/* Seleccionadas (ordenables) */}
+          {homeFilas.length === 0 ? (
+            <p className="text-xs text-gray-400 bg-gray-50 border border-gray-100 rounded-lg px-3 py-3 mb-3">
+              Todavía no elegiste ninguna. Agregá categorías abajo.
+            </p>
+          ) : (
+            <div className="space-y-2 mb-4">
+              {homeFilas.map((id, idx) => (
+                <div key={id} className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 bg-gray-50">
+                  <span className="text-[11px] font-bold text-gray-400 w-5 text-center">{idx + 1}</span>
+                  <span className="flex-1 text-sm font-medium text-gray-800 truncate">{nombreCategoria(id)}</span>
+                  <button type="button" onClick={() => moverFila(idx, -1)} disabled={idx === 0}
+                    className="p-1 text-gray-400 hover:text-gray-800 disabled:opacity-30" title="Subir">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
+                  </button>
+                  <button type="button" onClick={() => moverFila(idx, 1)} disabled={idx === homeFilas.length - 1}
+                    className="p-1 text-gray-400 hover:text-gray-800 disabled:opacity-30" title="Bajar">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                  <button type="button" onClick={() => quitarFila(id)}
+                    className="p-1 text-gray-300 hover:text-red-500" title="Quitar">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Disponibles para agregar */}
+          {homeFilas.length < MAX_FILAS && disponibles.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Agregar categoría</p>
+              <div className="flex flex-wrap gap-2">
+                {disponibles.map((c: any) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => agregarFila(c.id)}
+                    className="text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:border-gray-800 hover:text-gray-900 transition-colors"
+                  >
+                    + {c.nombre}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Opciones de la card */}

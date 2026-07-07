@@ -3,6 +3,7 @@ export interface IShopData {
   nombre: string;
   titulo: string;
   descripcion: string;
+  rubro?: string;
   whatsapp: string;
   instagram: string;
   facebook: string;
@@ -23,7 +24,12 @@ export interface IShopData {
   colorAcento?: string;
   modoOscuro?: boolean;
   navbarStyle?: string;
-  navbarVariante?: 'CLASICO' | 'PILL';
+  navbarVariante?: 'CLASICO' | 'PILL' | 'BOUTIQUE';
+  navbarColorTema?: 'CLARO' | 'OSCURO';
+  cardVariante?: 'CLASICO' | 'MODERNO';
+  footerVariante?: 'CENTRADO' | 'COLUMNAS';
+  botonForma?: 'REDONDEADO' | 'CUADRADO';
+  homeCategoriaFilas?: number[];
   heroTitulo?: string;
   heroSubtitulo?: string;
   heroCtaTexto?: string;

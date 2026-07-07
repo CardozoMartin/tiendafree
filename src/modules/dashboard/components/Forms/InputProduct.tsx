@@ -9,10 +9,10 @@ interface InputProductProps {
   icon: React.ReactNode;
   validacion?: object;
   required?: boolean;
-  type?: string;       
-  step?: string;        
-  min?: string;        
-  opcional?: boolean;   
+  type?: string;
+  step?: string;
+  min?: string;
+  opcional?: boolean;
 }
 
 const InputProduct = ({
@@ -33,14 +33,14 @@ const InputProduct = ({
 
   return (
     <div className="flex flex-col gap-1.5 px-5 py-4">
-      <label htmlFor={name} className="text-[13px] font-medium text-slate-500 ml-0.5">
+      <label htmlFor={name} className="text-xs font-bold text-slate-500 uppercase tracking-wide">
         {label}
         {required && <span className="text-red-400 ml-1">*</span>}
-        {opcional && <span className="text-[11px] font-normal text-slate-400 ml-1.5">Opcional</span>}
+        {opcional && <span className="text-[11px] font-normal text-slate-400 ml-1.5 normal-case tracking-normal">Opcional</span>}
       </label>
       <div className="relative flex items-center">
-        <div className="pointer-events-none absolute left-3.5 flex items-center">
-          <span className={`transition-colors ${tieneError ? 'text-red-400' : 'text-[#6344ee]/70'}`}>
+        <div className="pointer-events-none absolute left-3 flex items-center">
+          <span className={`transition-colors ${tieneError ? 'text-red-400' : 'text-slate-400'}`}>
             {icon}
           </span>
         </div>
@@ -50,20 +50,17 @@ const InputProduct = ({
           step={step}
           min={min}
           placeholder={placeholder}
-          className={`w-full h-12 pl-11 pr-4 rounded-[14px] border-[1.5px] text-[15px]
-            bg-zinc-50 text-slate-900 placeholder:text-slate-400
-            outline-none transition-all duration-200
-            focus:bg-white focus:border-[#6344ee] focus:shadow-[0_0_0_4px_rgba(99,68,238,0.09)]
-            hover:border-black/50
+          className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border bg-white text-slate-900 placeholder:text-slate-300
+            outline-none transition-colors
             ${tieneError
-              ? 'border-red-400 bg-red-50/40 focus:border-red-400 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
-              : 'border-black/20'
+              ? 'border-red-300 focus:border-red-400'
+              : 'border-slate-200 focus:border-slate-400'
             }`}
           {...register(name, validacion)}
         />
       </div>
       {tieneError && (
-        <p className="flex items-center gap-1.5 text-[12px] text-red-400 font-medium ml-0.5 mt-0.5">
+        <p className="flex items-center gap-1.5 text-[12px] text-red-400 font-medium mt-0.5">
           <AlertCircle size={13} strokeWidth={2.5} className="shrink-0" />
           {errors[name].message}
         </p>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-type TipoHero = 'HERO_FIJO' | 'CARRUSEL' | 'GALERIA';
+type TipoHero = 'CARRUSEL' | 'GALERIA';
 
 interface Props {
   tipoActual: TipoHero;
@@ -23,20 +23,6 @@ const DEMO_IMGS = [
   'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&q=80',
   'https://images.unsplash.com/photo-1495121605193-b116b5b9c5ee?w=800&q=80',
 ];
-
-function DemoHeroFijo() {
-  return (
-    <div className="w-full h-44 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl flex items-center justify-between px-6 overflow-hidden">
-      <div className="space-y-2">
-        <div className="h-3 w-28 bg-gray-300 rounded" />
-        <div className="h-2 w-20 bg-gray-200 rounded" />
-        <div className="h-2 w-16 bg-gray-200 rounded" />
-        <div className="mt-3 h-6 w-20 bg-gray-800 rounded-full" />
-      </div>
-      <div className="w-20 h-20 rounded-full bg-gray-300 flex-shrink-0" />
-    </div>
-  );
-}
 
 function DemoCarrusel() {
   const [idx, setIdx] = useState(0);
@@ -102,7 +88,6 @@ function DemoGaleria() {
 }
 
 const OPCIONES: { tipo: TipoHero; label: string; desc: string; icon: string; Demo: React.FC }[] = [
-  { tipo: 'HERO_FIJO', label: 'Hero clásico',  desc: 'Texto a la izquierda, imagen circular a la derecha.', icon: '🖼️', Demo: DemoHeroFijo },
   { tipo: 'CARRUSEL',  label: 'Carrusel',       desc: 'Slides a pantalla completa con textos encima.',      icon: '🎞️', Demo: DemoCarrusel },
   { tipo: 'GALERIA',   label: 'Galería',         desc: 'Paneles que se expanden al pasar el cursor.',         icon: '🖇️', Demo: DemoGaleria },
 ];

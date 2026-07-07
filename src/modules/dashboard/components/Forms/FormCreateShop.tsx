@@ -15,12 +15,15 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm, type Path } from 'react-hook-form';
 
+import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '@components/ConfirmDialog/useConfirm';
 import { useCreateShop } from '../../hooks/useShop';
+import { getRubrosFn } from '../../api/shop.api';
 import InputProduct from './InputProduct';
 import TextAreaProduct from './TextAreaProduct';
 
 export interface IShopData {
+  rubro: string;
   nombre: string;
   titulo: string;
   descripcion: string;
@@ -37,6 +40,12 @@ export interface IShopData {
 // Cada paso agrupa campos afines y trae una explicación para guiar al usuario.
 
 const STEPS = [
+  {
+    id: 'rubro',
+    title: '¿Qué vendés?',
+    subtitle: 'Elegí el rubro de tu tienda. Vamos a preparar las categorías para vos.',
+    fields: ['rubro'] as Path<IShopData>[],
+  },
   {
     id: 'identidad',
     title: 'Identidad',
@@ -82,6 +91,13 @@ const FormCreateShop = ({ accent = '#6344ee' }: FormCreateShopProps) => {
 
   const [step, setStep] = useState(0);
   const isLastStep = step === STEPS.length - 1;
+
+  // Rubros para el paso "¿Qué vendés?".
+  const { data: rubros = [], isLoading: rubrosLoading } = useQuery({
+    queryKey: ['rubros'],
+    queryFn: getRubrosFn,
+  });
+  const rubroSel = watch('rubro');
 
   const [slugEditedManually, setSlugEditedManually] = useState(false);
   const nombre = watch('nombre');
@@ -171,9 +187,53 @@ const FormCreateShop = ({ accent = '#6344ee' }: FormCreateShopProps) => {
       </div>
 
       {/* ══════════════════════════
-          PASO 1: IDENTIDAD
+          PASO 1: RUBRO
       ══════════════════════════ */}
       {step === 0 && (
+        <div className="space-y-4">
+          <StepHint accent={accent}>
+            Elegí qué vas a vender. Según el rubro te vamos a ofrecer solo las{' '}
+            <strong>categorías que corresponden</strong> — así clasificar tus productos es más rápido
+            y tu tienda se ve profesional desde el arranque.
+          </StepHint>
+
+          {/* Registramos el campo (required) sin input visible; se setea al tocar una tarjeta. */}
+          <input type="hidden" {...register('rubro', { required: 'Elegí un rubro' })} />
+
+          {rubrosLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <div className="animate-spin h-6 w-6 border-4 border-slate-200 border-t-slate-800 rounded-full" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {rubros.map((r) => {
+                const activo = rubroSel === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setValue('rubro', r.id, { shouldValidate: true })}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border text-center transition-all cursor-pointer bg-white"
+                    style={{
+                      borderColor: activo ? accent : '#e5e7eb',
+                      boxShadow: activo ? `0 0 0 2px ${accent}33` : 'none',
+                    }}
+                  >
+                    <span className="text-3xl">{r.emoji}</span>
+                    <span className="text-xs font-bold text-slate-700 leading-tight">{r.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {errors.rubro && <p className="text-sm text-red-500">{errors.rubro.message}</p>}
+        </div>
+      )}
+
+      {/* ══════════════════════════
+          PASO 2: IDENTIDAD
+      ══════════════════════════ */}
+      {step === 1 && (
         <div className="space-y-4">
           <StepHint accent={accent}>
             Estos son los datos que verán tus clientes. El <strong>nombre</strong> identifica tu
@@ -255,9 +315,9 @@ const FormCreateShop = ({ accent = '#6344ee' }: FormCreateShopProps) => {
       )}
 
       {/* ══════════════════════════
-          PASO 2: REDES SOCIALES
+          PASO 3: REDES SOCIALES
       ══════════════════════════ */}
-      {step === 1 && (
+      {step === 2 && (
         <div className="space-y-4">
           <StepHint accent={accent}>
             Estos campos son <strong>opcionales</strong>, pero muy recomendados: son el canal por el
@@ -304,9 +364,9 @@ const FormCreateShop = ({ accent = '#6344ee' }: FormCreateShopProps) => {
       )}
 
       {/* ══════════════════════════
-          PASO 3: UBICACIÓN
+          PASO 4: UBICACIÓN
       ══════════════════════════ */}
-      {step === 2 && (
+      {step === 3 && (
         <div className="space-y-4">
           <StepHint accent={accent}>
             Indicá dónde está ubicada tu tienda. Esto ayuda a calcular envíos y a que tus clientes
