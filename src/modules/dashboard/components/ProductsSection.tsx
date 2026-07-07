@@ -3,16 +3,20 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Download,
   FileText,
   Package,
   Pencil,
   Star,
+  Upload,
   X,
 } from 'lucide-react';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { usePDF } from 'react-to-pdf';
 import {
   useActualizarProducto,
+  useExportarProductos,
+  useImportarProductos,
   useMisProductos,
 } from '../hooks/useProduct';
 import { useMyShop } from '../hooks/useShop';
@@ -20,6 +24,8 @@ import type { IProduct, IProductFilters } from '../types/product.type';
 import CatalogoPDF from './CatalogoPDF';
 import FormProduct from './Forms/FormProduct';
 import ProductsFilters from './ProductsSection/ProductsFilters';
+import OnboardingWelcome from './OnboardingWelcome';
+import productosImg from '../../../assets/onboarding/productos.png';
 
 const formatPrice = (price: number, moneda: string) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: moneda }).format(price);
@@ -73,11 +79,28 @@ const ProductsSection = ({ accent }: { accent: string }) => {
 
   const { data: productosPaginados, isLoading } = useMisProductos(filtros);
   const actualizar = useActualizarProducto();
+  const exportarExcel = useExportarProductos();
+  const importarExcel = useImportarProductos();
+  const excelInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await importarExcel.mutateAsync(file);
+    e.target.value = '';
+  };
 
 
   const productos: IProduct[] = productosPaginados?.datos ?? [];
   const total: number = productosPaginados?.paginacion?.total ?? 0;
   const totalPaginas: number = productosPaginados?.paginacion?.totalPaginas ?? 1;
+
+  // Tienda sin ningún producto cargado (sin búsqueda ni filtro y sin el form abierto):
+  // mostramos solo la portada de onboarding, sin header, PDF ni filtros.
+  const tiendaSinProductos =
+    productos.length === 0 &&
+    !debouncedBusqueda &&
+    filtroActivo === 'todos' &&
+    !showFormProducts;
 
   // Query para obtener todos los productos para el PDF
   const { data: todosProductosPaginados } = useMisProductos({ limite: 1000, disponible: true });
@@ -128,6 +151,29 @@ const ProductsSection = ({ accent }: { accent: string }) => {
     );
   }
 
+  // Tienda sin productos: solo la portada de onboarding (sin header, PDF ni filtros).
+  if (tiendaSinProductos) {
+    return (
+      <div style={accentStyle}>
+        <OnboardingWelcome
+          accent={accent}
+          image={productosImg}
+          title={
+            <>
+              Cargá tu primer <span style={{ color: accent }}>producto</span>
+            </>
+          }
+          description="Sumá productos a tu catálogo para empezar a vender."
+          subDescription="Agregá fotos, precio, stock y descripción de cada uno."
+          buttonLabel="Agregar producto"
+          buttonIcon="add"
+          helpHref={null}
+          onStart={handleAddProductClick}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-0 space-y-6 pb-6" style={accentStyle}>
       {/* ── Header ── */}
@@ -143,6 +189,43 @@ const ProductsSection = ({ accent }: { accent: string }) => {
 
         {/* Botones — scroll horizontal en mobile, wrap en tablet+ */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-end shrink-0">
+          {/* Exportar a Excel */}
+          <button
+            onClick={() => exportarExcel.mutate()}
+            disabled={exportarExcel.isPending}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 text-sm font-semibold rounded-xl transition-all whitespace-nowrap disabled:opacity-60"
+            title="Exportar productos y variantes a Excel"
+          >
+            {exportarExcel.isPending ? (
+              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            <span>Exportar</span>
+          </button>
+
+          {/* Importar desde Excel */}
+          <button
+            onClick={() => excelInputRef.current?.click()}
+            disabled={importarExcel.isPending}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 text-sm font-semibold rounded-xl transition-all whitespace-nowrap disabled:opacity-60"
+            title="Importar productos y variantes desde Excel"
+          >
+            {importarExcel.isPending ? (
+              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
+            ) : (
+              <Upload className="w-4 h-4" />
+            )}
+            <span>Importar</span>
+          </button>
+          <input
+            ref={excelInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleImportExcel}
+          />
+
           {/* Catálogo PDF */}
           <button
             onClick={handleDownloadPdf}
@@ -209,21 +292,22 @@ const ProductsSection = ({ accent }: { accent: string }) => {
         />
       )}
 
-      {showListProducts && productos.length === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] py-16 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
-            <Package className="w-7 h-7 text-gray-300" />
+      {/* Estado vacío por búsqueda/filtro sin resultados (sí hay productos en la tienda) */}
+      {showListProducts &&
+        productos.length === 0 &&
+        (debouncedBusqueda || filtroActivo !== 'todos') && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] py-16 flex flex-col items-center justify-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
+              <Package className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-sm font-semibold text-gray-700">Sin resultados</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-xs">
+              {debouncedBusqueda
+                ? `No encontramos nada con "${debouncedBusqueda}".`
+                : 'No hay productos con este filtro.'}
+            </p>
           </div>
-          <p className="text-sm font-semibold text-gray-700">
-            {debouncedBusqueda ? 'Sin resultados' : 'Todavía no tenés productos'}
-          </p>
-          <p className="text-xs text-gray-400 mt-1 max-w-xs">
-            {debouncedBusqueda
-              ? `No encontramos nada con "${debouncedBusqueda}".`
-              : 'Usá el botón "Agregar" para crear tu primer producto.'}
-          </p>
-        </div>
-      )}
+        )}
 
       {showListProducts && productos.length > 0 && (
         <div>

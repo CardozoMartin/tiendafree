@@ -1,27 +1,26 @@
-import { lazy, Suspense, useEffect } from 'react';
-
-const HomeSection        = lazy(() => import('../components/HomeSection'));
-const OrdersSection      = lazy(() => import('../components/OrdersSection'));
-const ProductsSection    = lazy(() => import('../components/ProductsSection'));
-const CreateShop         = lazy(() => import('./CreateShop'));
-const EditingSite        = lazy(() => import('./myShop/EditingSite'));
-const MethodsSection     = lazy(() => import('./myShop/MethodsSection'));
-const Templates          = lazy(() => import('./myShop/Templates'));
-const SettingsSection    = lazy(() => import('./SettingsSection'));
-const CmAiSection        = lazy(() => import('./CmAiSection'));
-const BannerCreatorSection = lazy(() => import('./BannerCreatorSection'));
-const ReviewsSection     = lazy(() => import('./ReviewsSection'));
-const AdminSection       = lazy(() => import('./AdminSection'));
-const ClientesSection    = lazy(() => import('./ClientesSection'));
-const AnalyticsSection   = lazy(() => import('./AnalyticsSection'));
-const CuponesSection     = lazy(() => import('./CuponesSection'));
-const BannerPromoSection = lazy(() => import('./BannerPromoSection'));
-
-const SectionFallback = () => (
-  <div className="flex items-center justify-center h-48">
-    <div className="w-6 h-6 border-2 border-gray-200 border-t-gray-600 rounded-full animate-spin" />
-  </div>
-);
+import { useEffect, useState } from 'react';
+import HomeSection from '../components/HomeSection';
+import OrdersSection from '../components/OrdersSection';
+import ProductsSection from '../components/ProductsSection';
+import CreateShop from './CreateShop';
+import OnboardingWelcome from './OnboardingWelcome';
+import EditorSitio from './myShop/EditorSitio';
+import MethodsSection from './myShop/MethodsSection';
+import SettingsSection from './SettingsSection';
+import DominioSection from './DominioSection';
+import MarketingSection from './MarketingSection';
+import CmAiSection from './CmAiSection';
+import BannerCreatorSection from './BannerCreatorSection';
+import ReviewsSection from './ReviewsSection';
+import AdminSection from './AdminSection';
+import ClientesSection from './ClientesSection';
+import AnalyticsSection from './AnalyticsSection';
+import CuponesSection from './CuponesSection';
+import PromocionesSection from './PromocionesSection';
+import RevocacionesSection from './RevocacionesSection';
+import LegalSection from './LegalSection';
+import BannerPromoSection from './BannerPromoSection';
+import disenoImg from '../../../assets/onboarding/diseño tienda.png';
 
 interface SectionRendererProps {
   active: string;
@@ -41,68 +40,101 @@ export const SectionRenderer = ({
 }: SectionRendererProps) => {
   const myShopSlug = myShop?.slug ?? myShop?.datos?.slug;
 
+  // Bienvenida (onboarding) previa al formulario de crear tienda.
+  // Se muestra mientras el usuario no tenga tienda; al tocar "Comenzar ahora"
+  // se revela el formulario CreateShop.
+  const [onboardingStarted, setOnboardingStarted] = useState(false);
+
+  // Portada "Diseñá tu tienda": se muestra al entrar a la sección de diseño y,
+  // al tocar el CTA, revela el EditorSitio. Se resetea cada vez que se sale y
+  // vuelve a la sección de diseño (por eso depende de `active`).
+  const [designStarted, setDesignStarted] = useState(false);
+  const isDesignSection =
+    active === 'store' || active === 'store-templates' || active === 'store-edit';
+  useEffect(() => {
+    if (!isDesignSection) setDesignStarted(false);
+  }, [isDesignSection]);
+
   useEffect(() => {
     if (active === 'store-website' && myShopSlug) {
       window.open(`https://apptiendizi.netlify.app/${myShopSlug}`, '_blank');
     }
   }, [active, myShopSlug]);
 
-  let section: React.ReactNode;
-
   switch (active) {
     case 'home':
-      section = <HomeSection accent={accent} onNavigate={setActive} />;
-      break;
+      return <HomeSection accent={accent} onNavigate={setActive} />;
     case 'products':
-      section = <ProductsSection accent={accent} />;
-      break;
+      return <ProductsSection accent={accent} />;
     case 'orders':
-      section = <OrdersSection accent={accent} />;
-      break;
+      return <OrdersSection accent={accent} />;
     case 'store':
     case 'store-templates':
-      section = isActiveShop ? <Templates accent={accent} /> : <CreateShop accent={accent} />;
-      break;
     case 'store-edit':
-      section = isActiveShop ? <EditingSite tienda={myShop} /> : <CreateShop accent={accent} />;
-      break;
+      if (isActiveShop) {
+        // Portada de diseño → al tocar el CTA se muestra el editor.
+        return designStarted ? (
+          <EditorSitio tienda={myShop} />
+        ) : (
+          <OnboardingWelcome
+            accent={accent}
+            image={disenoImg}
+            title={
+              <>
+                Diseñá tu <span style={{ color: accent }}>tienda</span>
+              </>
+            }
+            description="Personalizá cada sección: colores, imágenes, textos y más."
+            subDescription="Hacé que tu tienda tenga tu estilo y se destaque."
+            buttonLabel="Diseñar tienda"
+            buttonIcon="brush"
+            onStart={() => setDesignStarted(true)}
+          />
+        );
+      }
+      return onboardingStarted ? (
+        <CreateShop accent={accent} />
+      ) : (
+        <OnboardingWelcome accent={accent} onStart={() => setOnboardingStarted(true)} />
+      );
     case 'store-methods':
-      section = <MethodsSection accent={accent} />;
-      break;
+      return <MethodsSection accent={accent} />;
     case 'store-website':
-      return null;
+      return null; // Solo abre nueva pestaña, no renderiza nada
     case 'cm-ai':
-      section = <CmAiSection accent={accent} tienda={myShop} />;
-      break;
+      return <CmAiSection accent={accent} tienda={myShop} />;
     case 'banner-creator':
-      section = <BannerCreatorSection accent={accent} tienda={myShop} />;
-      break;
+      return <BannerCreatorSection accent={accent} tienda={myShop} />;
     case 'clientes':
-      section = <ClientesSection />;
-      break;
+      return <ClientesSection />;
     case 'analytics':
-      section = <AnalyticsSection accent={accent} />;
-      break;
+      return <AnalyticsSection accent={accent} />;
     case 'cupones':
-      section = <CuponesSection accent={accent} />;
-      break;
+      return <CuponesSection accent={accent} />;
+    case 'promociones':
+      return <PromocionesSection accent={accent} />;
     case 'banner-promo':
-      section = <BannerPromoSection accent={accent} />;
-      break;
+      return <BannerPromoSection accent={accent} />;
     case 'reviews':
-      section = <ReviewsSection accent={accent} tienda={myShop} />;
-      break;
+      return <ReviewsSection accent={accent} tienda={myShop} />;
+    case 'revocaciones':
+      return <RevocacionesSection accent={accent} />;
+    case 'legal':
+      return <LegalSection accent={accent} />;
     case 'settings':
-      section = <SettingsSection accent={accent} />;
-      break;
+      return <SettingsSection accent={accent} />;
+    case 'dominio':
+      return <DominioSection accent={accent} />;
+    // 'email-config' se mantiene por compatibilidad con links viejos; ahora
+    // ambos (config + campañas) viven en MarketingSection.
+    case 'email-config':
+    case 'campanas':
+      return <MarketingSection accent={accent} />;
     case 'admin':
-      section = <AdminSection accent={accent} />;
-      break;
+      return <AdminSection accent={accent} />;
     default:
-      section = <HomeSection accent={accent} onNavigate={setActive} />;
+      return <HomeSection accent={accent} onNavigate={setActive} />;
   }
-
-  return <Suspense fallback={<SectionFallback />}>{section}</Suspense>;
 };
 
 export default SectionRenderer;

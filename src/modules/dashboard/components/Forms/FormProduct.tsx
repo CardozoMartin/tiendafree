@@ -15,12 +15,14 @@ import {
   Trash2,
   UploadCloud,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { comprimirImagen } from '../../utils/comprimirImagen';
 import { getCategoriasFn } from '../../api/product.api';
 import {
   useActualizarProducto,
+  useActualizarVariante,
   useAgregarImagen,
   useCrearProducto,
   useCrearVariante,
@@ -28,7 +30,8 @@ import {
   useEliminarVariante,
   useSubirImagenVariante,
 } from '../../hooks/useProduct';
-import type { IProduct } from '../../types/product.type';
+import { useGuiasTalles } from '../../hooks/useGuiasTalles';
+import type { IProduct, IProductVariant } from '../../types/product.type';
 import InputProduct from './InputProduct';
 import SelectProduct from './SelectProduct';
 import TextAreaProduct from './TextAreaProduct';
@@ -45,15 +48,41 @@ interface FormProductValues {
   stock: number;
   tags: string;
   categoriaId: number | '';
+  guiaTallesId: number | '';
 }
 
 interface VariantePendiente {
   nombre: string;
+  color?: string;
+  talle?: string;
   sku: string;
   precioExtra: number;
   stock: number;
   disponible: boolean;
 }
+
+// Tipos de grupo que se guardan estructurados (permiten selectores separados en la tienda)
+const TIPOS_ESTRUCTURADOS = ['Color', 'Talle', 'Talla numérica'];
+
+// Presets de talle para carga rápida
+const PRESET_TALLES_LETRA = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const PRESET_TALLES_CALZADO = ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
+
+// Colores comunes con su valor hex (para swatches). Clave normalizada en minúsculas.
+const COLORES_COMUNES: { nombre: string; hex: string }[] = [
+  { nombre: 'Negro', hex: '#111111' },
+  { nombre: 'Blanco', hex: '#ffffff' },
+  { nombre: 'Gris', hex: '#9ca3af' },
+  { nombre: 'Azul', hex: '#2563eb' },
+  { nombre: 'Celeste', hex: '#38bdf8' },
+  { nombre: 'Rojo', hex: '#dc2626' },
+  { nombre: 'Verde', hex: '#16a34a' },
+  { nombre: 'Amarillo', hex: '#eab308' },
+  { nombre: 'Rosa', hex: '#ec4899' },
+  { nombre: 'Violeta', hex: '#7c3aed' },
+  { nombre: 'Beige', hex: '#e7dcc7' },
+  { nombre: 'Marrón', hex: '#78350f' },
+];
 
 interface FormProductProps {
   producto?: IProduct;
@@ -63,7 +92,119 @@ interface FormProductProps {
 // ─── Clases base de input ────────────────────────────────────────────────────
 
 const inputCls =
-  'w-full pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 transition-all';
+  'w-full px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-300 bg-white border border-slate-200 rounded-xl outline-none focus:border-slate-400 transition-colors';
+
+const miniInputCls =
+  'w-20 px-2 py-1 text-sm text-slate-900 bg-white border border-slate-200 rounded-lg outline-none focus:border-slate-400 transition-colors text-right';
+
+// ─── Fila de variante existente con edición inline de stock / extra ─────────
+
+interface VarianteExistenteRowProps {
+  v: IProductVariant;
+  onGuardar: (payload: { stock?: number; precioExtra?: number; disponible?: boolean }) => Promise<unknown>;
+  onEliminar: () => void;
+  onSubirFoto: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const VarianteExistenteRow = ({ v, onGuardar, onEliminar, onSubirFoto }: VarianteExistenteRowProps) => {
+  const [stock, setStock] = useState<string>(String(v.stock));
+  const [extra, setExtra] = useState<string>(String(v.precioExtra));
+
+  useEffect(() => {
+    setStock(String(v.stock));
+    setExtra(String(v.precioExtra));
+  }, [v.stock, v.precioExtra]);
+
+  const commit = async () => {
+    const nuevoStock = Math.max(0, Number(stock) || 0);
+    const nuevoExtra = Math.max(0, Number(extra) || 0);
+    if (nuevoStock === v.stock && nuevoExtra === Number(v.precioExtra)) return;
+    await onGuardar({ stock: nuevoStock, precioExtra: nuevoExtra });
+  };
+
+  return (
+    <li className="px-5 py-3.5 flex flex-wrap items-center gap-3 justify-between hover:bg-gray-50 transition-colors">
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium text-gray-800 flex items-center gap-2 flex-wrap">
+          {v.nombre}
+          {v.color && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
+              {v.color}
+            </span>
+          )}
+          {v.talle && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600">
+              Talle {v.talle}
+            </span>
+          )}
+        </p>
+        {v.sku && <p className="text-xs text-gray-400 mt-0.5">SKU: {v.sku}</p>}
+      </div>
+
+      <div className="flex gap-3 items-center flex-wrap">
+        <label className="flex items-center gap-1.5 text-xs text-gray-500">
+          Stock
+          <input
+            type="number"
+            min={0}
+            className={miniInputCls}
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+          />
+        </label>
+        <label className="flex items-center gap-1.5 text-xs text-gray-500">
+          Extra $
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            className={miniInputCls}
+            value={extra}
+            onChange={(e) => setExtra(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => onGuardar({ disponible: !v.disponible })}
+          className={`text-[11px] font-semibold px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
+            v.disponible
+              ? 'bg-green-50 text-green-600 hover:bg-green-100'
+              : 'bg-red-50 text-red-500 hover:bg-red-100'
+          }`}
+          title="Click para cambiar disponibilidad"
+        >
+          {v.disponible ? 'Disponible' : 'Oculta'}
+        </button>
+        {v.imagenUrl && (
+          <img src={v.imagenUrl} alt={v.nombre} className="w-8 h-8 rounded object-cover shadow-sm" />
+        )}
+        <label
+          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+          title={
+            v.color
+              ? `Subir foto del color ${v.color} (se aplica a todos los talles de ese color)`
+              : 'Subir imagen'
+          }
+        >
+          <UploadCloud className="w-4 h-4" />
+          <input type="file" className="hidden" accept="image/*" onChange={onSubirFoto} />
+        </label>
+        <button
+          type="button"
+          onClick={onEliminar}
+          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          title="Eliminar variante"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </li>
+  );
+};
 
 // ─── Componente principal ────────────────────────────────────────────────────
 
@@ -99,23 +240,56 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
       stock: producto?.stock ?? 0,
       tags: producto?.tags?.map((t) => t.nombre).join(', ') ?? '',
       categoriaId: producto?.categoriaId ?? '',
+      guiaTallesId: producto?.guiaTallesId ?? '',
     },
   });
 
+  const { data: guiasTalles = [] } = useGuiasTalles();
+  const guiaTallesId = watch('guiaTallesId');
+
   const precio = watch('precio');
   const formCategoriaId = watch('categoriaId');
-  let selectedParentId: number | '' = '';
+
+  // ── Selectores de categoría por nivel (soporta árbol de N niveles) ──
+  // Construimos el "camino" de selects: nivel 0 = raíces; y por cada categoría
+  // elegida en un nivel, si tiene hijos, mostramos el select del nivel siguiente.
+  // El `categoriaId` guardado es el ÚLTIMO nodo seleccionado (puede ser intermedio
+  // si el dueño no baja hasta la hoja).
+  const hijosDe = (padreId: number | null) =>
+    categorias.filter((c: any) => (c.padreId ?? null) === padreId);
+
+  // Camino de ids desde la raíz hasta el categoriaId elegido.
+  const caminoCategoria: number[] = [];
   if (typeof formCategoriaId === 'number') {
-    const catNode = categorias.find((c: any) => c.id === formCategoriaId);
-    if (catNode) {
-      selectedParentId = catNode.padreId ? catNode.padreId : catNode.id;
+    let actual: any = categorias.find((c: any) => c.id === formCategoriaId);
+    const chain: number[] = [];
+    while (actual) {
+      chain.unshift(actual.id);
+      actual = actual.padreId ? categorias.find((c: any) => c.id === actual.padreId) : null;
+    }
+    caminoCategoria.push(...chain);
+  }
+
+  // Niveles de selects a mostrar: [opciones del nivel, id seleccionado en ese nivel].
+  // Empezamos por las raíces; agregamos un nivel más mientras la selección tenga hijos.
+  const nivelesSelect: { opciones: any[]; seleccionado: number | '' }[] = [];
+  {
+    let padreActual: number | null = null;
+    for (let i = 0; ; i++) {
+      const opciones = hijosDe(padreActual);
+      if (opciones.length === 0) break;
+      const idNivel: number | undefined = caminoCategoria[i];
+      const seleccionado: number | '' = idNivel === undefined ? '' : idNivel;
+      nivelesSelect.push({ opciones, seleccionado });
+      if (idNivel === undefined) break;
+      padreActual = idNivel;
     }
   }
 
-  const categoriasPrincipales = categorias.filter((c: any) => !c.padreId);
-  const subcategoriasSeleccionadas = selectedParentId
-    ? categorias.filter((c: any) => c.padreId === selectedParentId)
-    : [];
+  // Al elegir en un nivel, ese nodo pasa a ser el categoriaId (se descartan niveles inferiores).
+  const elegirNivel = (val: string) => {
+    setValue('categoriaId', val ? Number(val) : '');
+  };
 
   useEffect(() => {
     if (producto) {
@@ -130,6 +304,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
         stock: producto.stock,
         tags: producto.tags?.map((t) => t.nombre).join(', ') ?? '',
         categoriaId: producto.categoriaId ?? '',
+        guiaTallesId: producto.guiaTallesId ?? '',
       });
       setImagePreview(producto.imagenPrincipalUrl ?? '');
       setImageFile(null);
@@ -157,6 +332,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
   const { mutateAsync: agregarImagen, isPending: subiendoImagen } = useAgregarImagen();
   const { mutateAsync: eliminarImagen } = useEliminarImagen();
   const { mutateAsync: crearVariante, isPending: creandoVariante } = useCrearVariante();
+  const { mutateAsync: actualizarVariante } = useActualizarVariante();
   const { mutateAsync: eliminarVariante } = useEliminarVariante();
   const { mutateAsync: subirImagenVariante } = useSubirImagenVariante();
 
@@ -178,6 +354,52 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     disponible: true,
   });
 
+  // Colores y talles que el producto YA tiene (para reusarlos con un click en edición)
+  const coloresExistentes = useMemo(
+    () => [...new Set((producto?.variantes ?? []).map((v) => v.color).filter(Boolean))] as string[],
+    [producto]
+  );
+  const tallesExistentes = useMemo(
+    () => [...new Set((producto?.variantes ?? []).map((v) => v.talle).filter(Boolean))] as string[],
+    [producto]
+  );
+
+  // Inserta un valor en el grupo del tipo indicado (crea el grupo si no existe, evita repetir)
+  const agregarValorAGrupo = (tipo: 'Color' | 'Talle', valor: string) => {
+    setVarianteGroups((prev) => {
+      const idx = prev.findIndex((g) => g.tipo === tipo);
+      const parseVals = (s: string) =>
+        s.split(',').map((v) => v.trim()).filter(Boolean);
+
+      if (idx === -1) {
+        return [...prev, { tipo, valores: valor }];
+      }
+      const yaEsta = parseVals(prev[idx].valores).some(
+        (v) => v.toLowerCase() === valor.toLowerCase()
+      );
+      if (yaEsta) return prev;
+      const nuevos = [...prev];
+      const actuales = prev[idx].valores.trim();
+      nuevos[idx] = { ...nuevos[idx], valores: actuales ? `${actuales}, ${valor}` : valor };
+      return nuevos;
+    });
+  };
+
+  // Inserta un valor en el grupo del índice indicado (evita repetir). Para chips de presets.
+  const agregarValorAIndice = (idx: number, valor: string) => {
+    setVarianteGroups((prev) => {
+      const yaEsta = prev[idx].valores
+        .split(',')
+        .map((v) => v.trim())
+        .some((v) => v.toLowerCase() === valor.toLowerCase());
+      if (yaEsta) return prev;
+      const nuevos = [...prev];
+      const actuales = prev[idx].valores.trim();
+      nuevos[idx] = { ...nuevos[idx], valores: actuales ? `${actuales}, ${valor}` : valor };
+      return nuevos;
+    });
+  };
+
   const handleAddGroup = () => {
     setVarianteGroups([...varianteGroups, { tipo: '', valores: '' }]);
   };
@@ -198,56 +420,85 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
     const validGroups = varianteGroups.filter((g) => g.valores.trim() !== '');
     if (validGroups.length === 0) return;
 
-    // Generar combinaciones (Producto Cartesiano)
-    const combinations: string[][] = [[]];
+    // Generar combinaciones (Producto Cartesiano) manteniendo tipo + valor
+    type Parte = { tipo: string; valor: string };
+    let combinations: Parte[][] = [[]];
     for (const group of validGroups) {
       const vals = group.valores
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      const nextCombinations: string[][] = [];
+      const next: Parte[][] = [];
       for (const combo of combinations) {
         for (const val of vals) {
-          const prefix = group.tipo ? `${group.tipo}: ` : '';
-          nextCombinations.push([...combo, `${prefix}${val}`]);
+          next.push([...combo, { tipo: group.tipo, valor: val }]);
         }
       }
-      combinations.splice(0, combinations.length, ...nextCombinations);
+      combinations = next;
     }
 
-    // Convertir combinaciones a strings finales (ej: "Color: Rojo - Talle: M")
-    const finalNames = combinations.map((c) => c.join(' - '));
-
-    if (isEditing && producto) {
-      for (const nombreFinal of finalNames) {
-        try {
-          await crearVariante({
-            productoId: producto.id,
-            payload: {
-              nombre: nombreFinal,
-              sku: varianteMeta.skuBase
-                ? `${varianteMeta.skuBase}-${nombreFinal.replace(/[: ]/g, '')}`
-                : '',
-              precioExtra: varianteMeta.precioExtra,
-              stock: varianteMeta.stock,
-              disponible: varianteMeta.disponible,
-            },
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    } else {
-      const nuevasP: VariantePendiente[] = finalNames.map((nombreFinal) => ({
-        nombre: nombreFinal,
+    // Convertir cada combinación en una variante estructurada
+    const nuevas: VariantePendiente[] = combinations.map((partes) => {
+      const color = partes.find((p) => p.tipo === 'Color')?.valor;
+      const talle = partes.find((p) => p.tipo === 'Talle' || p.tipo === 'Talla numérica')?.valor;
+      // Nombre legible: "Rojo / M" (los tipos no estructurados conservan prefijo: "Material: Cuero")
+      const nombre = partes
+        .map((p) =>
+          p.tipo && !TIPOS_ESTRUCTURADOS.includes(p.tipo) ? `${p.tipo}: ${p.valor}` : p.valor
+        )
+        .join(' / ');
+      return {
+        nombre,
+        color,
+        talle,
         sku: varianteMeta.skuBase
-          ? `${varianteMeta.skuBase}-${nombreFinal.replace(/[: ]/g, '')}`
+          ? `${varianteMeta.skuBase}-${nombre.replace(/[:/ ]/g, '')}`
           : '',
         precioExtra: varianteMeta.precioExtra,
         stock: varianteMeta.stock,
         disponible: varianteMeta.disponible,
-      }));
-      setVariantesPendientes((prev) => [...prev, ...nuevasP]);
+      };
+    });
+
+    if (isEditing && producto) {
+      // Clave de identidad de una variante: color+talle si es estructurada, si no el nombre
+      const claveVariante = (v: { color?: string; talle?: string; nombre: string }) =>
+        v.color || v.talle
+          ? `ct::${(v.color ?? '').toLowerCase()}::${(v.talle ?? '').toLowerCase()}`
+          : `n::${v.nombre.toLowerCase()}`;
+
+      const existentes = new Set((producto.variantes ?? []).map(claveVariante));
+      const aCrear = nuevas.filter((v) => !existentes.has(claveVariante(v)));
+      const omitidas = nuevas.length - aCrear.length;
+
+      const fallidas: string[] = [];
+      for (const v of aCrear) {
+        try {
+          await crearVariante({
+            productoId: producto.id,
+            payload: { ...v, sku: v.sku || undefined },
+          });
+        } catch (e: any) {
+          const msg = e?.response?.data?.mensaje ?? e?.message ?? 'Error desconocido';
+          fallidas.push(`"${v.nombre}": ${msg}`);
+        }
+      }
+      if (omitidas > 0) {
+        toast.info(
+          `Se agregaron ${aCrear.length} variante(s). ${omitidas} ya existían y se omitieron.`
+        );
+      }
+      if (fallidas.length > 0) {
+        toast.error(`No se pudieron crear ${fallidas.length} variante(s): ${fallidas.join(' · ')}`);
+      }
+    } else {
+      // Evitar duplicados en la lista pendiente
+      const existentes = new Set(variantesPendientes.map((v) => v.nombre.toLowerCase()));
+      const sinDuplicados = nuevas.filter((v) => !existentes.has(v.nombre.toLowerCase()));
+      if (sinDuplicados.length < nuevas.length) {
+        toast.warning('Se omitieron variantes que ya estaban en la lista');
+      }
+      setVariantesPendientes((prev) => [...prev, ...sinDuplicados]);
     }
     // Limpiar solo los valores
     setVarianteGroups(varianteGroups.map((g) => ({ ...g, valores: '' })));
@@ -446,48 +697,23 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <div className="relative min-w-[170px]">
-                <LayoutGrid className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none" />
-                <select
-                  className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
-                  value={selectedParentId}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setValue('categoriaId', val ? Number(val) : '');
-                  }}
-                >
-                  <option value="">Sin categoría</option>
-                  {categoriasPrincipales.map((cat: any) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {subcategoriasSeleccionadas.length > 0 && (
-                <div className="relative min-w-[170px]">
-                  <LayoutGrid className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none opacity-50" />
+              {nivelesSelect.map((nivel, i) => (
+                <div key={i} className="relative min-w-[170px]">
+                  <LayoutGrid className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none ${i > 0 ? 'opacity-50' : ''}`} />
                   <select
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
-                    value={formCategoriaId}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setValue(
-                        'categoriaId',
-                        val ? Number(val) : selectedParentId !== '' ? Number(selectedParentId) : ''
-                      );
-                    }}
+                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-slate-400 bg-white text-slate-700 cursor-pointer transition-colors appearance-none"
+                    value={nivel.seleccionado}
+                    onChange={(e) => elegirNivel(e.target.value)}
                   >
-                    <option value="">(Seleccionar subcategoría...)</option>
-                    {subcategoriasSeleccionadas.map((cat: any) => (
+                    <option value="">{i === 0 ? 'Sin categoría' : '(Elegir...)'}</option>
+                    {nivel.opciones.map((cat: any) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.nombre}
                       </option>
                     ))}
                   </select>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
@@ -581,19 +807,84 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
             </div>
             <Toggle name="destacado" watch={watch} setValue={setValue} />
           </div>
-          <InputProduct
-            label="Stock disponible"
-            name="stock"
-            placeholder="0"
-            icon={<Package className="w-4 h-4" />}
-            register={register}
-            errors={errors}
-            type="number"
-            validacion={{
-              valueAsNumber: true,
-              min: { value: 0, message: 'El stock no puede ser negativo' },
-            }}
-          />
+          {(isEditing ? (producto?.variantes?.length ?? 0) > 0 : variantesPendientes.length > 0) ? (
+            <div className="flex items-center gap-4 px-5 py-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-800 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-gray-400" /> Stock total
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Se calcula automáticamente sumando el stock de las variantes.
+                </p>
+              </div>
+              <span className="text-sm font-semibold text-gray-900">
+                {isEditing
+                  ? (producto?.variantes ?? []).reduce((acc, v) => acc + (v.stock ?? 0), 0)
+                  : variantesPendientes.reduce((acc, v) => acc + v.stock, 0)}{' '}
+                unidades
+              </span>
+            </div>
+          ) : (
+            <InputProduct
+              label="Stock disponible"
+              name="stock"
+              placeholder="0"
+              icon={<Package className="w-4 h-4" />}
+              register={register}
+              errors={errors}
+              type="number"
+              validacion={{
+                valueAsNumber: true,
+                min: { value: 0, message: 'El stock no puede ser negativo' },
+              }}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* ══════════════════════════
+          SECCIÓN: GUÍA DE TALLES
+      ══════════════════════════ */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-widest">
+            Guía de talles
+          </h2>
+          <p className="text-xs text-gray-400 mt-1">
+            Mostrá una tabla de medidas en la página del producto.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          {guiasTalles.length === 0 ? (
+            <p className="text-sm text-gray-400">
+              Todavía no creaste ninguna tabla de talles. Podés crearlas en{' '}
+              <span className="font-medium text-gray-600">Editar sitio → Guías de talles</span>.
+            </p>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-800">Tabla a mostrar</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  El cliente la verá con un botón “Guía de talles”.
+                </p>
+              </div>
+              <select
+                value={guiaTallesId}
+                onChange={(e) =>
+                  setValue('guiaTallesId', e.target.value ? Number(e.target.value) : '')
+                }
+                className="min-w-[200px] pl-3 pr-8 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-slate-400 bg-white text-slate-700 cursor-pointer transition-colors appearance-none"
+              >
+                <option value="">Sin guía de talles</option>
+                {guiasTalles.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -614,57 +905,20 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
           <ul className="divide-y divide-gray-50">
-            {/* Variantes existentes (modo editar) */}
+            {/* Variantes existentes (modo editar) — stock y extra editables inline */}
             {isEditing &&
               producto?.variantes?.map((v) => (
-                <li
+                <VarianteExistenteRow
                   key={v.id}
-                  className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {v.sku && `SKU: ${v.sku} · `}
-                      Extra: ${v.precioExtra} · Stock: {v.stock} ·{' '}
-                      {v.disponible ? (
-                        <span className="text-green-600 font-medium">Disponible</span>
-                      ) : (
-                        <span className="text-red-500 font-medium">Oculta</span>
-                      )}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    {v.imagenUrl && (
-                      <img
-                        src={v.imagenUrl}
-                        alt={v.nombre}
-                        className="w-8 h-8 rounded object-cover shadow-sm"
-                      />
-                    )}
-                    <label
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
-                      title="Subir imagen"
-                    >
-                      <UploadCloud className="w-4 h-4" />
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleSubirFotoVariante(e, v.id)}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        eliminarVariante({ productoId: producto!.id, varianteId: v.id })
-                      }
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Eliminar variante"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </li>
+                  v={v}
+                  onGuardar={(payload) =>
+                    actualizarVariante({ productoId: producto!.id, varianteId: v.id, payload })
+                  }
+                  onEliminar={() =>
+                    eliminarVariante({ productoId: producto!.id, varianteId: v.id })
+                  }
+                  onSubirFoto={(e) => handleSubirFotoVariante(e, v.id)}
+                />
               ))}
 
             {/* Variantes pendientes (modo crear) */}
@@ -674,11 +928,23 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                   key={idx}
                   className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{v.nombre}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-800 flex items-center gap-2 flex-wrap">
+                      {v.nombre}
+                      {v.color && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
+                          {v.color}
+                        </span>
+                      )}
+                      {v.talle && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600">
+                          Talle {v.talle}
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {v.sku && `SKU: ${v.sku} · `}
-                      Extra: ${v.precioExtra} · Stock: {v.stock} ·{' '}
+                      Extra: ${v.precioExtra} ·{' '}
                       {v.disponible ? (
                         <span className="text-green-600 font-medium">Disponible</span>
                       ) : (
@@ -686,6 +952,22 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                       )}
                     </p>
                   </div>
+                  <label className="flex items-center gap-1.5 text-xs text-gray-500 mr-2">
+                    Stock
+                    <input
+                      type="number"
+                      min={0}
+                      className={miniInputCls}
+                      value={v.stock}
+                      onChange={(e) =>
+                        setVariantesPendientes((prev) =>
+                          prev.map((p, i) =>
+                            i === idx ? { ...p, stock: Math.max(0, Number(e.target.value) || 0) } : p
+                          )
+                        )
+                      }
+                    />
+                  </label>
                   <button
                     type="button"
                     onClick={() => handleEliminarVariantePendiente(idx)}
@@ -718,7 +1000,9 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                   Generador de combinaciones
                 </p>
                 <p className="text-[10px] text-gray-400">
-                  Ej: "Rojo, Azul" x "S, M" = "Rojo-S, Rojo-M, Azul-S, Azul-M"
+                  {isEditing
+                    ? 'Ej: color "Negro" x talle "XXL" agrega solo esa combinación. Las que ya existen se omiten.'
+                    : 'Ej: "Rojo, Azul" x "S, M" = "Rojo-S, Rojo-M, Azul-S, Azul-M"'}
                 </p>
               </div>
               <button
@@ -758,6 +1042,96 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                       value={group.valores}
                       onChange={(e) => updateGroup(idx, 'valores', e.target.value)}
                     />
+
+                    {/* Presets rápidos de talle */}
+                    {group.tipo === 'Talle' && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-[10px] text-gray-400">Rápido:</span>
+                        {PRESET_TALLES_LETRA.map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => agregarValorAIndice(idx, t)}
+                            className="px-2 py-0.5 text-[11px] font-semibold text-gray-600 bg-white border border-gray-200 rounded-full hover:border-gray-900 hover:text-gray-900 transition-colors"
+                          >
+                            {t}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            PRESET_TALLES_LETRA.forEach((t) => agregarValorAIndice(idx, t))
+                          }
+                          className="px-2 py-0.5 text-[11px] font-bold text-gray-900 underline hover:no-underline"
+                        >
+                          Todos
+                        </button>
+                      </div>
+                    )}
+                    {group.tipo === 'Talla numérica' && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-[10px] text-gray-400">Calzado:</span>
+                        {PRESET_TALLES_CALZADO.map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => agregarValorAIndice(idx, t)}
+                            className="px-2 py-0.5 text-[11px] font-semibold text-gray-600 bg-white border border-gray-200 rounded-full hover:border-gray-900 hover:text-gray-900 transition-colors"
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {/* Swatches de color comunes */}
+                    {group.tipo === 'Color' && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-[10px] text-gray-400">Colores:</span>
+                        {COLORES_COMUNES.map((col) => (
+                          <button
+                            key={col.nombre}
+                            type="button"
+                            onClick={() => agregarValorAIndice(idx, col.nombre)}
+                            className="flex items-center gap-1 pl-1 pr-2 py-0.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 rounded-full hover:border-gray-900 hover:text-gray-900 transition-colors"
+                            title={`Agregar ${col.nombre}`}
+                          >
+                            <span
+                              className="w-3 h-3 rounded-full border border-black/10 shrink-0"
+                              style={{ background: col.hex }}
+                            />
+                            {col.nombre}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Reusar valores ya existentes del producto (solo en edición) */}
+                    {isEditing &&
+                      ((group.tipo === 'Color' && coloresExistentes.length > 0) ||
+                        ((group.tipo === 'Talle' || group.tipo === 'Talla numérica') &&
+                          tallesExistentes.length > 0)) && (
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                          <span className="text-[10px] text-gray-400">Ya usás:</span>
+                          {(group.tipo === 'Color' ? coloresExistentes : tallesExistentes).map(
+                            (val) => (
+                              <button
+                                key={val}
+                                type="button"
+                                onClick={() =>
+                                  agregarValorAGrupo(
+                                    group.tipo === 'Color' ? 'Color' : 'Talle',
+                                    val
+                                  )
+                                }
+                                className="px-2 py-0.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 rounded-full hover:border-gray-900 hover:text-gray-900 transition-colors"
+                                title={`Agregar ${val}`}
+                              >
+                                + {val}
+                              </button>
+                            )
+                          )}
+                        </div>
+                      )}
                   </div>
                   {varianteGroups.length > 1 && (
                     <button

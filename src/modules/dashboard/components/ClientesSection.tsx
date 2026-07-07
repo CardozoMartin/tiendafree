@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useClientes, useDetalleCliente, useClientesFiltros } from '../hooks/useClientes';
 import type { ClienteResumen } from '../api/clientes.api';
+import { useMyShop } from '../hooks/useShop';
+import OnboardingWelcome from './OnboardingWelcome';
+import clientesImg from '../../../assets/onboarding/clientes.png';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -165,10 +168,15 @@ export default function ClientesSection() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data, isLoading } = useClientes({ pagina, limite, busqueda: busqueda || undefined });
+  const { data: myShop } = useMyShop();
 
   const clientes: ClienteResumen[] = data?.datos ?? [];
   const total = data?.total ?? 0;
   const totalPaginas = data?.totalPaginas ?? 1;
+
+  // La tienda todavía no tiene ningún cliente (sin búsqueda activa): mostramos
+  // solo la portada de onboarding, sin buscador ni tabla.
+  const tiendaSinClientes = !isLoading && clientes.length === 0 && !busqueda;
 
   // Debounce búsqueda
   useEffect(() => {
@@ -179,6 +187,29 @@ export default function ClientesSection() {
     }, 400);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [inputBusqueda]);
+
+  if (tiendaSinClientes) {
+    return (
+      <OnboardingWelcome
+        accent="#6344ee"
+        image={clientesImg}
+        title={
+          <>
+            Todavía no tenés <span style={{ color: '#6344ee' }}>clientes</span>
+          </>
+        }
+        description="Cuando alguien se registre o compre en tu tienda, vas a verlo acá."
+        subDescription="Compartí el link de tu tienda para empezar a sumar clientes."
+        buttonLabel="Ver mi tienda"
+        buttonIcon="storefront"
+        helpHref={null}
+        onStart={() => {
+          const slug = myShop?.slug ?? myShop?.datos?.slug;
+          if (slug) window.open(`https://apptiendizi.netlify.app/${slug}`, '_blank');
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -231,7 +262,7 @@ export default function ClientesSection() {
             )}
             {!isLoading && clientes.length === 0 && (
               <tr><td colSpan={6} className="text-center py-10 text-sm text-gray-400">
-                {busqueda ? 'No se encontraron clientes con esa búsqueda' : 'Todavía no tenés clientes registrados'}
+                No se encontraron clientes con esa búsqueda
               </td></tr>
             )}
             {clientes.map(cliente => (

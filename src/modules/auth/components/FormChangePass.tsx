@@ -75,10 +75,6 @@ const FormChangePass = ({ token, onBack, onSuccess }: ChangePasswordProps) => {
     });
 
     if (userConfirmed) {
-      console.log('📤 Enviando datos:', {
-        token: tokenUrl,
-        passwordNueva: data.passwordNueva,
-      });
       resetPasswordMutate({ token: tokenUrl, ...data });
     }
   };

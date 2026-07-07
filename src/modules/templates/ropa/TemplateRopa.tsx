@@ -2279,7 +2279,6 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   //props que le pasamos a carrusel
   const carruselItems = tienda?.carrusel || [];
 
-  console.log('carrusel en tienda ', tienda?.carrusel);
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });

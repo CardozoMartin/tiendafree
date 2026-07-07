@@ -14,6 +14,8 @@ export interface IProductImage {
 export interface IProductVariant {
   id: number;
   nombre: string;
+  color?: string;
+  talle?: string;
   sku?: string;
   precioExtra: number;
   stock: number;
@@ -38,6 +40,7 @@ export interface IProduct {
   imagenPrincipalUrl?: string;
   categoriaId?: number;
   categoria?: { id: number; nombre: string };
+  guiaTallesId?: number | null;
   disponible: boolean;
   destacado: boolean;
   stock: number;
@@ -62,6 +65,7 @@ export interface ICreateProductDto {
   imagenPrincipalUrl?: string;
   imagenPrincipal?: File; // Para Multer (FormData)
   categoriaId?: number | '';
+  guiaTallesId?: number | '' | null;
   disponible: boolean;
   destacado: boolean;
   stock: number;

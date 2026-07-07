@@ -25,7 +25,6 @@ const validateToken = (token: string | null): AuthState => {
 
   try {
     const decoded = jwtDecode<DecodedToken>(token);
-    console.log("Decoded token:", decoded);
 
     // Verificar si el token ha expirado
     if (!decoded.exp || isTokenExpired(decoded.exp)) {
@@ -101,6 +100,9 @@ export const useAuthSessionStore = create<SessionStore>()(
 
       logout: () => {
         get().stopSessionCheck();
+        // Limpiar la sección del dashboard para que la próxima sesión arranque
+        // en la vista por defecto (Diseño) y no herede la última visitada.
+        localStorage.removeItem('dashboard_active_section');
         set({
           user: null,
           isLoggedIn: false,
@@ -141,10 +143,7 @@ export const useAuthSessionStore = create<SessionStore>()(
 
         // Configurar verificación periódica
         intervalId = setInterval(() => {
-          const isValid = get().checkSession();
-          if (!isValid) {
-            console.log('Sesión inválida, redirigiendo al login...');
-          }
+          get().checkSession();
         }, CHECK_INTERVAL);
       },
 
