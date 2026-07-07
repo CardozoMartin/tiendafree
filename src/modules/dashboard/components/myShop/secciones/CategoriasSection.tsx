@@ -52,6 +52,8 @@ export default function CategoriasSection({ tienda, onVolver }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [titulo, setTitulo] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
+  // Cuando está abierto, se muestra el formulario y se ocultan las tarjetas.
+  const [mostrandoForm, setMostrandoForm] = useState(false);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,6 +80,12 @@ export default function CategoriasSection({ tienda, onVolver }: Props) {
     fd.append('orden', String(categorias.length));
     await agregar.mutateAsync(fd);
     resetForm();
+    setMostrandoForm(false);
+  };
+
+  const cerrarForm = () => {
+    resetForm();
+    setMostrandoForm(false);
   };
 
   const MAX_CATEGORIAS = 4;
@@ -159,120 +167,160 @@ export default function CategoriasSection({ tienda, onVolver }: Props) {
           </div>
         </div>
 
-        {/* Tarjetas existentes */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
-          <p className="text-sm font-bold text-gray-800 mb-1">Tus categorías</p>
-          <p className="text-xs text-gray-400 mb-4">Cada tarjeta tiene una imagen, un título y un link a donde llevar al cliente.</p>
+        {/* ── VISTA FORMULARIO: se muestra al agregar, oculta la lista ── */}
+        {mostrandoForm ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-bold text-gray-800">Nueva categoría</p>
+                <p className="text-xs text-gray-400 mt-0.5">Subí una imagen, poné un título y a dónde lleva.</p>
+              </div>
+              <button
+                type="button"
+                onClick={cerrarForm}
+                className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Volver
+              </button>
+            </div>
 
-          {isLoading ? (
-            <p className="text-sm text-gray-400 py-4 text-center">Cargando…</p>
-          ) : categorias.length === 0 ? (
-            <p className="text-sm text-gray-400 py-4 text-center">Todavía no agregaste categorías.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
-              {categorias.map((c) => (
-                <div key={c.id} className="relative rounded-xl overflow-hidden border border-gray-100 group">
-                  <div className="aspect-[16/9] bg-gray-100 overflow-hidden">
-                    <img src={c.imagenUrl} alt={c.titulo} className="w-full h-full object-cover" />
+            <div className="space-y-3">
+              {/* Imagen */}
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="relative aspect-[16/9] max-w-xs rounded-xl border-2 border-dashed border-gray-200 hover:border-gray-400 bg-gray-50 flex items-center justify-center cursor-pointer overflow-hidden transition-colors"
+              >
+                {preview ? (
+                  <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center text-gray-400">
+                    <svg className="w-7 h-7 mx-auto" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 18h16.5M12 3v9m0 0l-2.25-2.25M12 12l2.25-2.25" />
+                    </svg>
+                    <p className="text-xs mt-1">Subir imagen</p>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
-                    <span className="text-white font-black text-lg drop-shadow">{c.titulo}</span>
-                  </div>
-                  <div className="flex items-center justify-between px-3 py-2 bg-white">
-                    <span className="text-xs text-gray-400 truncate max-w-[70%]">{c.linkUrl}</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => actualizar.mutate({ id: c.id, formData: buildActivaFD(!c.activa) })}
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${c.activa ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 bg-gray-100'}`}
-                        title={c.activa ? 'Visible — clic para ocultar' : 'Oculta — clic para mostrar'}
-                      >
-                        {c.activa ? 'visible' : 'oculta'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => eliminar.mutate(c.id)}
-                        className="text-red-500 hover:text-red-700"
-                        title="Eliminar"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                      </button>
+                )}
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Título</label>
+                <input
+                  type="text"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  placeholder="Ej. Camperas"
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 text-gray-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Link</label>
+                <input
+                  type="text"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  placeholder="Ej. /productos?categoria=camperas o https://…"
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 text-gray-800"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={cerrarForm}
+                  className="px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAgregar}
+                  disabled={!puedeAgregar || agregar.isPending}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-sm font-bold rounded-xl transition-all"
+                >
+                  {agregar.isPending ? 'Agregando…' : 'Agregar categoría'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ── VISTA LISTA: cards de categorías + botón para abrir el form ── */
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-bold text-gray-800">Tus categorías</p>
+                <p className="text-xs text-gray-400 mt-0.5">Cada tarjeta tiene imagen, título y un link.</p>
+              </div>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${alcanzoMax ? 'text-amber-600 bg-amber-50' : 'text-gray-400 bg-gray-100'}`}>
+                {categorias.length}/{MAX_CATEGORIAS}
+              </span>
+            </div>
+
+            {isLoading ? (
+              <p className="text-sm text-gray-400 py-8 text-center">Cargando…</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {categorias.map((c) => (
+                  <div key={c.id} className="relative rounded-xl overflow-hidden border border-gray-100 group">
+                    <div className="aspect-[16/9] bg-gray-100 overflow-hidden">
+                      <img src={c.imagenUrl} alt={c.titulo} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute inset-0 top-0 bottom-[41px] bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+                      <span className="text-white font-black text-lg drop-shadow">{c.titulo}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-3 py-2 bg-white">
+                      <span className="text-xs text-gray-400 truncate max-w-[70%]">{c.linkUrl}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => actualizar.mutate({ id: c.id, formData: buildActivaFD(!c.activa) })}
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${c.activa ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 bg-gray-100'}`}
+                          title={c.activa ? 'Visible — clic para ocultar' : 'Oculta — clic para mostrar'}
+                        >
+                          {c.activa ? 'visible' : 'oculta'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => eliminar.mutate(c.id)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Eliminar"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
 
-        {/* Agregar nueva */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-bold text-gray-800">Agregar categoría</p>
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${alcanzoMax ? 'text-amber-600 bg-amber-50' : 'text-gray-400 bg-gray-100'}`}>
-              {categorias.length}/{MAX_CATEGORIAS}
-            </span>
+                {/* Card "Agregar nueva" — abre el formulario y oculta la lista */}
+                {!alcanzoMax && (
+                  <button
+                    type="button"
+                    onClick={() => setMostrandoForm(true)}
+                    className="rounded-xl border-2 border-dashed border-gray-200 hover:border-gray-900 hover:bg-gray-50 transition-all flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-gray-900 min-h-[140px] group"
+                  >
+                    <span className="w-9 h-9 rounded-full bg-gray-100 group-hover:bg-gray-900 group-hover:text-white flex items-center justify-center text-lg transition-all">
+                      +
+                    </span>
+                    <span className="text-sm font-semibold">Agregar nueva categoría</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {alcanzoMax && (
+              <p className="mt-3 text-sm text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-3">
+                Llegaste al máximo de {MAX_CATEGORIAS} categorías. Eliminá una si querés agregar otra.
+              </p>
+            )}
           </div>
-
-          {alcanzoMax ? (
-            <p className="text-sm text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-3">
-              Llegaste al máximo de {MAX_CATEGORIAS} categorías. Eliminá una si querés agregar otra.
-            </p>
-          ) : (
-          <div className="space-y-3">
-            {/* Imagen */}
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="relative aspect-[16/9] max-w-xs rounded-xl border-2 border-dashed border-gray-200 hover:border-gray-400 bg-gray-50 flex items-center justify-center cursor-pointer overflow-hidden transition-colors"
-            >
-              {preview ? (
-                <img src={preview} alt="preview" className="w-full h-full object-cover" />
-              ) : (
-                <div className="text-center text-gray-400">
-                  <svg className="w-7 h-7 mx-auto" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 18h16.5M12 3v9m0 0l-2.25-2.25M12 12l2.25-2.25" />
-                  </svg>
-                  <p className="text-xs mt-1">Subir imagen</p>
-                </div>
-              )}
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Título</label>
-              <input
-                type="text"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-                placeholder="Ej. Camperas"
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 text-gray-800"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Link</label>
-              <input
-                type="text"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="Ej. /productos?categoria=camperas o https://…"
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 text-gray-800"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={handleAgregar}
-              disabled={!puedeAgregar || agregar.isPending}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white text-sm font-bold rounded-xl transition-all"
-            >
-              {agregar.isPending ? 'Agregando…' : 'Agregar categoría'}
-            </button>
-          </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

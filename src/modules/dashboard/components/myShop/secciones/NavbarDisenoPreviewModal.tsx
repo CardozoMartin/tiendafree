@@ -1,4 +1,6 @@
-type NavbarVariante = 'CLASICO' | 'PILL';
+import { Menu, Pill, ShoppingBag, type LucideIcon } from 'lucide-react';
+
+type NavbarVariante = 'CLASICO' | 'PILL' | 'BOUTIQUE';
 
 interface Props {
   varianteActual: NavbarVariante;
@@ -42,9 +44,35 @@ function MockPill() {
   );
 }
 
-const OPCIONES: { variante: NavbarVariante; label: string; desc: string; icon: string; Mock: React.FC }[] = [
-  { variante: 'CLASICO', label: 'Clásico', desc: 'Logo a la izquierda, links planos, buscador, carrito y botón de login.', icon: '▬', Mock: MockClasico },
-  { variante: 'PILL',    label: 'Pill',    desc: 'Todos los elementos en una píldora central flotante con botón gradiente.', icon: '💊', Mock: MockPill },
+function MockBoutique() {
+  return (
+    <div className="w-full bg-white border-b border-gray-200 rounded-t-xl">
+      <div className="relative flex items-center justify-between px-4 pt-3">
+        <div className="flex gap-2">
+          <div className="w-8 h-2 bg-gray-300 rounded" />
+          <div className="w-12 h-2 bg-gray-300 rounded" />
+        </div>
+        <div className="absolute left-1/2 -translate-x-1/2 w-24 h-4 bg-gray-800 rounded-sm" style={{ letterSpacing: 2 }} />
+        <div className="flex items-center gap-2">
+          <div className="w-16 h-5 bg-gray-100 rounded-full border border-gray-200" />
+          <div className="w-3.5 h-3.5 bg-gray-300 rounded-full" />
+          <div className="w-3.5 h-3.5 bg-gray-300 rounded-full" />
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-3 py-2.5">
+        <div className="w-10 h-2 bg-gray-300 rounded" />
+        <div className="w-12 h-2 bg-gray-300 rounded" />
+        <div className="w-10 h-2 bg-gray-300 rounded" />
+        <div className="w-14 h-2 bg-gray-300 rounded" />
+      </div>
+    </div>
+  );
+}
+
+const OPCIONES: { variante: NavbarVariante; label: string; desc: string; icon: LucideIcon; Mock: React.FC }[] = [
+  { variante: 'CLASICO', label: 'Clásico', desc: 'Logo a la izquierda, links planos, buscador, carrito y botón de login.', icon: Menu, Mock: MockClasico },
+  { variante: 'PILL',    label: 'Pill',    desc: 'Todos los elementos en una píldora central flotante con botón gradiente.', icon: Pill, Mock: MockPill },
+  { variante: 'BOUTIQUE', label: 'Boutique', desc: 'Nombre centrado en serif, links utilitarios arriba y categorías centradas abajo. Ideal para indumentaria.', icon: ShoppingBag, Mock: MockBoutique },
 ];
 
 export default function NavbarDisenoPreviewModal({ varianteActual, onClose, onSelect }: Props) {
@@ -67,7 +95,7 @@ export default function NavbarDisenoPreviewModal({ varianteActual, onClose, onSe
         </div>
 
         <div className="p-6 space-y-5">
-          {OPCIONES.map(({ variante, label, desc, icon, Mock }) => (
+          {OPCIONES.map(({ variante, label, desc, icon: Icon, Mock }) => (
             <div
               key={variante}
               className={`rounded-2xl border-2 overflow-hidden transition-all ${
@@ -78,7 +106,7 @@ export default function NavbarDisenoPreviewModal({ varianteActual, onClose, onSe
               <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span>{icon}</span>
+                    <Icon className="w-4 h-4 text-gray-700" strokeWidth={1.8} />
                     <p className="text-sm font-bold text-gray-900">{label}</p>
                     {varianteActual === variante && (
                       <span className="text-[10px] font-semibold bg-gray-900 text-white px-1.5 py-0.5 rounded-full">Actual</span>

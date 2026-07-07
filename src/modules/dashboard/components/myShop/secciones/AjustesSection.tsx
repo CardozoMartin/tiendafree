@@ -40,10 +40,19 @@ const Row = ({ children, className = '' }: { children: React.ReactNode; classNam
 );
 
 const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
-  <label className="relative inline-flex items-center cursor-pointer">
-    <input type="checkbox" className="sr-only peer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-    <div className="w-10 h-5 bg-gray-200 peer-checked:bg-gray-900 rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-5 after:shadow-sm" />
-  </label>
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    onClick={() => onChange(!checked)}
+    className={`relative rounded-full transition-colors flex-shrink-0 cursor-pointer ${checked ? 'bg-gray-900' : 'bg-gray-300'}`}
+    style={{ width: 40, height: 22 }}
+  >
+    <span
+      className="absolute bg-white rounded-full shadow-sm transition-transform"
+      style={{ width: 16, height: 16, top: 3, left: 3, transform: checked ? 'translateX(18px)' : 'translateX(0)' }}
+    />
+  </button>
 );
 
 // ─────────────────────────────────────────────────────────────────────────────

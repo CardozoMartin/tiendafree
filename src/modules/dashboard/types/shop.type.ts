@@ -24,9 +24,11 @@ export interface IShopData {
   colorAcento?: string;
   modoOscuro?: boolean;
   navbarStyle?: string;
-  navbarVariante?: 'CLASICO' | 'PILL';
+  navbarVariante?: 'CLASICO' | 'PILL' | 'BOUTIQUE';
   navbarColorTema?: 'CLARO' | 'OSCURO';
   cardVariante?: 'CLASICO' | 'MODERNO';
+  footerVariante?: 'CENTRADO' | 'COLUMNAS';
+  botonForma?: 'REDONDEADO' | 'CUADRADO';
   homeCategoriaFilas?: number[];
   heroTitulo?: string;
   heroSubtitulo?: string;

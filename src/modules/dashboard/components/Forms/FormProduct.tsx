@@ -92,10 +92,10 @@ interface FormProductProps {
 // ─── Clases base de input ────────────────────────────────────────────────────
 
 const inputCls =
-  'w-full pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 bg-white border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 transition-all';
+  'w-full px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-300 bg-white border border-slate-200 rounded-xl outline-none focus:border-slate-400 transition-colors';
 
 const miniInputCls =
-  'w-20 px-2 py-1 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg outline-none focus:border-gray-400 transition-all text-right';
+  'w-20 px-2 py-1 text-sm text-slate-900 bg-white border border-slate-200 rounded-lg outline-none focus:border-slate-400 transition-colors text-right';
 
 // ─── Fila de variante existente con edición inline de stock / extra ─────────
 
@@ -699,9 +699,9 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
             <div className="flex flex-col gap-2">
               {nivelesSelect.map((nivel, i) => (
                 <div key={i} className="relative min-w-[170px]">
-                  <LayoutGrid className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 pointer-events-none ${i > 0 ? 'opacity-50' : ''}`} />
+                  <LayoutGrid className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none ${i > 0 ? 'opacity-50' : ''}`} />
                   <select
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
+                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-slate-400 bg-white text-slate-700 cursor-pointer transition-colors appearance-none"
                     value={nivel.seleccionado}
                     onChange={(e) => elegirNivel(e.target.value)}
                   >
@@ -874,7 +874,7 @@ const FormProduct = ({ producto, onSuccess }: FormProductProps) => {
                 onChange={(e) =>
                   setValue('guiaTallesId', e.target.value ? Number(e.target.value) : '')
                 }
-                className="min-w-[200px] pl-3 pr-8 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-900/8 bg-white text-gray-700 cursor-pointer transition-all appearance-none"
+                className="min-w-[200px] pl-3 pr-8 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-slate-400 bg-white text-slate-700 cursor-pointer transition-colors appearance-none"
               >
                 <option value="">Sin guía de talles</option>
                 {guiasTalles.map((g) => (

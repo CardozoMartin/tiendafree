@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react';
+import { Tag, Mail, Info, Image as ImageIcon, Upload, Pencil, Trash2, Plus, Clock, Repeat, Palette } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { comprimirImagen } from '../../utils/comprimirImagen';
 import {
   usePopups,
@@ -9,13 +11,13 @@ import {
 } from '../../hooks/usePopups';
 import type { Popup, TipoPopup, FrecuenciaPopup } from '../../api/popups.api';
 
-// ─── Labels ──────────────────────────────────────────────────────────────────
+// ─── Labels e iconos ──────────────────────────────────────────────────────────
 
-const TIPO_LABELS: Record<TipoPopup, string> = {
-  OFERTA: '🏷️ Oferta / Descuento',
-  NEWSLETTER: '📧 Newsletter',
-  INFO: 'ℹ️ Info / Aviso',
-  IMAGEN_CTA: '🖼️ Imagen + CTA',
+const TIPO_META: Record<TipoPopup, { label: string; icon: LucideIcon }> = {
+  OFERTA: { label: 'Oferta / Descuento', icon: Tag },
+  NEWSLETTER: { label: 'Newsletter', icon: Mail },
+  INFO: { label: 'Info / Aviso', icon: Info },
+  IMAGEN_CTA: { label: 'Imagen + CTA', icon: ImageIcon },
 };
 
 const FRECUENCIA_LABELS: Record<FrecuenciaPopup, string> = {
@@ -23,6 +25,11 @@ const FRECUENCIA_LABELS: Record<FrecuenciaPopup, string> = {
   UNA_VEZ_SESION: 'Una vez por sesión',
   UNA_VEZ_DIA: 'Una vez por día',
 };
+
+// ─── Estilos compartidos (mismos que Banner promo) ────────────────────────────
+
+const INPUT = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-slate-400 transition-colors';
+const LABEL = 'text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -39,6 +46,23 @@ const emptyForm = (): Omit<Popup, 'id' | 'tiendaId' | 'creadoEn'> => ({
   codigoDesc: '',
   porcentajeDesc: undefined,
 });
+
+// Toggle reutilizable con la forma prolija (bolita siempre dentro).
+function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative rounded-full transition-colors flex-shrink-0 ${on ? 'bg-slate-900' : 'bg-slate-300'}`}
+      style={{ width: 36, height: 20 }}
+    >
+      <span
+        className="absolute bg-white rounded-full shadow-sm transition-transform"
+        style={{ width: 14, height: 14, top: 3, left: 3, transform: on ? 'translateX(16px)' : 'translateX(0)' }}
+      />
+    </button>
+  );
+}
 
 // ─── Sub-componente: formulario ───────────────────────────────────────────────
 
@@ -71,32 +95,36 @@ function PopupForm({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Tipo */}
       <div>
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo de popup</label>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {(Object.keys(TIPO_LABELS) as TipoPopup[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => set('tipo', t)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                form.tipo === t
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'
-              }`}
-            >
-              {TIPO_LABELS[t]}
-            </button>
-          ))}
+        <label className={LABEL}>Tipo de popup</label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {(Object.keys(TIPO_META) as TipoPopup[]).map((t) => {
+            const { label, icon: Icon } = TIPO_META[t];
+            const activo = form.tipo === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => set('tipo', t)}
+                className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl border-2 text-xs font-semibold transition-all ${
+                  activo ? 'border-slate-900 bg-slate-50 text-slate-900' : 'border-slate-200 text-slate-500 hover:border-slate-400'
+                }`}
+              >
+                <Icon className="w-5 h-5" strokeWidth={1.8} />
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Título */}
       <div>
-        <label className="text-xs font-semibold text-gray-500">Título *</label>
+        <label className={LABEL}>Título *</label>
         <input
-          className="w-full mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400"
+          className={INPUT}
           value={form.titulo}
           onChange={(e) => set('titulo', e.target.value)}
           placeholder="Ej: ¡20% OFF en tu primera compra!"
@@ -105,9 +133,9 @@ function PopupForm({
 
       {/* Mensaje */}
       <div>
-        <label className="text-xs font-semibold text-gray-500">Mensaje</label>
+        <label className={LABEL}>Mensaje</label>
         <textarea
-          className="w-full mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400 resize-none"
+          className={`${INPUT} resize-none`}
           rows={3}
           value={form.mensaje}
           onChange={(e) => set('mensaje', e.target.value)}
@@ -119,21 +147,21 @@ function PopupForm({
       {form.tipo === 'OFERTA' && (
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="text-xs font-semibold text-gray-500">Código de descuento</label>
+            <label className={LABEL}>Código de descuento</label>
             <input
-              className="w-full mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400 uppercase"
+              className={`${INPUT} uppercase`}
               value={form.codigoDesc ?? ''}
               onChange={(e) => set('codigoDesc', e.target.value.toUpperCase())}
               placeholder="VERANO20"
             />
           </div>
           <div className="w-28">
-            <label className="text-xs font-semibold text-gray-500">% descuento</label>
+            <label className={LABEL}>% descuento</label>
             <input
               type="number"
               min={1}
               max={100}
-              className="w-full mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400"
+              className={INPUT}
               value={form.porcentajeDesc ?? ''}
               onChange={(e) => set('porcentajeDesc', Number(e.target.value) || undefined)}
               placeholder="20"
@@ -143,20 +171,20 @@ function PopupForm({
       )}
 
       {/* CTA */}
-      <div className="flex gap-3">
-        <div className="flex-1">
-          <label className="text-xs font-semibold text-gray-500">Texto del botón</label>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={LABEL}>Texto del botón</label>
           <input
-            className="w-full mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400"
+            className={INPUT}
             value={form.ctaTexto ?? ''}
             onChange={(e) => set('ctaTexto', e.target.value)}
             placeholder="Ver ofertas"
           />
         </div>
-        <div className="flex-1">
-          <label className="text-xs font-semibold text-gray-500">URL del botón</label>
+        <div>
+          <label className={LABEL}>URL del botón</label>
           <input
-            className="w-full mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400"
+            className={INPUT}
             value={form.ctaUrl ?? ''}
             onChange={(e) => set('ctaUrl', e.target.value)}
             placeholder="https://..."
@@ -166,19 +194,21 @@ function PopupForm({
 
       {/* Imagen */}
       <div>
-        <label className="text-xs font-semibold text-gray-500">Imagen</label>
-        <div className="mt-1 flex items-center gap-3">
+        <label className={LABEL}>Imagen</label>
+        <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => fileRef.current?.click()}
-            className="px-3 py-2 text-xs rounded-lg border border-dashed border-gray-400 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold cursor-pointer hover:bg-slate-50 transition-colors"
           >
-            {imageFile ? imageFile.name : 'Seleccionar imagen'}
+            <Upload className="w-4 h-4" />
+            {imageFile ? 'Cambiar imagen' : form.imagenUrl ? 'Cambiar imagen' : 'Subir imagen'}
           </button>
           {(form.imagenUrl || imageFile) && (
             <img
               src={imageFile ? URL.createObjectURL(imageFile) : form.imagenUrl}
               alt="preview"
-              className="h-12 w-12 object-cover rounded-lg border"
+              className="h-12 w-12 object-cover rounded-lg border border-slate-200"
             />
           )}
         </div>
@@ -186,22 +216,22 @@ function PopupForm({
       </div>
 
       {/* Configuración */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div>
-          <label className="text-xs font-semibold text-gray-500">Delay (segundos)</label>
+          <label className={LABEL}><Clock className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />Delay (seg)</label>
           <input
             type="number"
             min={0}
             max={60}
-            className="w-24 mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400"
+            className={INPUT}
             value={form.delay}
             onChange={(e) => set('delay', Number(e.target.value))}
           />
         </div>
         <div>
-          <label className="text-xs font-semibold text-gray-500">Frecuencia</label>
+          <label className={LABEL}><Repeat className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />Frecuencia</label>
           <select
-            className="mt-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-400"
+            className={INPUT}
             value={form.frecuencia}
             onChange={(e) => set('frecuencia', e.target.value as FrecuenciaPopup)}
           >
@@ -211,44 +241,41 @@ function PopupForm({
           </select>
         </div>
         <div>
-          <label className="text-xs font-semibold text-gray-500">Color de fondo</label>
-          <div className="flex items-center gap-2 mt-1">
+          <label className={LABEL}><Palette className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />Color de fondo</label>
+          <div className="flex items-center gap-2">
             <input
               type="color"
-              className="w-10 h-9 rounded cursor-pointer border border-gray-300"
+              className="w-11 h-10 rounded-lg cursor-pointer border border-slate-200 p-0.5"
               value={form.colorFondo ?? '#ffffff'}
               onChange={(e) => set('colorFondo', e.target.value)}
             />
-            <span className="text-xs text-gray-500">{form.colorFondo}</span>
+            <span className="text-xs text-slate-500">{form.colorFondo}</span>
           </div>
         </div>
       </div>
 
       {/* Activo */}
-      <label className="flex items-center gap-3 cursor-pointer">
-        <div
-          onClick={() => set('activo', !form.activo)}
-          className={`w-10 h-6 rounded-full transition-colors relative ${form.activo ? 'bg-indigo-600' : 'bg-gray-300'}`}
-        >
-          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${form.activo ? 'left-5' : 'left-1'}`} />
-        </div>
-        <span className="text-sm text-gray-700">Popup activo</span>
-      </label>
+      <div className="flex items-center gap-3">
+        <Toggle on={!!form.activo} onClick={() => set('activo', !form.activo)} />
+        <span className="text-sm font-medium text-slate-700">Popup activo</span>
+      </div>
 
       {/* Acciones */}
-      <div className="flex gap-2 pt-2">
+      <div className="flex items-center gap-2 pt-1">
         <button
-          onClick={handleSave}
-          disabled={isSaving || !form.titulo}
-          className="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-        >
-          {isSaving ? 'Guardando...' : 'Guardar'}
-        </button>
-        <button
+          type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+          className="px-4 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors"
         >
           Cancelar
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving || !form.titulo}
+          className="flex-1 py-2.5 text-sm font-bold rounded-xl bg-slate-900 text-white hover:bg-slate-800 disabled:bg-slate-300 transition-all"
+        >
+          {isSaving ? 'Guardando...' : 'Guardar popup'}
         </button>
       </div>
     </div>
@@ -266,6 +293,9 @@ export default function PopupManager() {
   const [creando, setCreando] = useState(false);
   const [editandoId, setEditandoId] = useState<number | null>(null);
 
+  // Mientras se crea o edita, se oculta la lista (mismo flujo que Categorías).
+  const editando = creando || editandoId !== null;
+
   const handleCrear = async (form: ReturnType<typeof emptyForm>) => {
     await crear.mutateAsync(form as any);
     setCreando(false);
@@ -280,118 +310,142 @@ export default function PopupManager() {
     actualizar.mutate({ id: popup.id, payload: { activo: !popup.activo } });
   };
 
+  const popupEditando = popups.find((p) => p.id === editandoId);
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-semibold text-gray-800">Popups de la tienda</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Configurá mensajes que aparecen al cargar la tienda</p>
-        </div>
-        {!creando && (
-          <button
-            onClick={() => setCreando(true)}
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-          >
-            + Nuevo popup
-          </button>
-        )}
-      </div>
+    <div className="space-y-5">
+      {/* ── VISTA FORMULARIO (crear o editar): oculta la lista ── */}
+      {editando ? (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <p className="text-sm font-bold text-slate-800">{creando ? 'Nuevo popup' : 'Editar popup'}</p>
+              <p className="text-xs text-slate-400 mt-0.5">Configurá el mensaje, su aspecto y cuándo aparece.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setCreando(false); setEditandoId(null); }}
+              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              Volver
+            </button>
+          </div>
 
-      {/* Formulario de creación */}
-      {creando && (
-        <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
-          <p className="text-xs font-semibold text-indigo-700 mb-3">Nuevo popup</p>
-          <PopupForm
-            initial={emptyForm()}
-            onSave={handleCrear}
-            onCancel={() => setCreando(false)}
-            isSaving={crear.isPending}
-          />
+          {creando ? (
+            <PopupForm
+              initial={emptyForm()}
+              onSave={handleCrear}
+              onCancel={() => setCreando(false)}
+              isSaving={crear.isPending}
+            />
+          ) : popupEditando ? (
+            <PopupForm
+              initial={{
+                tipo: popupEditando.tipo,
+                activo: popupEditando.activo,
+                titulo: popupEditando.titulo,
+                mensaje: popupEditando.mensaje ?? '',
+                imagenUrl: popupEditando.imagenUrl,
+                ctaTexto: popupEditando.ctaTexto ?? '',
+                ctaUrl: popupEditando.ctaUrl ?? '',
+                colorFondo: popupEditando.colorFondo ?? '#ffffff',
+                delay: popupEditando.delay,
+                frecuencia: popupEditando.frecuencia,
+                codigoDesc: popupEditando.codigoDesc ?? '',
+                porcentajeDesc: popupEditando.porcentajeDesc ?? undefined,
+              }}
+              onSave={(form) => handleActualizar(popupEditando.id, form)}
+              onCancel={() => setEditandoId(null)}
+              isSaving={actualizar.isPending}
+              popupId={popupEditando.id}
+            />
+          ) : null}
         </div>
-      )}
-
-      {/* Lista de popups */}
-      {isLoading ? (
-        <p className="text-sm text-gray-400">Cargando...</p>
-      ) : popups.length === 0 && !creando ? (
-        <p className="text-sm text-gray-400">No hay popups configurados.</p>
       ) : (
-        <div className="space-y-3">
-          {popups.map((popup) => (
-            <div key={popup.id} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-              {editandoId === popup.id ? (
-                <PopupForm
-                  initial={{
-                    tipo: popup.tipo,
-                    activo: popup.activo,
-                    titulo: popup.titulo,
-                    mensaje: popup.mensaje ?? '',
-                    imagenUrl: popup.imagenUrl,
-                    ctaTexto: popup.ctaTexto ?? '',
-                    ctaUrl: popup.ctaUrl ?? '',
-                    colorFondo: popup.colorFondo ?? '#ffffff',
-                    delay: popup.delay,
-                    frecuencia: popup.frecuencia,
-                    codigoDesc: popup.codigoDesc ?? '',
-                    porcentajeDesc: popup.porcentajeDesc ?? undefined,
-                  }}
-                  onSave={(form) => handleActualizar(popup.id, form)}
-                  onCancel={() => setEditandoId(null)}
-                  isSaving={actualizar.isPending}
-                  popupId={popup.id}
-                />
-              ) : (
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    {popup.imagenUrl && (
-                      <img src={popup.imagenUrl} alt="" className="w-12 h-12 rounded-lg object-cover border" />
-                    )}
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
-                          {TIPO_LABELS[popup.tipo]}
+        /* ── VISTA LISTA: cards de popups + botón para crear ── */
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-sm font-bold text-slate-800">Popups de la tienda</p>
+              <p className="text-xs text-slate-400 mt-0.5">Mensajes que aparecen al cargar la tienda.</p>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <p className="text-sm text-slate-400 py-8 text-center">Cargando…</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {popups.map((popup) => {
+                const { label, icon: Icon } = TIPO_META[popup.tipo];
+                return (
+                  <div key={popup.id} className="rounded-xl border border-slate-100 p-4 flex flex-col gap-3">
+                    <div className="flex items-start gap-3">
+                      {popup.imagenUrl ? (
+                        <img src={popup.imagenUrl} alt="" className="w-12 h-12 rounded-lg object-cover border border-slate-100 flex-shrink-0" />
+                      ) : (
+                        <span className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0">
+                          <Icon className="w-5 h-5" strokeWidth={1.8} />
                         </span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${popup.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                          <Icon className="w-3.5 h-3.5" strokeWidth={1.8} />
+                          {label}
+                        </div>
+                        <p className="text-sm font-bold text-slate-800 mt-0.5 truncate">{popup.titulo}</p>
+                        {popup.mensaje && <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{popup.mensaje}</p>}
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-400">
+                      Delay: {popup.delay}s · {FRECUENCIA_LABELS[popup.frecuencia]}
+                      {popup.codigoDesc && ` · ${popup.codigoDesc}`}
+                    </p>
+
+                    <div className="flex items-center justify-between border-t border-slate-50 pt-3">
+                      <div className="flex items-center gap-2">
+                        <Toggle on={popup.activo} onClick={() => handleToggle(popup)} />
+                        <span className={`text-xs font-semibold ${popup.activo ? 'text-emerald-600' : 'text-slate-400'}`}>
                           {popup.activo ? 'Activo' : 'Inactivo'}
                         </span>
                       </div>
-                      <p className="text-sm font-semibold text-gray-800 mt-1">{popup.titulo}</p>
-                      {popup.mensaje && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{popup.mensaje}</p>}
-                      <p className="text-xs text-gray-400 mt-1">
-                        Delay: {popup.delay}s · {FRECUENCIA_LABELS[popup.frecuencia]}
-                        {popup.codigoDesc && ` · Código: ${popup.codigoDesc}`}
-                      </p>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setEditandoId(popup.id)}
+                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors"
+                          title="Editar"
+                        >
+                          <Pencil className="w-4 h-4" strokeWidth={1.8} />
+                        </button>
+                        <button
+                          onClick={() => { if (confirm('¿Eliminar este popup?')) eliminar.mutate(popup.id); }}
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={1.8} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {/* Toggle activo */}
-                    <div
-                      onClick={() => handleToggle(popup)}
-                      className={`w-9 h-5 rounded-full cursor-pointer transition-colors relative ${popup.activo ? 'bg-indigo-600' : 'bg-gray-300'}`}
-                    >
-                      <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${popup.activo ? 'left-4' : 'left-0.5'}`} />
-                    </div>
-                    <button
-                      onClick={() => setEditandoId(popup.id)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => { if (confirm('¿Eliminar este popup?')) eliminar.mutate(popup.id); }}
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
+                );
+              })}
+
+              {/* Card "Nuevo popup" */}
+              <button
+                type="button"
+                onClick={() => setCreando(true)}
+                className="rounded-xl border-2 border-dashed border-slate-200 hover:border-slate-900 hover:bg-slate-50 transition-all flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-slate-900 min-h-[140px] group"
+              >
+                <span className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-all">
+                  <Plus className="w-5 h-5" strokeWidth={2} />
+                </span>
+                <span className="text-sm font-semibold">Nuevo popup</span>
+              </button>
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
