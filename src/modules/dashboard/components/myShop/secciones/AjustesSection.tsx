@@ -391,11 +391,14 @@ export default function AjustesSection({ tienda, onVolver }: Props) {
                 <p className="text-xs text-gray-400 mt-0.5">Botones y elementos destacados</p>
               </div>
               <div className="flex items-center gap-2">
-                <div
-                  className="w-7 h-7 rounded-full border-2 border-white shadow-md ring-1 ring-black/10 cursor-pointer"
-                  style={{ backgroundColor: temaData.colorAcento }}
+                <input
+                  type="color"
+                  id="accent-color"
+                  value={temaData.colorAcento}
+                  onChange={(e: any) => setValue('colorAcento', e.target.value)}
+                  aria-label="Color de acento"
+                  className="w-7 h-7 rounded-full cursor-pointer bg-transparent border-0 p-0 appearance-none [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-2 [&::-webkit-color-swatch]:border-white [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-2 [&::-moz-color-swatch]:border-white shadow-md ring-1 ring-black/10"
                 />
-                <input type="color" className="sr-only" id="accent-color" value={temaData.colorAcento} onChange={(e: any) => setValue('colorAcento', e.target.value)} />
                 <label htmlFor="accent-color" className="text-xs font-mono text-gray-500 cursor-pointer hover:text-gray-800 transition-colors">
                   {temaData.colorAcento?.toUpperCase()}
                 </label>
