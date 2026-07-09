@@ -38,6 +38,9 @@ export interface IShopData {
   tipoSeccionHero?: 'HERO_FIJO' | 'CARRUSEL' | 'GALERIA' | 'BANNER' | 'VIDEO';
   intervaloCarrusel?: number;
   seccionesVisibles?: Record<string, boolean>;
+  fuenteKit?: string;
+  categoriasDestacadasActivas?: boolean;
+  categoriasDestacadasPosicion?: 'ANTES' | 'DESPUES';
 }
 
 
