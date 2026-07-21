@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Menu, Pill, ShoppingBag, type LucideIcon } from 'lucide-react';
+import { Menu, Pill, ShoppingBag, Shirt, type LucideIcon } from 'lucide-react';
 import { useUpdateShopVisual } from '../../../hooks/useShop';
 import NavbarPreviewModal from './NavbarPreviewModal';
 import NavbarDisenoPreviewModal from './NavbarDisenoPreviewModal';
 
-type NavbarVariante  = 'CLASICO' | 'PILL' | 'BOUTIQUE';
+type NavbarVariante  = 'CLASICO' | 'PILL' | 'BOUTIQUE' | 'BRASILIA';
 type NavbarStyle     = 'STICKY' | 'TRANSPARENT' | 'FLOATING';
 type NavbarColorTema = 'CLARO' | 'OSCURO';
 type BotonForma      = 'REDONDEADO' | 'CUADRADO';
@@ -19,6 +19,7 @@ const DISENOS: { value: NavbarVariante; label: string; desc: string; icon: Lucid
   { value: 'CLASICO', label: 'Clásico', desc: 'Logo · links planos · buscador · carrito · login', icon: Menu },
   { value: 'PILL',    label: 'Pill',    desc: 'Links en píldora central, botón gradiente',         icon: Pill },
   { value: 'BOUTIQUE', label: 'Boutique', desc: 'Nombre centrado en serif · categorías abajo · estilo indumentaria', icon: ShoppingBag },
+  { value: 'BRASILIA', label: 'Brasília', desc: 'Utility bars · logo serif · buscador inline · categorías abajo', icon: Shirt },
 ];
 
 const COMPORTAMIENTOS: { value: NavbarStyle; label: string; desc: string }[] = [

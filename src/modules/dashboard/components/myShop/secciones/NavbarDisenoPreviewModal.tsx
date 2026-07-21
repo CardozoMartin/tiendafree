@@ -1,6 +1,6 @@
-import { Menu, Pill, ShoppingBag, type LucideIcon } from 'lucide-react';
+import { Menu, Pill, ShoppingBag, Shirt, type LucideIcon } from 'lucide-react';
 
-type NavbarVariante = 'CLASICO' | 'PILL' | 'BOUTIQUE';
+type NavbarVariante = 'CLASICO' | 'PILL' | 'BOUTIQUE' | 'BRASILIA';
 
 interface Props {
   varianteActual: NavbarVariante;
@@ -69,10 +69,33 @@ function MockBoutique() {
   );
 }
 
+function MockBrasilia() {
+  return (
+    <div className="w-full bg-white border-b border-gray-200 rounded-t-xl overflow-hidden">
+      <div className="h-3" style={{ background: '#2b2926' }} />
+      <div className="h-3" style={{ background: '#c3d92e' }} />
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <div className="w-16 h-3.5 rounded-sm" style={{ background: '#2b2926', fontFamily: 'serif' }} />
+        <div className="hidden sm:block flex-1 max-w-[120px] mx-3 h-5 bg-gray-100 border border-gray-200 rounded" />
+        <div className="flex items-center gap-2">
+          <div className="w-3.5 h-3.5 bg-gray-300 rounded-full" />
+          <div className="w-3.5 h-3.5 bg-gray-300 rounded-full" />
+        </div>
+      </div>
+      <div className="flex items-center gap-3 px-4 py-2 border-t border-gray-100">
+        <div className="w-12 h-2 bg-gray-300 rounded" />
+        <div className="w-10 h-2 bg-gray-300 rounded" />
+        <div className="w-10 h-2 bg-gray-300 rounded" />
+      </div>
+    </div>
+  );
+}
+
 const OPCIONES: { variante: NavbarVariante; label: string; desc: string; icon: LucideIcon; Mock: React.FC }[] = [
   { variante: 'CLASICO', label: 'Clásico', desc: 'Logo a la izquierda, links planos, buscador, carrito y botón de login.', icon: Menu, Mock: MockClasico },
   { variante: 'PILL',    label: 'Pill',    desc: 'Todos los elementos en una píldora central flotante con botón gradiente.', icon: Pill, Mock: MockPill },
   { variante: 'BOUTIQUE', label: 'Boutique', desc: 'Nombre centrado en serif, links utilitarios arriba y categorías centradas abajo. Ideal para indumentaria.', icon: ShoppingBag, Mock: MockBoutique },
+  { variante: 'BRASILIA', label: 'Brasília', desc: 'Utility bars arriba (cupón + envío), logo serif, buscador inline y categorías abajo. Estilo Tiendanube.', icon: Shirt, Mock: MockBrasilia },
 ];
 
 export default function NavbarDisenoPreviewModal({ varianteActual, onClose, onSelect }: Props) {

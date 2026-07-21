@@ -8,7 +8,7 @@ export const NAV_ITEMS = [
       { id: 'store-methods', icon: 'payments', label: 'Pagos y Envíos' },
       { id: 'store-edit', icon: 'edit_square', label: 'Editar Sitio' },
       { id: 'store-website', icon: 'language', label: 'Sitio Web' },
-      { id: 'dominio', icon: 'public', label: 'Dominio propio' },
+      // { id: 'dominio', icon: 'public', label: 'Dominio propio' }, // oculto temporalmente: falta pulir
     ],
   },
   { id: 'products', icon: 'inventory_2', label: 'Productos' },
@@ -21,7 +21,8 @@ export const NAV_ITEMS = [
   { id: 'reviews', icon: 'rate_review', label: 'Reseñas' },
   { id: 'revocaciones', icon: 'assignment_return', label: 'Arrepentimientos' },
   { id: 'legal', icon: 'gavel', label: 'Legales' },
-  { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' },
+  // { id: 'cm-ai', icon: 'auto_awesome', label: 'CM Virtual (IA)' }, // oculto temporalmente: falta pulir
+  { id: 'asistente', icon: 'support_agent', label: 'Asistente' },
   // { id: 'banner-creator', icon: 'wallpaper', label: 'Creador Banners' },
   { id: 'admin', icon: 'admin_panel_settings', label: 'Admin', adminOnly: true },
 ];

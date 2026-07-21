@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export type FuenteKitId = 'MODERNO' | 'EDITORIAL' | 'IMPACTO' | 'MINIMAL';
+export type FuenteKitId = 'MODERNO' | 'EDITORIAL' | 'IMPACTO' | 'MINIMAL' | 'BRASILIA';
 
 interface Kit {
   id: FuenteKitId;
@@ -44,6 +44,14 @@ export const KITS: Kit[] = [
     display: "'DM Serif Display', serif",
     body: "'Inter', sans-serif",
     googleHref: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;600&display=swap',
+  },
+  {
+    id: 'BRASILIA',
+    label: 'Brasília',
+    desc: 'Serif cálida + texto geométrico moderno.',
+    display: "'Cormorant Garamond', serif",
+    body: "'Poppins', sans-serif",
+    googleHref: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Poppins:wght@400;600&display=swap',
   },
 ];
 

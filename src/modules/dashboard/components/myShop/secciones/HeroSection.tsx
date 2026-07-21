@@ -4,7 +4,7 @@ import { useUpdateShop, useUpdateShopVisual } from '../../../hooks/useShop';
 import ImageHeroHandlers from '../../ImageEditors/ImageHeroHandlers';
 import HeroPreviewModal from './HeroPreviewModal';
 
-type TipoHero = 'CARRUSEL' | 'GALERIA';
+type TipoHero = 'CARRUSEL' | 'GALERIA' | 'BRASILIA';
 
 interface Props {
   tienda?: any;
@@ -21,10 +21,17 @@ const IconGaleria = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z" />
   </svg>
 );
+const IconBrasilia = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+    <rect x="2.5" y="4" width="8.5" height="16" rx="1" />
+    <rect x="13" y="4" width="8.5" height="16" rx="1" />
+  </svg>
+);
 
 const TIPOS: { value: TipoHero; label: string; desc: string; icon: React.ReactNode }[] = [
   { value: 'CARRUSEL',  label: 'Carrusel',      desc: 'Slides a pantalla completa con texto',         icon: <IconCarrusel /> },
   { value: 'GALERIA',   label: 'Galería',        desc: 'Imágenes que se expanden al pasar el cursor', icon: <IconGaleria /> },
+  { value: 'BRASILIA',  label: 'Brasília',       desc: 'Dos imágenes lado a lado con texto centrado', icon: <IconBrasilia /> },
 ];
 
 export default function HeroSection({ tienda, onVolver }: Props) {
@@ -37,7 +44,12 @@ export default function HeroSection({ tienda, onVolver }: Props) {
     heroCtaTexto: string;
   }>({
     defaultValues: {
-      tipoSeccionHero: tienda?.temaConfig?.tipoSeccionHero === 'GALERIA' ? 'GALERIA' : 'CARRUSEL',
+      tipoSeccionHero:
+        tienda?.temaConfig?.tipoSeccionHero === 'GALERIA'
+          ? 'GALERIA'
+          : tienda?.temaConfig?.tipoSeccionHero === 'BRASILIA'
+            ? 'BRASILIA'
+            : 'CARRUSEL',
       heroTitulo:      tienda?.temaConfig?.heroTitulo      ?? tienda?.titulo      ?? '',
       heroSubtitulo:   tienda?.temaConfig?.heroSubtitulo   ?? tienda?.descripcion ?? '',
       heroCtaTexto:    tienda?.temaConfig?.heroCtaTexto    ?? 'Comprar ahora',

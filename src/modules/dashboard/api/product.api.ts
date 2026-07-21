@@ -97,33 +97,48 @@ export const putActualizarProductoFn = async ({
   id: number;
   payload: IUpdateProductDto;
 }) => {
-  const { imagenPrincipal: _drop, ...rest } = payload as any;
+  const { imagenPrincipal, ...rest } = payload as any;
 
-  const jsonPayload: Record<string, any> = {};
+  const sanitized: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(rest)) {
     if (value === undefined) continue;
     if (key === 'precioOferta') {
       // String vacío, NaN, 0 o negativo → null para borrar el precio de oferta
       const num = value === '' || value === null ? NaN : Number(value);
-      jsonPayload[key] = Number.isNaN(num) || num <= 0 ? null : num;
+      sanitized[key] = Number.isNaN(num) || num <= 0 ? null : num;
       continue;
     }
     if (key === 'categoriaId') {
       const num = Number(value);
-      if (!Number.isNaN(num) && num > 0) jsonPayload[key] = num;
+      if (!Number.isNaN(num) && num > 0) sanitized[key] = num;
       continue;
     }
     if (key === 'guiaTallesId') {
       // '' o null → null (desasociar); número → id
       const num = value === '' || value === null ? NaN : Number(value);
-      jsonPayload[key] = Number.isNaN(num) || num <= 0 ? null : num;
+      sanitized[key] = Number.isNaN(num) || num <= 0 ? null : num;
       continue;
     }
-    jsonPayload[key] = value;
+    sanitized[key] = value;
   }
 
-  const { data } = await api.put<IApiResponse<IProduct>>(`/mis-productos/${id}`, jsonPayload, {
+  // Si hay un archivo nuevo de imagen principal, mandamos multipart/form-data (igual que al crear)
+  if (imagenPrincipal instanceof File) {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(sanitized)) {
+      if (value === null) continue; // FormData no soporta null; se omite (no se actualiza ese campo)
+      formData.append(key, String(value));
+    }
+    formData.append('photo', imagenPrincipal);
+
+    const { data } = await api.put<IApiResponse<IProduct>>(`/mis-productos/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  }
+
+  const { data } = await api.put<IApiResponse<IProduct>>(`/mis-productos/${id}`, sanitized, {
     headers: { 'Content-Type': 'application/json' },
   });
   return data;

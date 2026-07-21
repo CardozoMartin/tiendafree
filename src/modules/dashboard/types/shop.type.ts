@@ -24,10 +24,10 @@ export interface IShopData {
   colorAcento?: string;
   modoOscuro?: boolean;
   navbarStyle?: string;
-  navbarVariante?: 'CLASICO' | 'PILL' | 'BOUTIQUE';
+  navbarVariante?: 'CLASICO' | 'PILL' | 'BOUTIQUE' | 'BRASILIA';
   navbarColorTema?: 'CLARO' | 'OSCURO';
-  cardVariante?: 'CLASICO' | 'MODERNO';
-  footerVariante?: 'CENTRADO' | 'COLUMNAS';
+  cardVariante?: 'CLASICO' | 'MODERNO' | 'BRASILIA';
+  footerVariante?: 'CENTRADO' | 'COLUMNAS' | 'BRASILIA';
   botonForma?: 'REDONDEADO' | 'CUADRADO';
   homeCategoriaFilas?: number[];
   heroTitulo?: string;
@@ -35,7 +35,7 @@ export interface IShopData {
   heroCtaTexto?: string;
   cardMostrarPrecio?: boolean;
   cardMostrarBadge?: boolean;
-  tipoSeccionHero?: 'HERO_FIJO' | 'CARRUSEL' | 'GALERIA' | 'BANNER' | 'VIDEO';
+  tipoSeccionHero?: 'HERO_FIJO' | 'CARRUSEL' | 'GALERIA' | 'BANNER' | 'VIDEO' | 'BRASILIA';
   intervaloCarrusel?: number;
   seccionesVisibles?: Record<string, boolean>;
   fuenteKit?: string;

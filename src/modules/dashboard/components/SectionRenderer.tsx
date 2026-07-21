@@ -7,9 +7,10 @@ import OnboardingWelcome from './OnboardingWelcome';
 import EditorSitio from './myShop/EditorSitio';
 import MethodsSection from './myShop/MethodsSection';
 import SettingsSection from './SettingsSection';
-import DominioSection from './DominioSection';
+// import DominioSection from './DominioSection'; // oculto temporalmente: falta pulir
 import MarketingSection from './MarketingSection';
-import CmAiSection from './CmAiSection';
+// import CmAiSection from './CmAiSection'; // oculto temporalmente: falta pulir
+import AsistenteSection from './AsistenteSection';
 import BannerCreatorSection from './BannerCreatorSection';
 import ReviewsSection from './ReviewsSection';
 import AdminSection from './AdminSection';
@@ -101,8 +102,10 @@ export const SectionRenderer = ({
       return <MethodsSection accent={accent} />;
     case 'store-website':
       return null; // Solo abre nueva pestaña, no renderiza nada
-    case 'cm-ai':
-      return <CmAiSection accent={accent} tienda={myShop} />;
+    // case 'cm-ai': // oculto temporalmente: falta pulir
+    //   return <CmAiSection accent={accent} tienda={myShop} />;
+    case 'asistente':
+      return <AsistenteSection accent={accent} />;
     case 'banner-creator':
       return <BannerCreatorSection accent={accent} tienda={myShop} />;
     case 'clientes':
@@ -123,8 +126,8 @@ export const SectionRenderer = ({
       return <LegalSection accent={accent} />;
     case 'settings':
       return <SettingsSection accent={accent} />;
-    case 'dominio':
-      return <DominioSection accent={accent} />;
+    // case 'dominio': // oculto temporalmente: falta pulir
+    //   return <DominioSection accent={accent} />;
     // 'email-config' se mantiene por compatibilidad con links viejos; ahora
     // ambos (config + campañas) viven en MarketingSection.
     case 'email-config':

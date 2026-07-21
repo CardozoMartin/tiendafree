@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useUpdateShopVisual } from '../../../hooks/useShop';
 
-type FooterVariante = 'CENTRADO' | 'COLUMNAS';
+type FooterVariante = 'CENTRADO' | 'COLUMNAS' | 'BRASILIA';
 
 interface Props {
   tienda?: any;
@@ -26,6 +26,17 @@ const VARIANTES: { value: FooterVariante; label: string; desc: string; icon: Rea
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h4.5v13.5h-4.5zM9.75 5.25h4.5M9.75 9h4.5M15.75 5.25h4.5M15.75 9h4.5" />
+      </svg>
+    ),
+  },
+  {
+    value: 'BRASILIA',
+    label: 'Brasília',
+    desc: 'Fondo oscuro con 4 columnas, incluye newsletter. Estilo Tiendanube.',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="1.5" />
+        <path strokeLinecap="round" d="M3 10h18" />
       </svg>
     ),
   },
@@ -91,6 +102,37 @@ const MiniFooterColumnas = ({ acento }: { acento: string }) => (
     </div>
     <div className="border-t border-slate-200 px-4 py-2 flex items-center justify-between">
       <span className="text-[9px] text-slate-400">Mi Tienda © {new Date().getFullYear()}</span>
+      <span className="text-[9px]" style={{ color: acento }}>Hecho con amor ✦</span>
+    </div>
+  </div>
+);
+
+const MiniFooterBrasilia = ({ acento }: { acento: string }) => (
+  <div className="rounded-lg overflow-hidden border border-gray-100" style={{ background: '#2b2926' }}>
+    <div className="px-4 py-6 grid grid-cols-4 gap-3">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-white">Mi Tienda</span>
+        <p className="text-[9px] text-gray-400 leading-snug">Breve descripción.</p>
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[9px] font-semibold text-white">Tienda</span>
+        {['Inicio', 'Productos'].map((l) => (
+          <span key={l} className="text-[9px] text-gray-400">{l}</span>
+        ))}
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[9px] font-semibold text-white">Info</span>
+        {['Legales'].map((l) => (
+          <span key={l} className="text-[9px] text-gray-400">{l}</span>
+        ))}
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[9px] font-semibold text-white">Newsletter</span>
+        <span className="w-full h-3 rounded bg-white/10" />
+      </div>
+    </div>
+    <div className="border-t border-white/10 px-4 py-2 flex items-center justify-between">
+      <span className="text-[9px] text-gray-500">Mi Tienda © {new Date().getFullYear()}</span>
       <span className="text-[9px]" style={{ color: acento }}>Hecho con amor ✦</span>
     </div>
   </div>
@@ -178,9 +220,13 @@ export default function FooterSection({ tienda, onVolver }: Props) {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.04)] p-5">
           <p className="text-sm font-bold text-gray-800 mb-1">Vista previa</p>
           <p className="text-xs text-gray-400 mb-5">Así se verá el footer en tu tienda.</p>
-          {variante === 'COLUMNAS'
-            ? <MiniFooterColumnas acento={acento} />
-            : <MiniFooterCentrado acento={acento} />}
+          {variante === 'COLUMNAS' ? (
+            <MiniFooterColumnas acento={acento} />
+          ) : variante === 'BRASILIA' ? (
+            <MiniFooterBrasilia acento={acento} />
+          ) : (
+            <MiniFooterCentrado acento={acento} />
+          )}
         </div>
 
         <p className="text-xs text-gray-400 text-center">

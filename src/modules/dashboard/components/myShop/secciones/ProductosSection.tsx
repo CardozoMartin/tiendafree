@@ -9,7 +9,7 @@ interface Props {
   onVolver: () => void;
 }
 
-type CardVariante = 'CLASICO' | 'MODERNO';
+type CardVariante = 'CLASICO' | 'MODERNO' | 'BRASILIA';
 
 interface FormValues {
   cardMostrarPrecio: boolean;
@@ -185,6 +185,7 @@ export default function ProductosSection({ tienda, onVolver }: Props) {
             {([
               { value: 'CLASICO' as const, label: 'Clásica', desc: 'Imagen arriba, nombre y precio abajo.' },
               { value: 'MODERNO' as const, label: 'Moderna', desc: 'Nuevo diseño (en construcción).' },
+              { value: 'BRASILIA' as const, label: 'Brasília', desc: 'Imagen cover, botón "Comprar" visible. Estilo Tiendanube.' },
             ]).map((v) => {
               const activo = cardVariante === v.value;
               return (
@@ -206,20 +207,6 @@ export default function ProductosSection({ tienda, onVolver }: Props) {
                 </button>
               );
             })}
-
-            {/* Próxima variante — bloqueada */}
-            <div className="w-full p-3 rounded-xl border-2 border-dashed border-gray-200 text-left opacity-50 cursor-not-allowed select-none">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-2 bg-gray-100 text-gray-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p className="text-sm font-semibold text-gray-800">Minimal</p>
-              <p className="text-xs text-gray-400 mt-0.5 leading-snug">Imagen cuadrada, sin texto debajo.</p>
-              <span className="inline-block mt-1.5 text-[10px] font-semibold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                Próximamente
-              </span>
-            </div>
           </div>
         </div>
 

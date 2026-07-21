@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-type TipoHero = 'CARRUSEL' | 'GALERIA';
+type TipoHero = 'CARRUSEL' | 'GALERIA' | 'BRASILIA';
 
 interface Props {
   tipoActual: TipoHero;
@@ -87,9 +87,24 @@ function DemoGaleria() {
   );
 }
 
+function DemoBrasilia() {
+  return (
+    <div className="w-full h-44 rounded-xl overflow-hidden grid grid-cols-2 gap-0.5 relative">
+      <img src={DEMO_IMGS[0]} alt="" className="w-full h-full object-cover" />
+      <img src={DEMO_IMGS[1]} alt="" className="w-full h-full object-cover" />
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+        <div className="h-3.5 w-28 bg-white/70 rounded" />
+        <div className="h-2 w-20 bg-white/50 rounded" />
+        <div className="h-4 w-16 mt-1 rounded" style={{ background: '#c3d92e' }} />
+      </div>
+    </div>
+  );
+}
+
 const OPCIONES: { tipo: TipoHero; label: string; desc: string; icon: string; Demo: React.FC }[] = [
   { tipo: 'CARRUSEL',  label: 'Carrusel',       desc: 'Slides a pantalla completa con textos encima.',      icon: '🎞️', Demo: DemoCarrusel },
   { tipo: 'GALERIA',   label: 'Galería',         desc: 'Paneles que se expanden al pasar el cursor.',         icon: '🖇️', Demo: DemoGaleria },
+  { tipo: 'BRASILIA',  label: 'Brasília',        desc: 'Dos imágenes lado a lado con texto centrado encima.', icon: '🛍️', Demo: DemoBrasilia },
 ];
 
 export default function HeroPreviewModal({ tipoActual, onClose, onSelect }: Props) {
